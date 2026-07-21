@@ -154,13 +154,6 @@
             }
           },
           {
-            "group": "TPL Motor Insurance APIs - Flat Fee",
-            "openapi": {
-              "source": "cartpl-api-reference/openapi.json",
-              "directory": "cartpl-api-reference"
-            }
-          },
-          {
             "group": "Horse Insurance APIs",
             "openapi": {
               "source": "horse-api-reference/openapi.json",
