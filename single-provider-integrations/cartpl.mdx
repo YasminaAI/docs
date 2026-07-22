@@ -147,32 +147,10 @@ Example a response
 
 You can also use the <a href="/car-api-reference/policies/list-policies" target="_blank">List Policies API</a> to get a list of all policies that were generated from our system. You might use this on your admin interface, or if you just want to check what has been generated.
 
-### Canceling a policy
-
-Use the Cancel Policy API after the policy is issued and the `provider_policy` document is available. Send the request as `multipart/form-data` and upload the updated vehicle information document in `cancellation_document`.
-
-The uploaded document must be a PDF, JPG, JPEG, or PNG file created after ownership transfer. Yasmina validates the document before canceling the policy:
-
-- The VIN in the document must match the policy VIN.
-- The sequence number in the document must match the policy sequence number, or the custom card number for custom card policies.
-- The owner ID in the document must be different from the policy owner ID, which confirms the ownership transfer is complete.
-
-If the document cannot be read or does not match the policy, the API returns `422` and the policy remains active.
-
-```json
-{
-  "code": 42201,
-  "message": "The cancellation document is incorrect. Please upload a new one.",
-  "details": {
-    "vin": ["The VIN in the cancellation document does not match this policy."],
-    "car_sequence_number": ["The sequence number in the cancellation document does not match this policy."],
-    "owner_id": ["The owner ID in the cancellation document is still the same as the policy owner. Upload the document after ownership transfer is complete."]
-  }
-}
-```
-
 ## Claims
 
 You can issue a claim using our APIs. When you issue a claim, we communicate it with the Insurance provider, and giving them details of the incident.
 
 Go to the <a href="/car-api-reference/claims/issue-claim" target="_blank">Issue Claim API</a> in order to start the claim process for your customer.
+
+
