@@ -24,6 +24,115 @@
     }
   ],
   "paths": {
+    "/vehicle-makers": {
+      "get": {
+        "tags": ["Vehicle lookups"],
+        "summary": "List vehicle makers",
+        "description": "Returns vehicle makers that have at least one model. Use the returned code when requesting a quote with a customs number.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VehicleLookupSearch"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vehicle makers matching the optional search term",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VehicleLookupItem"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        }
+      }
+    },
+    "/vehicle-models": {
+      "get": {
+        "tags": ["Vehicle lookups"],
+        "summary": "List vehicle models",
+        "description": "Returns models belonging to the selected maker. The model code submitted in a customs-number quote must belong to its maker code.",
+        "parameters": [
+          {
+            "name": "maker_code",
+            "in": "query",
+            "required": true,
+            "description": "Maker code returned by GET /vehicle-makers.",
+            "schema": {
+              "type": "integer",
+              "example": 101
+            }
+          },
+          {
+            "$ref": "#/components/parameters/VehicleLookupSearch"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vehicle models for the selected maker",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VehicleLookupItem"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        }
+      }
+    },
+    "/vehicle-body-types": {
+      "get": {
+        "tags": ["Vehicle lookups"],
+        "summary": "List vehicle body types",
+        "description": "Returns body types accepted when requesting a quote with a customs number.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/VehicleLookupSearch"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vehicle body types matching the optional search term",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VehicleLookupItem"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        }
+      }
+    },
     "/quote-requests/{id}": {
       "get": {
         "tags": ["Quotes"],
@@ -192,8 +301,9 @@
                 "properties": {
                   "otp": {
                     "type": "string",
+                    "pattern": "^\\d{4}$",
                     "description": "The OTP received by the customer from the Request OTP API",
-                    "example": "123456"
+                    "example": "1234"
                   },
                   "owner_id": {
                     "type": "string",
@@ -222,8 +332,23 @@
                   },
                   "custom_number": {
                     "type": "string",
-                    "pattern": "^[1-9]\\d{6,9}$",
-                    "description": "Custom car number between 1000000 and 9999999999 (for newly imported cars)"
+                    "pattern": "^[1-9]\\d{5,9}$",
+                    "description": "Customs card number between 100000 and 9999999999 for an imported vehicle. When provided, maker_code, model_code, and body_type_code are required, and car_sequence_number must be omitted."
+                  },
+                  "maker_code": {
+                    "type": "integer",
+                    "description": "Required with custom_number. Use a code returned by GET /vehicle-makers.",
+                    "example": 101
+                  },
+                  "model_code": {
+                    "type": "integer",
+                    "description": "Required with custom_number. Use a code returned by GET /vehicle-models for the selected maker_code.",
+                    "example": 1001
+                  },
+                  "body_type_code": {
+                    "type": "integer",
+                    "description": "Required with custom_number. Use a code returned by GET /vehicle-body-types.",
+                    "example": 3
                   },
                   "is_ownership_transfer": {
                     "type": "boolean",
@@ -293,9 +418,29 @@
                     ]
                   }
                 },
+                "oneOf": [
+                  {
+                    "required": ["car_sequence_number"],
+                    "not": {
+                      "required": ["custom_number"]
+                    }
+                  },
+                  {
+                    "required": [
+                      "custom_number",
+                      "maker_code",
+                      "model_code",
+                      "body_type_code"
+                    ],
+                    "not": {
+                      "required": ["car_sequence_number"]
+                    }
+                  }
+                ],
                 "required": [
                   "otp",
                   "owner_id",
+                  "email",
                   "phone",
                   "birthdate",
                   "car_estimated_cost"
@@ -474,8 +619,9 @@
                 "properties": {
                   "otp": {
                     "type": "string",
+                    "pattern": "^\\d{4}$",
                     "description": "The OTP received by the customer from the Issue OTP API",
-                    "example": "123456"
+                    "example": "1234"
                   },
                   "quote_request_id": {
                     "type": "integer",
@@ -572,7 +718,7 @@
       "post": {
         "tags": ["OTPs"],
         "summary": "Request OTP for quote verification",
-        "description": "This endpoint sends a one-time password (OTP) to the provided email and phone number for quote verification. It should be called before creating a quote request.",
+        "description": "Sends a quote verification OTP to the provided email and phone number. The OTP remains valid for 8 hours and can be reused for multiple quote requests during that period. Requesting a new quote OTP invalidates the previous one.",
         "requestBody": {
           "required": true,
           "content": {
@@ -606,7 +752,24 @@
         },
         "responses": {
           "204": {
-            "description": "OTP sent successfully",
+            "description": "OTP sent successfully. The quote OTP is valid for 8 hours and can be reused during that period.",
+            "headers": {
+              "X-OTP-Expires-In": {
+                "description": "Number of seconds remaining until the quote OTP expires.",
+                "schema": {
+                  "type": "integer",
+                  "example": 28800
+                }
+              },
+              "X-OTP-Expires-At": {
+                "description": "Exact quote OTP expiry time in ISO 8601 format.",
+                "schema": {
+                  "type": "string",
+                  "format": "date-time",
+                  "example": "2026-07-28T20:00:00+03:00"
+                }
+              }
+            },
             "content": {}
           },
           "400": {
@@ -639,7 +802,7 @@
       "post": {
         "tags": ["OTPs"],
         "summary": "Request OTP for Issuing Policy",
-        "description": "This endpoint sends a one-time password (OTP). It should be called before issuing a policy.",
+        "description": "Sends a separate policy issuance OTP. This OTP is valid for 15 minutes and must be submitted to POST /policies before it expires. The 8-hour quote OTP validity does not apply to policy issuance.",
         "requestBody": {
           "required": true,
           "content": {
@@ -697,7 +860,7 @@
         },
         "responses": {
           "204": {
-            "description": "OTP sent successfully",
+            "description": "OTP sent successfully. The policy issuance OTP is valid for 15 minutes.",
             "content": {}
           },
           "400": {
@@ -728,6 +891,19 @@
     }
   },
   "components": {
+    "parameters": {
+      "VehicleLookupSearch": {
+        "name": "q",
+        "in": "query",
+        "required": false,
+        "description": "Case-insensitive English or Arabic name search. An exact numeric code is also accepted.",
+        "schema": {
+          "type": "string",
+          "maxLength": 100,
+          "example": "Toyota"
+        }
+      }
+    },
     "responses": {
       "NotFound": {
         "description": "Record not found",
@@ -781,6 +957,29 @@
       }
     },
     "schemas": {
+      "VehicleLookupItem": {
+        "type": "object",
+        "required": ["code", "name_en", "name_ar"],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "Provider-compatible vehicle lookup code.",
+            "example": 101
+          },
+          "name_en": {
+            "type": "string",
+            "nullable": true,
+            "description": "English display name.",
+            "example": "Toyota"
+          },
+          "name_ar": {
+            "type": "string",
+            "nullable": true,
+            "description": "Arabic display name.",
+            "example": "تويوتا"
+          }
+        }
+      },
       "QuoteResponse": {
         "type": "object",
         "properties": {
@@ -803,7 +1002,19 @@
           },
           "custom_number": {
             "type": "string",
-            "description": "Custom car number for newly imported cars (present when `custom_number` was used in the request)"
+            "description": "Customs card number for an imported vehicle. Present when custom_number was used in the request."
+          },
+          "maker_code": {
+            "type": "integer",
+            "description": "Vehicle maker code used to register a customs-card vehicle."
+          },
+          "model_code": {
+            "type": "integer",
+            "description": "Vehicle model code used to register a customs-card vehicle."
+          },
+          "body_type_code": {
+            "type": "integer",
+            "description": "Vehicle body-type code used to register a customs-card vehicle."
           },
           "is_ownership_transfer": {
             "type": "boolean",

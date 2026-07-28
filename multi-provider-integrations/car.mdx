@@ -54,7 +54,20 @@ Content-Length: 93
 }
 ```
 
-The customer should then get an OTP. The API itself will simply return 204 No Content.
+The customer should then receive an OTP. The API returns `204 No Content`.
+This quote OTP remains valid for 8 hours and can be reused for multiple quote
+requests during that period. You do not need to request a new quote OTP before
+every quotation.
+
+The response includes:
+
+- `X-OTP-Expires-In`: Remaining validity in seconds
+- `X-OTP-Expires-At`: Exact expiry time in ISO 8601 format
+
+<Note>
+  Requesting a new quote OTP invalidates the previously issued quote OTP. After
+  8 hours, request a new OTP before submitting another quote request.
+</Note>
 
 Afterwards you will be ready to Request Quotations.
 
@@ -72,19 +85,82 @@ You need to provider the following properties for the Request Quotes API:
 
 | Field                   | Example Value         | Is Required       | Description                                                                                                                                                                 |
 | ----------------------- | --------------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `otp`                   | `123456`              | Yes               | The OTP received by the customer from the Request OTP API.                                                                                                                  |
+| `otp`                   | `1234`                | Yes               | The four-digit OTP received by the customer from the Request OTP API.                                                                                                       |
 | `owner_id`              | `2234567890`          | Yes               | The owner’s national ID. Must be 10 digits and typically starts with 1, 2, or 7.                                                                                            |
 | `email`                 | `someone@example.com` | Yes               | The owner’s email. Must be unique and belong to the one customer (Do not use the same email for multiple customers).                                                        |
 | `birthdate`             | `1988-04-20`          | Yes               | Date of birth of the owner in `YYYY-MM-DD` format. If the owner ID is a Saudi National, then you need to give Hijri date, otherwise you need to give a Gregorian birthdate. |
 | `phone`                 | `05XXXXXXXX`          | Yes               | Saudi mobile number. Must start with `05` and be exactly 10 digits.                                                                                                         |
-| `car_sequence_number`   | `52423810`            | Yes               | The car’s sequence number (8–9 digits). Use this OR `custom_number` — one is required.                                                                                      |
-| `custom_number`         | `1234567890`       | Yes               | Custom car number for newly imported cars. Use this OR `car_sequence_number` — one is required.                                                            |
+| `car_sequence_number`   | `52423810`            | Conditional       | The car’s sequence number (8-9 digits). Required when `custom_number` is not provided. Do not send both vehicle identifiers.                                                |
+| `custom_number`         | `1234567890`          | Conditional       | Customs card number for an imported vehicle (6-10 digits). Required when `car_sequence_number` is not provided. Also requires `maker_code`, `model_code`, and `body_type_code`. |
+| `maker_code`            | `101`                 | With customs card | Vehicle maker code returned by the Vehicle Makers API.                                                                                                                      |
+| `model_code`            | `1001`                | With customs card | Vehicle model code returned by the Vehicle Models API for the selected `maker_code`.                                                                                        |
+| `body_type_code`        | `3`                   | With customs card | Vehicle body-type code returned by the Vehicle Body Types API.                                                                                                              |
 | `is_ownership_transfer` | `false`               | No                | Boolean flag. `true` if the car is being transferred to a new owner, otherwise `false`. Defaults to `false` when omitted.                                                   |
 | `current_car_owner_id`  | `1234567890`          | Yes (if transfer) | The current owner’s national ID. **Only required if** `is_ownership_transfer = true`.                                                                                       |
 | `car_estimated_cost`    | `45000`               | Yes               | Estimated market cost of the car in SAR.                                                                                                                                    |
-| `car_model_year`        | `2026`                | Yes               | Year of manufacture of the car. Must be between 1950 and the next year.                                                                                                     |
-| `start_date`            | `2025-12-01`          | No                | Start date of the policy (format: `YYYY-MM-DD`). Must be between the next day and 28 days from today (inclusive). Yasmina validates this range server-side.                 |
+| `car_model_year`        | `2026`                | No                | Year of manufacture of the car. Must be between 1950 and the next year. If omitted, Yasmina uses the current year.                                                          |
+| `start_date`            | `2026-07-28`          | No                | Start date of the policy in `YYYY-MM-DD` format. It must be after today and before the date 28 days from today.                                                              |
 | `drivers`               | See below             | No                | An array of driver objects. When provided, the sum of all `driving_percentage` values must equal 100, and the owner must be included among the drivers.                     |
+
+### Customs card vehicle lookup
+
+If your customer identifies vehicles only by customs card number, collect the
+provider-compatible maker, model, and body-type codes before requesting a
+quote. Do not send codes from your own vehicle catalogue.
+
+All three lookup endpoints support an optional `q` query parameter. It searches
+English and Arabic names without case sensitivity. A complete numeric value
+searches by exact code. The maximum search length is 100 characters.
+
+#### 1. Search vehicle makers
+
+```bash
+curl --request GET \
+  --url 'https://sandbox.yasmina.ai/api/v1/car-comp/vehicle-makers?q=Toyota' \
+  --header 'Accept: application/json' \
+  --header 'Authorization: Bearer <token>'
+```
+
+Only makers with at least one available model are returned.
+
+#### 2. Search models for the selected maker
+
+`maker_code` is required. The returned model codes belong only to that maker.
+
+```bash
+curl --request GET \
+  --url 'https://sandbox.yasmina.ai/api/v1/car-comp/vehicle-models?maker_code=101&q=Corolla' \
+  --header 'Accept: application/json' \
+  --header 'Authorization: Bearer <token>'
+```
+
+#### 3. Search vehicle body types
+
+```bash
+curl --request GET \
+  --url 'https://sandbox.yasmina.ai/api/v1/car-comp/vehicle-body-types?q=SUV' \
+  --header 'Accept: application/json' \
+  --header 'Authorization: Bearer <token>'
+```
+
+Each lookup endpoint returns an array with the same structure:
+
+```json
+[
+  {
+    "code": 101,
+    "name_en": "Toyota",
+    "name_ar": "تويوتا"
+  }
+]
+```
+
+<Note>
+  For a customs card quote, send `custom_number`, `maker_code`, `model_code`,
+  and `body_type_code`. Omit `car_sequence_number`. Yasmina registers the
+  imported vehicle with the insurance platform before requesting quotations.
+  If the vehicle is already registered, the quotation continues normally.
+</Note>
 
 #### Drivers Array
 
@@ -111,12 +187,15 @@ Authorization: ••••••
 Content-Length: 226
 
 {
-    "otp": "123456",
-    "owner_id": 2234567890,
+    "otp": "1234",
+    "owner_id": "2234567890",
     "email": "someone@example.com",
     "phone": "05XXXXXXXX",
     "birthdate": "1982-04-20",
     "custom_number": "1234567890",
+    "maker_code": 101,
+    "model_code": 1001,
+    "body_type_code": 3,
     "is_ownership_transfer": false,
     "car_estimated_cost": 45000,
     "car_model_year": 2024,
@@ -256,14 +335,18 @@ When a customer selects a quotation, they need to go through another OTP check. 
 
 The Issue Policy OTP requires the following fields:
 
-| Field                | Example Value                                                                                                       | Description                                                                                                          |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `quote_request_id`   | Yasmina’s unique identifier for the quote request. This must match the `id` returned when creating a quote request. |
-| `quote_reference_id` | The unique reference ID provided by the insurance company. Required when issuing a policy.                          |
-| `quote_price_id`     | The selected price option ID. Each quote has multiple prices with different deductibles.                            |
-| `owner_id`           | `2234567890`                                                                                                        | The owner’s national ID. Must be 10 digits and typically starts with 1, 2, or 7.                                     |
-| `email`              | `someone@example.com`                                                                                               | The owner’s email. Must be unique and belong to the one customer (Do not use the same email for multiple customers). |
-| `phone`              | `05XXXXXXXX`                                                                                                        | Saudi mobile number. Must start with `05` and be exactly 10 digits.                                                  |
+The three quote identifiers must come from the response returned by the earlier
+`POST /quote-requests` call. Use the provider quote and price selected by the
+customer from that same response.
+
+| Field                | Example Value                                | Description                                                                                                                                                      |
+| -------------------- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `quote_request_id`   | `62`                                         | Use the top-level `id` from the quote request response.                                                                                                           |
+| `quote_reference_id` | `feb9e0ec-d71c-4c60-99d4-22ad9a5c97ec`     | Use `quotes[].quote_reference_id` from the insurance provider quote selected by the customer.                                                                     |
+| `quote_price_id`     | `f0a13788-92c3-f011-972d-005056a9891a`     | Use `quotes[].prices[].quote_price_id` from the selected price and deductible inside the same provider quote.                                                     |
+| `owner_id`           | `2234567890`                                 | The owner’s national ID. Must be 10 digits and typically starts with 1, 2, or 7.                                                                                  |
+| `email`              | `someone@example.com`                        | The owner’s email. It must belong to this customer. Do not reuse the same email address for different customers.                                                  |
+| `phone`              | `0512345678`                                 | Saudi mobile number. Must start with `05` and be exactly 10 digits.                                                                                               |
 
 Example request:
 
@@ -285,20 +368,29 @@ Content-Length: 249
 }
 ```
 
-Similar to the request OTP API. The customer will receive another OTP and the API will return `204 - No Content` on success.
-The OTP must be supplied to the Issue Policy API
+The customer will receive a separate policy issuance OTP, and the API returns
+`204 No Content` on success. This OTP is valid for 15 minutes and must be
+supplied to the Issue Policy API within that period. If it expires, request a
+new issuance OTP before issuing the policy.
+
+<Warning>
+  The 8-hour quote OTP validity does not apply here. The policy issuance OTP
+  expires after 15 minutes.
+</Warning>
 
 ### Issuing a policy
 
 In order to Issue a policy. You can head to the <a href="/car-api-reference/policies/issue-policy" target="_blank">Issue Policy API </a>
 
-You need to use the fields that were retrieved in the Request Quotes API.
+Use the same three identifiers previously sent to the Issue Policy OTP API.
+They must all come from the earlier `POST /quote-requests` response and represent
+one consistent customer selection.
 
 | Field                | Description                                                                                                                                                                                                |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `quote_request_id`   | Yasmina’s unique identifier for the quote request. This must match the `id` returned when creating a quote request.                                                                                        |
-| `quote_reference_id` | The unique reference ID provided by the insurance company. Required when issuing a policy.                                                                                                                 |
-| `quote_price_id`     | The selected price option ID. Each quote has multiple prices with different deductibles.                                                                                                                   |
+| `quote_request_id`   | Use the top-level `id` returned by the earlier `POST /quote-requests` call.                                                                                                                                |
+| `quote_reference_id` | Use `quotes[].quote_reference_id` from the insurance provider quote selected by the customer in that quote response.                                                                                       |
+| `quote_price_id`     | Use `quotes[].prices[].quote_price_id` from the selected price and deductible inside the same provider quote.                                                                                              |
 | `benefits`           | A list of selected benefit IDs. Only required if the benefit has a cost (`amount > 0`).                                                                                                                    |
 | `extra_data`         | Optional JSON object to store additional metadata or custom values that can later be used in <a href="/webhooks/guide" target="_blank">webhooks</a>. Please keep minimal as it can't exceed 255 characters |
 | `redirect_url`       | Optional URL that the customer gets redirected to once a successful purchase is made                                                                                                                       |
@@ -314,7 +406,7 @@ Accept: application/json
 Content-Length: 212
 
 {
-  "otp": "123456",
+  "otp": "1234",
   "quote_request_id": 11,
   "quote_reference_id": "04486448-3433-43ef-a755-b07799d6580f",
   "quote_price_id": "e059d28e-a519-43af-b9d4-e1cc5d97ecb7",
