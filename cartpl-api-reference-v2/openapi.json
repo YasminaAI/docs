@@ -91,7 +91,7 @@
                   "email": {
                     "type": "string",
                     "format": "email",
-                    "description": "Email address (must be @syarah.com domain)"
+                    "description": "Email address. It must use the domain approved for your client account."
                   },
                   "vin": {
                     "type": "string",
@@ -195,24 +195,38 @@
           }
         ],
         "requestBody": {
+          "required": true,
           "content": {
             "multipart/form-data": {
               "schema": {
                 "type": "object",
+                "required": ["cancellation_document"],
                 "properties": {
                   "cancellation_document": {
                     "type": "string",
-                    "description": "Supporting document of why policy was deleted. Could be resignation document.",
+                    "description": "Updated vehicle information document after ownership transfer. Upload a PDF, JPG, JPEG, or PNG file. The document must include the same VIN and sequence number as the policy, and the owner ID must be different from the policy owner.",
                     "format": "binary"
                   }
+                }
+              },
+              "encoding": {
+                "cancellation_document": {
+                  "contentType": "application/pdf, image/jpeg, image/png, image/jpg"
                 }
               }
             }
           }
         },
         "responses": {
-          "204": {
-            "description": "Cancellation success"
+          "200": {
+            "description": "Cancellation success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Policy"
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad request",
@@ -243,6 +257,25 @@
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "description": "Cancellation document did not pass validation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": 42201,
+                  "message": "The cancellation document is incorrect. Please upload a new one.",
+                  "details": {
+                    "vin": ["The VIN in the cancellation document does not match this policy."],
+                    "car_sequence_number": ["The sequence number in the cancellation document does not match this policy."],
+                    "owner_id": ["The owner ID in the cancellation document is still the same as the policy owner. Upload the document after ownership transfer is complete."]
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -253,24 +286,49 @@
         "summary": "Cancel policy by VIN",
         "tags": ["Policies"],
         "requestBody": {
+          "required": true,
           "content": {
             "multipart/form-data": {
               "schema": {
                 "type": "object",
+                "required": ["vin", "email", "cancellation_document"],
                 "properties": {
+                  "vin": {
+                    "type": "string",
+                    "description": "VIN of the policy to cancel.",
+                    "example": "1HGCM82633A004352"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Requester email. It must use the domain approved for your client account.",
+                    "example": "agent@example.com"
+                  },
                   "cancellation_document": {
                     "type": "string",
-                    "description": "Supporting document of why policy was deleted. Could be resignation document.",
+                    "description": "Updated vehicle information document after ownership transfer. Upload a PDF, JPG, JPEG, or PNG file. The document must include the same VIN and sequence number as the policy, and the owner ID must be different from the policy owner.",
                     "format": "binary"
                   }
+                }
+              },
+              "encoding": {
+                "cancellation_document": {
+                  "contentType": "application/pdf, image/jpeg, image/png, image/jpg"
                 }
               }
             }
           }
         },
         "responses": {
-          "204": {
-            "description": "Cancellation success"
+          "200": {
+            "description": "Cancellation success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Policy"
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad request",
@@ -301,6 +359,25 @@
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "description": "Cancellation document did not pass validation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": 42201,
+                  "message": "The cancellation document is incorrect. Please upload a new one.",
+                  "details": {
+                    "vin": ["The VIN in the cancellation document does not match this policy."],
+                    "car_sequence_number": ["The sequence number in the cancellation document does not match this policy."],
+                    "owner_id": ["The owner ID in the cancellation document is still the same as the policy owner. Upload the document after ownership transfer is complete."]
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -419,6 +496,15 @@
           },
           "message": {
             "type": "string"
+          },
+          "details": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         }
       }

@@ -30,7 +30,7 @@ The Guide tab contains all human-readable integration documentation. It is organ
 
 ### API Reference Tab
 
-The API Reference tab exposes interactive OpenAPI-powered reference pages for each product API. Each group points to an `openapi.json` source file within its corresponding directory. The groups are Authentication (`auth-api-reference/openapi.json`), SME Medical APIs (`medical-api-reference/openapi.json`), Motor Insurance APIs for Multiple Providers (`car-api-reference/openapi.json`), TPL Motor Insurance APIs (`cartpl-api-reference/openapi.json`), Property Insurance APIs (`property-api-reference/openapi.json`), Travel Insurance APIs (`yasmina-schengen-travel-insurance/openapi.json`), Life S&P Insurance APIs (`life-snp/openapi.json`), Horse Insurance APIs (`horse-api-reference/openapi.json`), and Payment APIs (`payments-api-reference/openapi.json`).
+The API Reference tab exposes interactive OpenAPI-powered reference pages for each product API. Each group points to an `openapi.json` source file within its corresponding directory. The groups are Authentication (`auth-api-reference/openapi.json`), SME Medical APIs (`medical-api-reference/openapi.json`), Motor Insurance APIs for Multiple Providers (`car-api-reference/openapi.json`), TPL Motor Insurance APIs V2 (`cartpl-api-reference-v2/openapi.json`), Property Insurance APIs (`property-api-reference/openapi.json`), Travel Insurance APIs (`yasmina-schengen-travel-insurance/openapi.json`), Life S&P Insurance APIs (`life-snp/openapi.json`), Horse Insurance APIs (`horse-api-reference/openapi.json`), and Payment APIs (`payments-api-reference/openapi.json`).
 
 The playground is configured as interactive with the proxy disabled, meaning API calls hit the actual Yasmina servers directly from the browser.
 

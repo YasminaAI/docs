@@ -3,6 +3,11 @@ title: 'Changelog'
 icon: 'clock-rotate-left'
 ---
 
+<Update label="21st July 2026" tags={["Docs", "APIs"]}>
+	Documented TPL Motor Insurance policy cancellation document validation. Cancellation requests now require an updated vehicle information document that matches the policy VIN and sequence number, and confirms that ownership transfer is complete. Added the new `422` cancellation document mismatch response to the TPL Motor Insurance API reference.
+	Removed the unused TPL Motor Insurance v1 API reference from the API Reference navigation.
+</Update>
+
 <Update label="17th June 2026" tags={["Docs"]}>
 	Added `otp` as a required field to the Request Quotes API (`POST /api/v1/car-comp/quote-requests`) and Issue Policy API (`POST /api/v1/car-comp/policies`) documentation. The field was already required by the backend but was missing from the docs and API reference.
 </Update>
