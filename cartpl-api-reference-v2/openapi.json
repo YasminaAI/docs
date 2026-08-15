@@ -61,14 +61,11 @@
         "summary": "List policies",
         "responses": {
           "200": {
-            "description": "Success",
+            "description": "Success. Returns a paginated list of policies.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Policy"
-                  }
+                  "$ref": "#/components/schemas/PaginatedPolicies"
                 }
               }
             }
@@ -441,50 +438,208 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
+            "type": "integer",
+            "description": "Yasmina's unique identifier for the policy. Use it to correlate webhook payloads with your records."
           },
           "meta_data": {
-            "type": "object"
+            "type": "object",
+            "description": "The information the policy was requested with: `vin`, `email`, `car_sequence_number`, `current_car_owner`, `new_owner_id`, the stored `istimarah` document path, and the `extra_fields` object you submitted (echoed back unchanged, useful for carrying your own reference IDs). When the policy is placed on hold (`status` = 3), `incorrect_info_message` explains what needs to be corrected.",
+            "properties": {
+              "extra_fields": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "The free-form object submitted when the policy was requested, echoed back unchanged."
+              },
+              "incorrect_info_message": {
+                "type": "string",
+                "description": "Present when the policy has been placed on hold (`status` = 3). Explains which submitted information needs to be corrected."
+              }
+            },
+            "additionalProperties": true
           },
-          "start_date": {
-            "type": "string"
-          },
-          "provider_policy_id": {
-            "type": "integer"
-          },
-          "provider_policy": {
-            "type": "string"
-          },
-          "order_status": {
-            "type": "integer"
-          },
-          "approval_status": {
-            "type": "integer"
-          },
-          "end_date": {
-            "type": "string"
-          },
-          "is_claimed": {
-            "type": "boolean"
-          },
-          "created_at": {
-            "type": "string"
-          },
-          "updated_at": {
-            "type": "string"
+          "status": {
+            "type": "integer",
+            "enum": [0, 1, 2, 3],
+            "description": "Policy lifecycle status:\n\n* `0` — **Pending issuance**: the request was received and the policy has not been issued yet.\n* `1` — **Issued**: the policy has been issued; `policy_url` and `invoice_url` point to the policy and invoice documents.\n* `2` — **Canceled**: cancellation was requested or completed (`cancellation_request_at` / `canceled_at` are set).\n* `3` — **On hold, correction required**: Yasmina flagged the submitted information as incorrect (for example an unreadable istimarah). The reason is provided in `meta_data.incorrect_info_message`. This status is *not* final: once a corrected document is provided, the status returns to `0` (pending) and the policy can still be issued (`1`).\n\nEvery status change triggers the **Status Update** webhook, so your webhook endpoint should accept any transition between these values."
           },
           "client_id": {
-            "type": "string"
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of your client account."
+          },
+          "product_id": {
+            "type": "integer",
+            "description": "Identifier of the Yasmina product this policy belongs to."
+          },
+          "insurance_company_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "description": "Identifier of the insurance company issuing the policy."
+          },
+          "provider_policy_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "The policy number assigned by the policy provider. `null` until assigned."
+          },
+          "provider_policy": {
+            "type": "string",
+            "nullable": true,
+            "description": "Storage path of the issued policy document. Use `policy_url` for a downloadable link. `null` until the policy is issued."
+          },
+          "policy_url": {
+            "type": "string",
+            "nullable": true,
+            "description": "Download URL of the issued policy document. `null` until the policy is issued."
+          },
+          "invoice": {
+            "type": "string",
+            "nullable": true,
+            "description": "Storage path of the invoice document. Use `invoice_url` for a downloadable link. `null` until available."
+          },
+          "invoice_url": {
+            "type": "string",
+            "nullable": true,
+            "description": "Download URL of the invoice document. `null` until available."
+          },
+          "payment_link": {
+            "type": "string",
+            "nullable": true,
+            "description": "Secure payment link generated by Yasmina, when payment is required."
+          },
+          "price": {
+            "type": "number",
+            "nullable": true,
+            "description": "Price of the policy in Saudi Riyal."
+          },
+          "redirect_url": {
+            "type": "string",
+            "nullable": true,
+            "description": "URL the customer is redirected to after payment, when configured."
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "Start date of the policy coverage."
+          },
+          "uploaded_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When the issued policy document was uploaded."
+          },
+          "purchased_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When the policy was purchased."
+          },
+          "transfer_date_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When the vehicle ownership transfer took place."
+          },
+          "cancellation_request_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When cancellation was requested. Non-null implies `status` = 2."
           },
           "canceled_at": {
             "type": "string",
-            "nullable": true
+            "format": "date-time",
+            "nullable": true,
+            "description": "When the policy was canceled. Non-null implies `status` = 2."
           },
-          "invoice": {
-            "type": "string"
+          "cancellation_confirmed_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When the cancellation was confirmed by the insurance company."
           },
           "cancellation_document": {
+            "type": "string",
+            "nullable": true,
+            "description": "Storage path of the cancellation document submitted with a cancellation request."
+          },
+          "is_old_policy": {
+            "type": "integer",
+            "description": "Internal flag; `0` for policies issued through this API."
+          },
+          "pdf_parsed": {
+            "type": "integer",
+            "description": "Internal flag indicating whether the issued policy PDF has been parsed."
+          },
+          "has_sent_cancellation_email": {
+            "type": "integer",
+            "description": "Internal flag indicating whether a cancellation email has been sent."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the policy request was created."
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the policy was last updated."
+          },
+          "deleted_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When the policy was deleted, if ever."
+          }
+        }
+      },
+      "PaginatedPolicies": {
+        "type": "object",
+        "description": "Standard paginated response. `data` holds the policies for the current page.",
+        "properties": {
+          "current_page": {
+            "type": "integer"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Policy"
+            }
+          },
+          "first_page_url": {
             "type": "string"
+          },
+          "from": {
+            "type": "integer",
+            "nullable": true
+          },
+          "last_page": {
+            "type": "integer"
+          },
+          "last_page_url": {
+            "type": "string"
+          },
+          "next_page_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "path": {
+            "type": "string"
+          },
+          "per_page": {
+            "type": "integer"
+          },
+          "prev_page_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "to": {
+            "type": "integer",
+            "nullable": true
+          },
+          "total": {
+            "type": "integer"
           }
         }
       },
