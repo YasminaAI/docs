@@ -653,6 +653,12 @@
                       "2f276e18-0c6e-49ca-b6e6-64700a1bef90"
                     ]
                   },
+                  "iban": {
+                    "type": "string",
+                    "pattern": "^SA\\d{22}$",
+                    "description": "The customer's Saudi IBAN (SA followed by 22 digits, no spaces). Insurance providers use it to transfer claim settlements and refunds to the customer; the account is never charged. Optional but strongly recommended: when omitted, payouts are routed through a Yasmina fallback account, which can delay refunds to the customer.",
+                    "example": "SA0380000000608010167519"
+                  },
                   "extra_fields": {
                     "type": "object",
                     "description": "Optional free-form object with additional fields. Total JSON-encoded size must not exceed 255 characters.",

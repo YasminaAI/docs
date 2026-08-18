@@ -3,6 +3,10 @@ title: 'Changelog'
 icon: 'clock-rotate-left'
 ---
 
+<Update label="18th August 2026" tags={["Docs", "APIs"]}>
+	Added the optional `iban` field to the Issue Policy API (`POST /api/v1/car-comp/policies`): the customer's Saudi IBAN (`SA` followed by 22 digits) that insurance providers use to transfer claim settlements and refunds. Sending it is strongly recommended; when omitted, payouts are routed through a Yasmina fallback account, which can delay refunds to the customer.
+</Update>
+
 <Update label="21st July 2026" tags={["Docs", "APIs"]}>
 	Documented TPL Motor Insurance policy cancellation document validation. Cancellation requests now require an updated vehicle information document that matches the policy VIN and sequence number, and confirms that ownership transfer is complete. Added the new `422` cancellation document mismatch response to the TPL Motor Insurance API reference.
 	Removed the unused TPL Motor Insurance v1 API reference from the API Reference navigation.

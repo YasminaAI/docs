@@ -392,6 +392,7 @@ one consistent customer selection.
 | `quote_reference_id` | Use `quotes[].quote_reference_id` from the insurance provider quote selected by the customer in that quote response.                                                                                       |
 | `quote_price_id`     | Use `quotes[].prices[].quote_price_id` from the selected price and deductible inside the same provider quote.                                                                                              |
 | `benefits`           | A list of selected benefit IDs. Only required if the benefit has a cost (`amount > 0`).                                                                                                                    |
+| `iban`               | The customer's Saudi IBAN (`SA` followed by 22 digits, no spaces). Insurance providers use it to transfer claim settlements and refunds to the customer; the account is never charged. Optional but strongly recommended: when omitted, payouts are routed through a Yasmina fallback account, which can delay refunds to the customer. |
 | `extra_data`         | Optional JSON object to store additional metadata or custom values that can later be used in <a href="/webhooks/guide" target="_blank">webhooks</a>. Please keep minimal as it can't exceed 255 characters |
 | `redirect_url`       | Optional URL that the customer gets redirected to once a successful purchase is made                                                                                                                       |
 | `otp`                | The OTP that you got from the issue-otp API                                                                                                                                                                |
@@ -411,6 +412,7 @@ Content-Length: 212
   "quote_reference_id": "04486448-3433-43ef-a755-b07799d6580f",
   "quote_price_id": "e059d28e-a519-43af-b9d4-e1cc5d97ecb7",
   "benefits": [],
+  "iban": "SA0380000000608010167519",
   "extra_data": {
       "extra_field": 1
   }
