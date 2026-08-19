@@ -37,7 +37,8 @@ These are the fields that you need to provide:
 | `current_car_owner_id` | `1234567890`  | The current owner’s national ID. **Only required if** `is_ownership_transfer = true`.          |
 | `car_estimated_cost`  | `45000`        | Estimated market cost of the car in SAR.                                                      |
 | `car_model_year`      | `2026`         | Year of manufacture of the car. Must be between 1950 and the next year.                       |
-| `iban`                | `SA0380000000608010167519` | The customer's Saudi IBAN (`SA` followed by 22 digits, no spaces). Used by the insurance provider to transfer claim settlements and refunds to the customer; the account is never charged. Optional but strongly recommended: when omitted, payouts are routed through a Yasmina fallback account, which can delay refunds to the customer. |
+
+The customer's Saudi IBAN is collected earlier in the flow: it is a required field of the <a href="/car-api-reference/otps/request-otp-for-issuing-policy" target="_blank">Issue OTP API</a>, not of this endpoint.
 
 Example of a request
 ```
@@ -56,8 +57,7 @@ Content-Length: 212
     "custom_number": "1234567890",
     "is_ownership_transfer": false,
     "car_estimated_cost": 45000,
-    "car_model_year": 2024,
-    "iban": "SA0380000000608010167519"
+    "car_model_year": 2024
 }
 ```
 

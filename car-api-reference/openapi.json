@@ -653,12 +653,6 @@
                       "2f276e18-0c6e-49ca-b6e6-64700a1bef90"
                     ]
                   },
-                  "iban": {
-                    "type": "string",
-                    "pattern": "^SA\\d{22}$",
-                    "description": "The customer's Saudi IBAN (SA followed by 22 digits, no spaces). Insurance providers use it to transfer claim settlements and refunds to the customer; the account is never charged. Optional but strongly recommended: when omitted, payouts are routed through a Yasmina fallback account, which can delay refunds to the customer.",
-                    "example": "SA0380000000608010167519"
-                  },
                   "extra_fields": {
                     "type": "object",
                     "description": "Optional free-form object with additional fields. Total JSON-encoded size must not exceed 255 characters.",
@@ -850,6 +844,12 @@
                     "format": "uuid",
                     "description": "Unique identifier for the quote price ID that exists inside a quote item (coming from POST /quote-requests)",
                     "example": "550e8400-e29b-41d4-a716-446655440001"
+                  },
+                  "iban": {
+                    "type": "string",
+                    "pattern": "^SA\\d{22}$",
+                    "description": "The customer's Saudi IBAN (SA followed by 22 digits, no spaces). It is sent to the insurance provider with the payment OTP request and used to transfer claim settlements and refunds to the customer; the account is never charged.",
+                    "example": "SA0380000000608010167519"
                   }
                 },
                 "required": [
@@ -858,7 +858,8 @@
                   "owner_id",
                   "quote_request_id",
                   "quote_reference_id",
-                  "quote_price_id"
+                  "quote_price_id",
+                  "iban"
                 ]
               }
             }

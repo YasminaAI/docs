@@ -3,6 +3,10 @@ title: 'Changelog'
 icon: 'clock-rotate-left'
 ---
 
+<Update label="19th August 2026" tags={["Docs", "APIs"]}>
+	Moved the `iban` field from the Issue Policy API to the Issue OTP API (`POST /api/v1/car-comp/issue-otp`), where it is now **required**. The customer's Saudi IBAN (`SA` followed by 22 digits) is forwarded to the insurance provider with the payment OTP request and used for claim settlements and refunds. `POST /api/v1/car-comp/policies` no longer accepts the field.
+</Update>
+
 <Update label="18th August 2026" tags={["Docs", "APIs"]}>
 	Added the optional `iban` field to the Issue Policy API (`POST /api/v1/car-comp/policies`): the customer's Saudi IBAN (`SA` followed by 22 digits) that insurance providers use to transfer claim settlements and refunds. Sending it is strongly recommended; when omitted, payouts are routed through a Yasmina fallback account, which can delay refunds to the customer.
 </Update>
