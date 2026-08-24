@@ -99,11 +99,11 @@
                     "description": "Car sequence number (8-9 digits, must be unique)"
                   },
                   "current_car_owner": {
-                    "description": "The nationality ID of the current owner (10 digits)",
+                    "description": "The current owner's national ID (starts with 1 for Saudi nationals) or Iqama ID (starts with 2 for residents). Must be exactly 10 digits.",
                     "type": "string"
                   },
                   "new_owner_id": {
-                    "description": "The Nationality ID of the new owner (10 digits)",
+                    "description": "The new owner's national ID (starts with 1 for Saudi nationals) or Iqama ID (starts with 2 for residents). Must be exactly 10 digits.",
                     "type": "string"
                   },
                   "extra_fields": {

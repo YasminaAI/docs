@@ -24,19 +24,19 @@ In order to Issue a policy. You can head to the <a href="/car-api-reference/poli
 
 These are the fields that you need to provide:
 
-| Field                | Example Value   | Description                                                                                   |
-|-----------------------|----------------|-----------------------------------------------------------------------------------------------|
-| `otp`                 | `123456`       | The OTP received by the customer. Required for issuing a policy.                              |
-| `owner_id`            | `2234567890`   | The owner’s national ID. Must be 10 digits and typically starts with 1, 2, or 7.              |
-| `email`            | `someone@example.com`   | The owner’s email. Must be unique and belong to the one customer (Do not use the same email for multiple customers).              |
-| `birthdate`           | `1988-04-20`   | Date of birth of the owner in `YYYY-MM-DD` format. If the owner ID is a Saudi National, then you need to give Hijri date, otherwise you need to give a Gregorian birthdate.                             |
-| `phone`               | `05XXXXXXXX`   | Saudi mobile number. Must start with `05` and be exactly 10 digits.                           |
-| `car_sequence_number` | `52423810`     | The car’s sequence number (8–9 digits). Use this OR `custom_number` — one is required.         |
-| `custom_number`       | `1234567890`| Custom car number for newly imported cars. Use this OR `car_sequence_number`. |
-| `is_ownership_transfer` | `false`      | Boolean flag. `true` if the car is being transferred to a new owner, otherwise `false`.        |
-| `current_car_owner_id` | `1234567890`  | The current owner’s national ID. **Only required if** `is_ownership_transfer = true`.          |
-| `car_estimated_cost`  | `45000`        | Estimated market cost of the car in SAR.                                                      |
-| `car_model_year`      | `2026`         | Year of manufacture of the car. Must be between 1950 and the next year.                       |
+| Field                   | Example Value         | Description                                                                                                                                                              |
+| ----------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `otp`                   | `123456`              | The OTP received by the customer. Required for issuing a policy.                                                                                                         |
+| `owner_id`              | `2234567890`          | The owner’s national ID (starts with `1` for Saudi nationals) or Iqama ID (starts with `2` for residents). Must be exactly 10 digits.                                    |
+| `email`                 | `someone@example.com` | The owner’s email. Must be unique and belong to the one customer (Do not use the same email for multiple customers).                                                     |
+| `birthdate`             | `1988-04-20`          | Date of birth of the owner in `YYYY-MM-DD` format. For a Saudi national ID (starts with `1`) give a Hijri date; for an Iqama ID (starts with `2`) give a Gregorian date. |
+| `phone`                 | `05XXXXXXXX`          | Saudi mobile number. Must start with `05` and be exactly 10 digits.                                                                                                      |
+| `car_sequence_number`   | `52423810`            | The car’s sequence number (8–9 digits). Use this OR `custom_number` — one is required.                                                                                   |
+| `custom_number`         | `1234567890`          | Custom car number for newly imported cars. Use this OR `car_sequence_number`.                                                                                            |
+| `is_ownership_transfer` | `false`               | Boolean flag. `true` if the car is being transferred to a new owner, otherwise `false`.                                                                                  |
+| `current_car_owner_id`  | `1234567890`          | The current owner’s national ID (starts with `1`) or Iqama ID (starts with `2`). **Only required if** `is_ownership_transfer = true`.                                    |
+| `car_estimated_cost`    | `45000`               | Estimated market cost of the car in SAR.                                                                                                                                 |
+| `car_model_year`        | `2026`                | Year of manufacture of the car. Must be between 1950 and the next year.                                                                                                  |
 
 The customer's Saudi IBAN is collected earlier in the flow: it is a required field of the <a href="/car-api-reference/otps/request-otp-for-issuing-policy" target="_blank">Issue OTP API</a>, not of this endpoint.
 
@@ -69,7 +69,7 @@ Once you make a request to the Issue Policy API, you will get the Policy object 
     "meta_data": {
         "extra_data": null,
         "new_owner_id": "2528297837",
-        "previous_owner_id": "7001364939",
+        "previous_owner_id": "1001364939",
         "car_sequence_number": 723787810
     },
     "provider_policy_id": null,

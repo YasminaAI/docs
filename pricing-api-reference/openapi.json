@@ -70,7 +70,7 @@
                   "owner_id": {
                     "type": "string",
                     "pattern": "^\\d{10}$",
-                    "description": "Exactly 10 digits"
+                    "description": "The owner's national ID (starts with 1 for Saudi nationals) or Iqama ID (starts with 2 for residents). Must be exactly 10 digits."
                   },
                   "car_year": {
                     "type": "integer",
@@ -97,7 +97,7 @@
                 }
               },
               "example": {
-                "owner_id": "0123456789",
+                "owner_id": "1234567890",
                 "car_year": 2020,
                 "car_sequence_number": "123456789",
                 "car_price": 150000,
@@ -107,8 +107,7 @@
           }
         }
       }
-    },
-
+    }
   },
   "components": {
     "responses": {
