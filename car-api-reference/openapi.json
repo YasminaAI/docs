@@ -307,8 +307,8 @@
                   },
                   "owner_id": {
                     "type": "string",
-                    "pattern": "^(1|2|7)\\d{9}$",
-                    "description": "Owner ID must be 10 digits starting with 1, 2, or 7"
+                    "pattern": "^(1|2)\\d{9}$",
+                    "description": "The owner's national ID (starts with 1 for Saudi nationals) or Iqama ID (starts with 2 for residents). Must be exactly 10 digits."
                   },
                   "email": {
                     "type": "string",
@@ -357,8 +357,8 @@
                   },
                   "current_car_owner_id": {
                     "type": "string",
-                    "pattern": "^(1|2|7)\\d{9}$",
-                    "description": "Required if is_ownership_transfer is true; 10 digits starting with 1,2,7"
+                    "pattern": "^(1|2)\\d{9}$",
+                    "description": "Required if is_ownership_transfer is true; the current owner's national ID (starts with 1) or Iqama ID (starts with 2). Must be exactly 10 digits."
                   },
                   "car_estimated_cost": {
                     "type": "number",
@@ -389,8 +389,8 @@
                       "properties": {
                         "owner_id": {
                           "type": "string",
-                          "pattern": "^(1|2|7)\\d{9}$",
-                          "description": "Driver's national ID. Must be 10 digits starting with 1, 2, or 7."
+                          "pattern": "^(1|2)\\d{9}$",
+                          "description": "Driver's national ID (starts with 1 for Saudi nationals) or Iqama ID (starts with 2 for residents). Must be exactly 10 digits."
                         },
                         "birthdate": {
                           "type": "string",
@@ -740,7 +740,7 @@
                   },
                   "owner_id": {
                     "type": "string",
-                    "pattern": "^(1|2|7)\\d{9}$",
+                    "pattern": "^(1|2)\\d{9}$",
                     "example": "1012345678",
                     "description": "National ID or Iqama ID of the car owner (10 digits)"
                   }
@@ -824,7 +824,7 @@
                   },
                   "owner_id": {
                     "type": "string",
-                    "pattern": "^(1|2|7)\\d{9}$",
+                    "pattern": "^(1|2)\\d{9}$",
                     "example": "1012345678",
                     "description": "National ID or Iqama ID of the car owner (10 digits)"
                   },
@@ -1048,7 +1048,7 @@
               "properties": {
                 "owner_id": {
                   "type": "string",
-                  "description": "Driver's national ID (10 digits starting with 1, 2, or 7)"
+                  "description": "Driver's national ID (starts with 1) or Iqama ID (starts with 2). Must be exactly 10 digits."
                 },
                 "birthdate": {
                   "type": "string",

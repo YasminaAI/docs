@@ -31,11 +31,11 @@ Before requesting quotations, we need to verify the Phone number of the customer
 
 You need to provide the following properties for the Quote OTP API:
 
-| Field      | Example Value         | Description                                                                                                          |
-| ---------- | --------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `owner_id` | `2234567890`          | The owner’s national ID. Must be 10 digits and typically starts with 1, 2, or 7.                                     |
-| `email`    | `someone@example.com` | The owner’s email. Must be unique and belong to the one customer (Do not use the same email for multiple customers). |
-| `phone`    | `05XXXXXXXX`          | Saudi mobile number. Must start with `05` and be exactly 10 digits.                                                  |
+| Field      | Example Value         | Description                                                                                                                           |
+| ---------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `owner_id` | `2234567890`          | The owner’s national ID (starts with `1` for Saudi nationals) or Iqama ID (starts with `2` for residents). Must be exactly 10 digits. |
+| `email`    | `someone@example.com` | The owner’s email. Must be unique and belong to the one customer (Do not use the same email for multiple customers).                  |
+| `phone`    | `05XXXXXXXX`          | Saudi mobile number. Must start with `05` and be exactly 10 digits.                                                                   |
 
 Example Payload
 
@@ -83,24 +83,24 @@ In order to provide quotes for your customer you need to execute the <a href="/c
 
 You need to provider the following properties for the Request Quotes API:
 
-| Field                   | Example Value         | Is Required       | Description                                                                                                                                                                 |
-| ----------------------- | --------------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `otp`                   | `1234`                | Yes               | The four-digit OTP received by the customer from the Request OTP API.                                                                                                       |
-| `owner_id`              | `2234567890`          | Yes               | The owner’s national ID. Must be 10 digits and typically starts with 1, 2, or 7.                                                                                            |
-| `email`                 | `someone@example.com` | Yes               | The owner’s email. Must be unique and belong to the one customer (Do not use the same email for multiple customers).                                                        |
-| `birthdate`             | `1988-04-20`          | Yes               | Date of birth of the owner in `YYYY-MM-DD` format. If the owner ID is a Saudi National, then you need to give Hijri date, otherwise you need to give a Gregorian birthdate. |
-| `phone`                 | `05XXXXXXXX`          | Yes               | Saudi mobile number. Must start with `05` and be exactly 10 digits.                                                                                                         |
-| `car_sequence_number`   | `52423810`            | Conditional       | The car’s sequence number (8-9 digits). Required when `custom_number` is not provided. Do not send both vehicle identifiers.                                                |
+| Field                   | Example Value         | Is Required       | Description                                                                                                                                                                     |
+| ----------------------- | --------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `otp`                   | `1234`                | Yes               | The four-digit OTP received by the customer from the Request OTP API.                                                                                                           |
+| `owner_id`              | `2234567890`          | Yes               | The owner’s national ID (starts with `1` for Saudi nationals) or Iqama ID (starts with `2` for residents). Must be exactly 10 digits.                                           |
+| `email`                 | `someone@example.com` | Yes               | The owner’s email. Must be unique and belong to the one customer (Do not use the same email for multiple customers).                                                            |
+| `birthdate`             | `1988-04-20`          | Yes               | Date of birth of the owner in `YYYY-MM-DD` format. For a Saudi national ID (starts with `1`) give a Hijri date; for an Iqama ID (starts with `2`) give a Gregorian date.        |
+| `phone`                 | `05XXXXXXXX`          | Yes               | Saudi mobile number. Must start with `05` and be exactly 10 digits.                                                                                                             |
+| `car_sequence_number`   | `52423810`            | Conditional       | The car’s sequence number (8-9 digits). Required when `custom_number` is not provided. Do not send both vehicle identifiers.                                                    |
 | `custom_number`         | `1234567890`          | Conditional       | Customs card number for an imported vehicle (6-10 digits). Required when `car_sequence_number` is not provided. Also requires `maker_code`, `model_code`, and `body_type_code`. |
-| `maker_code`            | `101`                 | With customs card | Vehicle maker code returned by the Vehicle Makers API.                                                                                                                      |
-| `model_code`            | `1001`                | With customs card | Vehicle model code returned by the Vehicle Models API for the selected `maker_code`.                                                                                        |
-| `body_type_code`        | `3`                   | With customs card | Vehicle body-type code returned by the Vehicle Body Types API.                                                                                                              |
-| `is_ownership_transfer` | `false`               | No                | Boolean flag. `true` if the car is being transferred to a new owner, otherwise `false`. Defaults to `false` when omitted.                                                   |
-| `current_car_owner_id`  | `1234567890`          | Yes (if transfer) | The current owner’s national ID. **Only required if** `is_ownership_transfer = true`.                                                                                       |
-| `car_estimated_cost`    | `45000`               | Yes               | Estimated market cost of the car in SAR.                                                                                                                                    |
-| `car_model_year`        | `2026`                | No                | Year of manufacture of the car. Must be between 1950 and the next year. If omitted, Yasmina uses the current year.                                                          |
-| `start_date`            | `2026-07-28`          | No                | Start date of the policy in `YYYY-MM-DD` format. It must be after today and before the date 28 days from today.                                                              |
-| `drivers`               | See below             | No                | An array of driver objects. When provided, the sum of all `driving_percentage` values must equal 100, and the owner must be included among the drivers.                     |
+| `maker_code`            | `101`                 | With customs card | Vehicle maker code returned by the Vehicle Makers API.                                                                                                                          |
+| `model_code`            | `1001`                | With customs card | Vehicle model code returned by the Vehicle Models API for the selected `maker_code`.                                                                                            |
+| `body_type_code`        | `3`                   | With customs card | Vehicle body-type code returned by the Vehicle Body Types API.                                                                                                                  |
+| `is_ownership_transfer` | `false`               | No                | Boolean flag. `true` if the car is being transferred to a new owner, otherwise `false`. Defaults to `false` when omitted.                                                       |
+| `current_car_owner_id`  | `1234567890`          | Yes (if transfer) | The current owner’s national ID (starts with `1`) or Iqama ID (starts with `2`). **Only required if** `is_ownership_transfer = true`.                                           |
+| `car_estimated_cost`    | `45000`               | Yes               | Estimated market cost of the car in SAR.                                                                                                                                        |
+| `car_model_year`        | `2026`                | No                | Year of manufacture of the car. Must be between 1950 and the next year. If omitted, Yasmina uses the current year.                                                              |
+| `start_date`            | `2026-07-28`          | No                | Start date of the policy in `YYYY-MM-DD` format. It must be after today and before the date 28 days from today.                                                                 |
+| `drivers`               | See below             | No                | An array of driver objects. When provided, the sum of all `driving_percentage` values must equal 100, and the owner must be included among the drivers.                         |
 
 ### Customs card vehicle lookup
 
@@ -168,7 +168,7 @@ When providing drivers, each driver object must include the following fields:
 
 | Field                | Example Value | Is Required | Description                                                                                                                          |
 | -------------------- | ------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `owner_id`           | `2234567890`  | Yes         | Driver's national ID. Must be 10 digits and starts with 1, 2, or 7.                                                                  |
+| `owner_id`           | `2234567890`  | Yes         | Driver's national ID (starts with `1` for Saudi nationals) or Iqama ID (starts with `2` for residents). Must be exactly 10 digits.   |
 | `birthdate`          | `1988-04-20`  | Yes         | Driver's date of birth in `YYYY-MM-DD` format.                                                                                       |
 | `driving_percentage` | `50`          | Yes         | Percentage of driving for this driver. Valid values: `25`, `50`, `75`, or `100`. The sum of all drivers' percentages must equal 100. |
 
@@ -224,7 +224,7 @@ Once you execute this you will get a response that includes pricing and benefits
   "birthdate": "1990-01-01",
   "car_sequence_number": 1111111111,
   "is_ownership_transfer": true,
-  "current_car_owner_id": "7000000000",
+  "current_car_owner_id": "1000000000",
   "car_estimated_cost": 45000,
   "car_model_year": 2024,
   "drivers": [
@@ -339,15 +339,15 @@ The three quote identifiers must come from the response returned by the earlier
 `POST /quote-requests` call. Use the provider quote and price selected by the
 customer from that same response.
 
-| Field                | Example Value                                | Description                                                                                                                                                      |
-| -------------------- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `quote_request_id`   | `62`                                         | Use the top-level `id` from the quote request response.                                                                                                           |
-| `quote_reference_id` | `feb9e0ec-d71c-4c60-99d4-22ad9a5c97ec`     | Use `quotes[].quote_reference_id` from the insurance provider quote selected by the customer.                                                                     |
-| `quote_price_id`     | `f0a13788-92c3-f011-972d-005056a9891a`     | Use `quotes[].prices[].quote_price_id` from the selected price and deductible inside the same provider quote.                                                     |
-| `owner_id`           | `2234567890`                                 | The owner’s national ID. Must be 10 digits and typically starts with 1, 2, or 7.                                                                                  |
-| `email`              | `someone@example.com`                        | The owner’s email. It must belong to this customer. Do not reuse the same email address for different customers.                                                  |
-| `phone`              | `0512345678`                                 | Saudi mobile number. Must start with `05` and be exactly 10 digits.                                                                                               |
-| `iban`               | `SA0380000000608010167519`                   | The customer's Saudi IBAN (`SA` followed by 22 digits, no spaces). It is sent to the insurance provider with the payment OTP request and used to transfer claim settlements and refunds to the customer; the account is never charged. Required. |
+| Field                | Example Value                          | Description                                                                                                                                                                                                                                      |
+| -------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `quote_request_id`   | `62`                                   | Use the top-level `id` from the quote request response.                                                                                                                                                                                          |
+| `quote_reference_id` | `feb9e0ec-d71c-4c60-99d4-22ad9a5c97ec` | Use `quotes[].quote_reference_id` from the insurance provider quote selected by the customer.                                                                                                                                                    |
+| `quote_price_id`     | `f0a13788-92c3-f011-972d-005056a9891a` | Use `quotes[].prices[].quote_price_id` from the selected price and deductible inside the same provider quote.                                                                                                                                    |
+| `owner_id`           | `2234567890`                           | The owner’s national ID (starts with `1` for Saudi nationals) or Iqama ID (starts with `2` for residents). Must be exactly 10 digits.                                                                                                            |
+| `email`              | `someone@example.com`                  | The owner’s email. It must belong to this customer. Do not reuse the same email address for different customers.                                                                                                                                 |
+| `phone`              | `0512345678`                           | Saudi mobile number. Must start with `05` and be exactly 10 digits.                                                                                                                                                                              |
+| `iban`               | `SA0380000000608010167519`             | The customer's Saudi IBAN (`SA` followed by 22 digits, no spaces). It is sent to the insurance provider with the payment OTP request and used to transfer claim settlements and refunds to the customer; the account is never charged. Required. |
 
 Example request:
 
@@ -429,7 +429,7 @@ Once you make a request to the Issue Policy API, you will get the Policy object 
         "new_owner_id": "2528297837",
         "quote_price_id": "f5d52340-3661-48af-b81a-028f251ef6a9",
         "quote_request_id": 25,
-        "previous_owner_id": "7001364939",
+        "previous_owner_id": "1001364939",
         "car_sequence_number": 723787810
     },
     "provider_policy_id": null,
