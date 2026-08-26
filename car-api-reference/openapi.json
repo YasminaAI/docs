@@ -481,27 +481,27 @@
                   "front": {
                     "type": "string",
                     "format": "binary",
-                    "description": "Photo of the front of the vehicle. JPG or PNG, up to 5 MB."
+                    "description": "Photo of the front of the vehicle. JPG or PNG, up to 20 MB."
                   },
                   "back": {
                     "type": "string",
                     "format": "binary",
-                    "description": "Photo of the rear of the vehicle. JPG or PNG, up to 5 MB."
+                    "description": "Photo of the rear of the vehicle. JPG or PNG, up to 20 MB."
                   },
                   "right": {
                     "type": "string",
                     "format": "binary",
-                    "description": "Photo of the right-hand side of the vehicle. JPG or PNG, up to 5 MB."
+                    "description": "Photo of the right-hand side of the vehicle. JPG or PNG, up to 20 MB."
                   },
                   "left": {
                     "type": "string",
                     "format": "binary",
-                    "description": "Photo of the left-hand side of the vehicle. JPG or PNG, up to 5 MB."
+                    "description": "Photo of the left-hand side of the vehicle. JPG or PNG, up to 20 MB."
                   },
                   "chassis": {
                     "type": "string",
                     "format": "binary",
-                    "description": "Photo of the chassis (VIN) number. JPG or PNG, up to 5 MB."
+                    "description": "Photo of the chassis (VIN) number. JPG or PNG, up to 20 MB."
                   }
                 },
                 "required": ["quote_price_id", "front", "back", "right", "left", "chassis"]
@@ -549,7 +549,7 @@
             }
           },
           "422": {
-            "description": "A photo is missing, is not a JPG/PNG image, or is larger than 5 MB",
+            "description": "A photo is missing, is not a JPG/PNG image, or is larger than 20 MB",
             "content": {
               "application/json": {
                 "schema": {

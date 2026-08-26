@@ -382,7 +382,7 @@ Example of a response
 ### Rules
 
 - **All five together.** A partial upload is rejected with a `422`.
-- **JPG or PNG, up to 5 MB each.** Other formats are rejected.
+- **JPG or PNG, up to 20 MB each**, and 100 MB for the five together. Other formats are rejected.
 - **Once per vehicle.** The insurance provider keeps the first set it accepts; a second
   upload comes back as a `409`. Check the photos before sending them.
 - **Comprehensive only.** A `quote_price_id` belonging to a TPL quote is rejected.
