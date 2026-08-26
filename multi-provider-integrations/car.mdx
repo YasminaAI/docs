@@ -13,6 +13,7 @@ Our APIs are built on RESTful principles and follow consistent input and output 
 
 - Request OTPs
 - Requesting and managing quotes
+- Uploading vehicle photos
 - Issuing and managing policies
 
 ## Prerequisites
@@ -326,6 +327,65 @@ GET /car-api-reference/quotes/list-quotes?page=2&per_page=1&owner_id=1234567890
 You can delete some of the requests from the system using the <a href="/car-api-reference/quotes/delete-quote" target="_blank">Delete Quotes Requests API</a>.
 
 This is rarely used, but may be helpful if you'd like to reduce the items listed.
+
+## Vehicle photos
+
+If the customer has selected a comprehensive policy, upload the five photos before you
+issue the policy — front, back, right, left, and the chassis (VIN) number. Use the
+<a href="/car-api-reference/quotes/upload-vehicle-photos" target="_blank">Upload Vehicle Photos API</a>,
+against the quote request and the price the customer selected.
+
+Call it **before you request the payment OTP**. The insurance provider downloads and
+checks every image during this call, so a photo it cannot read is rejected while the
+customer can still retake it — rather than after they have paid.
+
+<Warning>This step is required for comprehensive cover. If the photos are not uploaded,
+the customer cannot continue with the purchase.</Warning>
+
+Example of a request
+
+```
+POST /api/v1/car-comp/quote-requests/11/attachments HTTP/1.1
+Authorization: Bearer *****
+Content-Type: multipart/form-data
+
+quote_price_id=e059d28e-a519-43af-b9d4-e1cc5d97ecb7
+front=@front.jpg
+back=@back.jpg
+right=@right.jpg
+left=@left.jpg
+chassis=@chassis.jpg
+```
+
+Example of a response
+
+```
+{
+  "attachments": {
+      "front": "https://cdn.yasmina.ai/vehicle-photos/abc123.jpg",
+      "back": "https://cdn.yasmina.ai/vehicle-photos/def456.jpg",
+      "right": "https://cdn.yasmina.ai/vehicle-photos/ghi789.jpg",
+      "left": "https://cdn.yasmina.ai/vehicle-photos/jkl012.jpg",
+      "chassis": "https://cdn.yasmina.ai/vehicle-photos/mno345.jpg"
+  }
+}
+```
+
+| Position  | What it shows                      |
+| --------- | ---------------------------------- |
+| `front`   | The front of the vehicle           |
+| `back`    | The rear of the vehicle            |
+| `right`   | The right-hand side of the vehicle |
+| `left`    | The left-hand side of the vehicle  |
+| `chassis` | The chassis (VIN) number           |
+
+### Rules
+
+- **All five together.** A partial upload is rejected with a `422`.
+- **JPG or PNG, up to 5 MB each.** Other formats are rejected.
+- **Once per vehicle.** The insurance provider keeps the first set it accepts; a second
+  upload comes back as a `409`. Check the photos before sending them.
+- **Comprehensive only.** A `quote_price_id` belonging to a TPL quote is rejected.
 
 ## Issuing policies
 

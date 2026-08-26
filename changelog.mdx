@@ -3,6 +3,10 @@ title: 'Changelog'
 icon: 'clock-rotate-left'
 ---
 
+<Update label="26th August 2026" tags={["Docs", "APIs"]}>
+	Added the Upload Vehicle Photos API (`POST /api/v1/car-comp/quote-requests/{id}/attachments`): the five vehicle photos (`front`, `back`, `right`, `left`, `chassis`) required for comprehensive cover, sent as file uploads with the selected `quote_price_id`. Call it before requesting the payment OTP — the insurance provider downloads and checks every image during the call, so an unreadable photo is rejected while the customer can still retake it. All five are required together, JPG or PNG up to 5 MB each, and the photos can only be submitted once per vehicle.
+</Update>
+
 <Update label="19th August 2026" tags={["Docs", "APIs"]}>
 	Moved the `iban` field from the Issue Policy API to the Issue OTP API (`POST /api/v1/car-comp/issue-otp`), where it is now **required**. The customer's Saudi IBAN (`SA` followed by 22 digits) is forwarded to the insurance provider with the payment OTP request and used for claim settlements and refunds. `POST /api/v1/car-comp/policies` no longer accepts the field.
 </Update>

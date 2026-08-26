@@ -9,6 +9,7 @@ This guide describes the Yasmina's **Comprehensive Motor Insurance APIs for Sing
 Our APIs use the RESTful standard and is structured to provide consistent inputs and outputs, making it quick and easy to integrate, test, and maintain within your systems.
 
 ## What you will learn
+- Uploading vehicle photos
 - Issuing and managing policies
 - Payment link
 - Starting a claim
@@ -17,6 +18,40 @@ Our APIs use the RESTful standard and is structured to provide consistent inputs
 1. **Account in Yasmina** - See the <a href="/introduction#onboarding" target="_blank">Onboarding section</a> for details. You need to add "Comprehensive Motor Insurance (Single Provider)" in the products field.
 2. **Authenticated Token** - Follow the <a href="/authentication" target="_blank">Authentication guide</a> to generate one.
 3. **Backend server** - Required to securely call Yasmina APIs.
+
+## Vehicle photos
+
+If the customer has selected a comprehensive policy, upload the five photos before you
+issue the policy — front, back, right, left, and the chassis (VIN) number. Use the
+<a href="/car-api-reference/quotes/upload-vehicle-photos" target="_blank">Upload Vehicle Photos API</a>,
+against the quote request and the price the customer selected.
+
+Call it **before you request the payment OTP**: the insurance provider checks every
+image during this call, so a photo it cannot read is rejected while the customer can
+still retake it.
+
+<Warning>This step is required for comprehensive cover. If the photos are not uploaded,
+the customer cannot continue with the purchase.</Warning>
+
+Example of a request
+
+```
+POST /api/v1/car-comp/quote-requests/11/attachments HTTP/1.1
+Authorization: Bearer *****
+Content-Type: multipart/form-data
+
+quote_price_id=e059d28e-a519-43af-b9d4-e1cc5d97ecb7
+front=@front.jpg
+back=@back.jpg
+right=@right.jpg
+left=@left.jpg
+chassis=@chassis.jpg
+```
+
+- **All five together.** A partial upload is rejected with a `422`.
+- **JPG or PNG, up to 5 MB each.**
+- **Once per vehicle.** A second upload comes back as a `409`.
+- **Comprehensive only.** A `quote_price_id` belonging to a TPL quote is rejected.
 
 ## Issue policy
 
