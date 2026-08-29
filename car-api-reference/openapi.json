@@ -451,6 +451,121 @@
         }
       }
     },
+    "/quote-requests/{id}/attachments": {
+      "post": {
+        "tags": ["Quotes"],
+        "summary": "Upload vehicle photos",
+        "description": "Uploads the five vehicle photos needed for a comprehensive policy. Send them any time after the quote request and before issuing the policy \u2014 typically while the customer is with the car, alongside payment and before the payment OTP. All five are required together; a partial set is rejected. The photos can only be submitted once for a vehicle; a second upload is rejected with a 409. The photos are forwarded to the insurance provider when the policy is issued, and are ignored if the customer ends up choosing third-party (TPL) cover.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID of the quote request the photos belong to",
+            "schema": { "type": "integer", "example": 11 }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "quote_price_id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "The quote price the customer selected, from POST /quote-requests. Must belong to a comprehensive quote.",
+                    "example": "e059d28e-a519-43af-b9d4-e1cc5d97ecb7"
+                  },
+                  "front": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Photo of the front of the vehicle. JPG or PNG, up to 3 MB."
+                  },
+                  "back": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Photo of the rear of the vehicle. JPG or PNG, up to 3 MB."
+                  },
+                  "right": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Photo of the right-hand side of the vehicle. JPG or PNG, up to 3 MB."
+                  },
+                  "left": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Photo of the left-hand side of the vehicle. JPG or PNG, up to 3 MB."
+                  },
+                  "chassis": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Photo of the chassis (VIN) number. JPG or PNG, up to 3 MB."
+                  }
+                },
+                "required": ["quote_price_id", "front", "back", "right", "left", "chassis"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Photos stored",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "attachments": {
+                      "type": "object",
+                      "description": "The stored photo URLs, keyed by position.",
+                      "example": {
+                        "front": "https://cdn.yasmina.ai/vehicle-photos/abc123.jpg",
+                        "back": "https://cdn.yasmina.ai/vehicle-photos/def456.jpg",
+                        "right": "https://cdn.yasmina.ai/vehicle-photos/ghi789.jpg",
+                        "left": "https://cdn.yasmina.ai/vehicle-photos/jkl012.jpg",
+                        "chassis": "https://cdn.yasmina.ai/vehicle-photos/mno345.jpg"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "409": {
+            "description": "The photos for this vehicle are already registered with the insurance provider",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "code": 40000,
+                    "message": "Attachments already exist for this vehicle."
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "A photo is missing, is not a JPG/PNG image, or is larger than 3 MB",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "code": "42201",
+                    "message": "The chassis field is required.",
+                    "details": { "chassis": ["The chassis field is required."] }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/policies/{carPolicy}": {
       "get": {
         "description": "Show a specific policy",
