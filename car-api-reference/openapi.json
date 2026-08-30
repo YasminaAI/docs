@@ -451,6 +451,62 @@
         }
       }
     },
+    "/guideline-texts": {
+      "get": {
+        "tags": ["Quotes"],
+        "summary": "Guideline texts",
+        "description": "Returns the copy you are expected to show alongside motor quotes \u2014 the provider attribution and its Insurance Authority licence, the Shahin support routes, and the buyer FAQ. English and Arabic are returned together, so a bilingual page needs a single request and does not have to hold the strings itself. Fetch it rather than hard-coding the wording: changes reach you without an integration change.",
+        "responses": {
+          "200": {
+            "description": "The guideline texts, keyed by locale",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "en": {
+                      "provider": {
+                        "pre": "Quotes are provided through",
+                        "brand": "Shahin",
+                        "brand_url": "https://www.shahin.com.sa/en/",
+                        "supervision": "Under supervision of the Insurance Authority, license",
+                        "license": "و س ط/No. 20158/82"
+                      },
+                      "support": {
+                        "lead": "Support and assistance through",
+                        "whatsapp_label": "Customer service via WhatsApp",
+                        "whatsapp_url": "https://wa.me/966537007368",
+                        "terms_label": "Terms & conditions",
+                        "terms_url": "https://www.shahin.com.sa/en/terms-and-conditions",
+                        "tollfree_label": "Toll-free",
+                        "tollfree_number": "8002440399"
+                      },
+                      "faq": [
+                        {
+                          "question": "What is the difference between TPL and Comprehensive insurance?",
+                          "answer": "TPL covers damage you cause to others, while Comprehensive also covers damage to your own vehicle, subject to the policy terms."
+                        }
+                      ]
+                    },
+                    "ar": {
+                      "provider": { "pre": "هذه العروض مقدَّمة عبر", "brand": "شاهين" },
+                      "support": { "lead": "للدعم والمساعدة عبر" },
+                      "faq": [
+                        {
+                          "question": "ما الفرق بين التأمين ضد الغير والتأمين الشامل؟",
+                          "answer": "يغطي التأمين ضد الغير الأضرار التي تتسبب بها للآخرين، بينما يغطي التأمين الشامل كذلك الأضرار التي تلحق بمركبتك، وفقاً لشروط الوثيقة."
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
     "/quote-requests/{id}/attachments": {
       "post": {
         "tags": ["Quotes"],
