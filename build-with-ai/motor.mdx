@@ -1,0 +1,102 @@
+---
+title: "Comprehensive Motor Insurance"
+description: "Use an AI coding assistant to build your Comprehensive Motor Insurance integration."
+icon: "lightbulb"
+---
+
+## Introduction
+
+Every page of this documentation is published in an AI-readable format, so an AI coding
+assistant — Claude Code, Cursor, GitHub Copilot, or any tool that can fetch a URL — can
+read the [Comprehensive Motor Insurance guide](/multi-provider-integrations/car) and API
+reference directly and scaffold the integration for you: authentication, OTPs, quotes,
+photo uploads, policy issuance, and error handling.
+
+You stay in control of the code. The assistant writes the first draft against our guide
+and OpenAPI spec; you review it, test it in the [Sandbox environment](/environments), and
+harden it before going live.
+
+## What to feed your assistant
+
+Point your assistant at these pages. Appending `.md` to any page URL returns that page as
+plain Markdown.
+
+| Resource                                  | URL                                                          |
+| ----------------------------------------- | ------------------------------------------------------------ |
+| Comprehensive Motor Insurance guide       | `https://docs.yasmina.ai/multi-provider-integrations/car.md` |
+| Authentication guide                      | `https://docs.yasmina.ai/authentication.md`                  |
+| Motor Insurance OpenAPI spec              | `https://docs.yasmina.ai/car-api-reference/openapi.json`     |
+| Index of every page (for broader context) | `https://docs.yasmina.ai/llms.txt`                           |
+
+## Connect over MCP
+
+If your assistant supports the Model Context Protocol, connect it to our documentation
+MCP server instead of pasting URLs — it gives the assistant search and retrieval tools
+over the entire documentation site:
+
+```text MCP server URL
+https://docs.yasmina.ai/mcp
+```
+
+<CodeGroup>
+
+```bash Claude Code
+claude mcp add --transport http yasmina-docs https://docs.yasmina.ai/mcp
+```
+
+```json Cursor (.cursor/mcp.json)
+{
+  "mcpServers": {
+    "yasmina-docs": {
+      "url": "https://docs.yasmina.ai/mcp"
+    }
+  }
+}
+```
+
+</CodeGroup>
+
+## Ready-made prompt
+
+Copy the prompt below into your assistant and let it read the docs before it writes any
+code.
+
+```text Prompt for your AI assistant
+You are helping me integrate Yasmina's embedded Comprehensive Motor Insurance
+(Multiple Providers) into my platform.
+
+Before writing any code, read these documents:
+- Integration guide: https://docs.yasmina.ai/multi-provider-integrations/car.md
+- Authentication:    https://docs.yasmina.ai/authentication.md
+- OpenAPI spec:      https://docs.yasmina.ai/car-api-reference/openapi.json
+
+Then build a backend integration that:
+1. Authenticates with OAuth 2.0 client credentials and reuses the token until
+   it expires.
+2. Requests a quote OTP for the customer, then requests quotes and presents
+   them for selection.
+3. Uploads the five required vehicle photos (front, back, right, left, chassis
+   number) before issuing a comprehensive policy.
+4. Requests an issue OTP and issues the policy with the selected quote.
+5. Handles validation and error responses as described in the guide, and
+   follows its best-practice and branding guidelines.
+
+Use the Sandbox environment (https://sandbox.yasmina.ai). Read the client ID
+and secret from environment variables, keep all Yasmina API calls on the
+backend, and never expose the credentials or the access token to the browser.
+```
+
+## Tips for good results
+
+- **Always start in Sandbox.** The flows mirror Production, but no real policies are
+  issued — see [Environments](/environments).
+- **Keep credentials server-side.** Yasmina APIs must be called from your backend; make
+  sure generated code never ships the client secret or token to the browser.
+- **Hold the assistant to the guide.** The best-practice and branding guidelines in the
+  guide are integration requirements, not suggestions — ask the assistant to implement
+  them, then verify it did.
+- **Review before Production.** Treat the generated integration as a draft: run the full
+  flow end to end in Sandbox and review the code before switching the base URL to
+  Production.
+
+Questions along the way? [Contact us](/contact) — we are happy to help.

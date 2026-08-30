@@ -3,6 +3,10 @@ title: 'Changelog'
 icon: 'clock-rotate-left'
 ---
 
+<Update label="30th August 2026" tags={["Docs", "APIs"]}>
+	Added the Guideline Texts API (`GET /api/v1/car-comp/guideline-texts`): the copy to show alongside motor quotes — the provider attribution with its Insurance Authority licence, the support routes, and the buyer FAQ — returned in English and Arabic together. Fetch it rather than hard-coding the wording, so changes reach you without an integration change.
+</Update>
+
 <Update label="26th August 2026" tags={["Docs", "APIs"]}>
 	Added the Upload Vehicle Photos API (`POST /api/v1/car-comp/quote-requests/{id}/attachments`): the five vehicle photos (`front`, `back`, `right`, `left`, `chassis`) required for comprehensive cover, sent as file uploads with the selected `quote_price_id`. Call it before requesting the payment OTP — the insurance provider downloads and checks every image during the call, so an unreadable photo is rejected while the customer can still retake it. All five are required together, JPG or PNG up to 3 MB each, and the photos can only be submitted once per vehicle.
 </Update>
