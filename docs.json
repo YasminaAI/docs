@@ -11,8 +11,8 @@
     "dark": "#15803D"
   },
   "logo": {
-    "dark": "/logo/Vector-1.png",
-    "light": "/logo/Vector.png"
+    "dark": "/logo/dark.svg",
+    "light": "/logo/light.svg"
   },
   "fonts": {
     "family": "Inter, sans-serif"
