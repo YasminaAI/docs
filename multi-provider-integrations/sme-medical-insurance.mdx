@@ -1,0 +1,231 @@
+---
+title: 'SME Medical Insurance'
+description: 'Facilitate efficient and automated insurance claims processes between Healthcare Providers and Insurance Companies.'
+icon: 'users-medical'
+---
+
+### Overview
+This guide walks you through integrating Yasmina's **SME Medical Insurance APIs for Multiple Insurance Providers** into your platform (for the single-provider version, [click here](/single-provider-integrations/sme-medical-insurance)). These APIs let you retrieve and compare medical insurance packages from several insurance providers before issuing policies to a company's employees.
+
+Using our secure and reliable endpoints, you'll be able to request and manage policies, and issue claims. Everything you need to deliver insurance services seamlessly within your application.
+
+### Basic Journey
+1. **Authorize**: Get an access token to authenticate all API requests.
+2. **Create a Company**: Register the SME that will provide medical insurance for its employees.
+3. **Choose a Package**: Retrieve and compare available medical insurance packages from multiple insurance providers.
+4. **Issue Insurance**: Select the employees who will be covered and create their policies with the chosen provider.
+5. **Health Declarations**: Complete forms on behalf of employees or send them directly for completion.
+6. **Payment**: Receive a secure payment link to finalize the purchase.
+
+### Authorization
+
+To access any of our API's. You need to authorize yourself using the <a href="/auth-api-reference/oauth-20/generate-token" target="_blank">Generate Token API</a>. We are using the standard <a href="https://oauth.net/2/grant-types/client-credentials" target="_blank">OAuth 2.0 client credentials</a>.<br />
+
+The Generate Token API requires `client_id` and `client_secret`. You can get these from your [portal](https://portal.yasmina.ai/api-management).<br />
+
+After making the request, you will get access_token in the response. The `access_token` must be used on all future Yasmina APIs and be supplied in the Authorization Header in the following form
+
+Authorization: Bearer \{access_token\}
+
+<Warning>For security reasons. Do not make your client_id and client_secret public in your platform.</Warning>
+
+### Create a Company record
+
+After acquiring an access_token, you can begin using the APIs. Before you produce policies for a company, you must create a company record. After creating the company record, you can request to issue policies to the employees of that company.
+
+The <a href="/medical-api-reference/company/create-company" target="_blank">The Create Company API</a>, will require few fields that define details of the company such as Email, Phone etc...
+
+It will return a response with a unique identifier (id). Here is an example of the response from the POST companies API.
+```
+{
+  "name": "Example company name",
+  "name_ar": "مثال اسم شركة",
+  "sponsor_number": "789",
+  "email_address": "example@example.com",
+  "phone_number": "+966512345678",
+  "commercial_registration_number": "9876543210",
+  "client_id": "a1b2c3d4-5678-90ab-cdef-1234567890ab",
+  "updated_at": "2025-08-01T14:22:30.000000Z",
+  "created_at": "2025-08-01T14:22:30.000000Z",
+  "id": 42
+}
+```
+You can also visit the [List companies API](/medical-api-reference/company/list-companies) to show all companies you've created
+
+### List and compare available packages
+Yasmina works with multiple insurance providers. After creating a company record, you can list the packages available to the company from every provider and compare them, helping the company choose the most suitable option for its employees. Check out the [Categories API](/medical-api-reference/products/list-categories).
+This gives you a list of available insurance categories per provider.
+1. The Insurance provider PDF
+	- Contains an overview picture of what is provided by the Insurance provider
+2. The translations
+	- The translations includes **keys** that map to the instructional text in Arabic and English that were provided by the insurance provider.
+3. The categories
+	- The categories items uses these keys and gives the coverage values
+
+Each employee can have a separate package. Coverage values can either be a number (the amount), or a boolean (whether it's covered or not), or a text (the type of coverage) Each item in the categories has a `category` property and an `insurance_provider` property. These are important properties as they are what you will need to provide when you issue policies. Notice the category and insurance_provider fields in the following sample of the categories response API.
+
+```
+    "categories": {
+        "basic": {
+            "name": "Basic",
+            "category": "basic",
+            "insurance_provider": "medgulf",
+            "maximum_annual_benefit_limit_per_person": 500000,
+            "geography": "Saudi Arabia",
+            "general_coverage": {
+            ...
+        }
+        ...
+    }
+```
+
+### Issue insurance policies
+To issue policies, you need to execute the [Issue policies API](/medical-api-reference/policies/issue-policies).
+The API takes three fields. The company_id as referenced above, the insurance_provider the company selected when comparing packages, and an array called insured. The insured are the employees that the company wants to issue insurance for.
+Here is an example of a payload you would send
+```
+{
+  "insurance_provider": "medgulf",
+  "insured": [
+    {
+        "name": "Abdullah Enizi",
+        "nationality_iso": "SA",
+        "category": "basic",
+        "iqama_id": "123",
+        "date_of_birth": "1988-04-20",
+        "number_of_dependents": 1
+    },
+    {
+        "name": "Samer Najjar",
+        "nationality_iso": "JO",
+        "category": "standard",
+        "nationality_id": "123",
+        "date_of_birth": "1988-04-20",
+        "number_of_dependents": 1
+    }
+  ],
+  "company_id": 1
+}
+```
+
+<Note>Notice in the above, there are two employees within the company. One of them we are supplying the `iqama_id` as he is a Non-Saudi while the other we supply a `nationality_id` as he is Saudi.</Note>
+The `category` and `insurance_provider` that we are supplying are what was returned from the [Categories API](/medical-api-reference/products/list-categories). All insured employees of a company are covered by the same provider, so the `insurance_provider` is supplied once at the top level.
+
+### HR declaration forms
+The companies that have requested insurance needs to be supply the insurance provider with Medical forms. These are mandatory for insurance providers to know past medical histories.
+
+Yasmina offers two methods for submitting these forms:
+
+1. **Fill Medical Forms:** Company administrators fill out the forms on behalf of the employees.
+
+2. **Dispatch Medical Forms:** Company administrators dispatch the forms to employees, who then complete them individually.
+
+Detailed explanations for each method are provided below.
+<AccordionGroup>
+  <Accordion title="Fill medical forms" icon="pen-field">
+  	The fill medical forms allows the company admin to do so on behalf of the employers of the company. It takes two fields of which both are objects `all_employees` and `ids_or_emails`.
+
+  	The idea behind the two fields, is to allow the Company admin to select the default answers for all employees, and then override the answers for specific employees.
+
+  	For example, let us say that all employees except 1 (for example employee with email john.doe@example.com), never had surgeries before, we can declare the answer `No` on the surgery question in the all_employees field, but declare `Yes` for the other employee.
+
+  	Here's an example of such case
+
+  	```
+  	{
+        "all_employees": {
+            "allergies": "No",
+            "current_medications": "No",
+            "hospitalizations": "No",
+            "pre_existing_conditions": "No",
+            "past_surgeries": "No",
+            "surgery_complications": "No",
+            "chest_pain_or_breathlessness": "No",
+            "heart_procedures": "No",
+            "smoking": "No",
+            "alcohol_consumption": "No",
+            "physical_activity": "No",
+            "family_history": "No",
+            "chronic_conditions": ["None of the above"]
+        },
+        "ids_or_emails": [
+            {
+                "id_or_email": "john.doe@example.com",
+                "answers": {
+                    "allergies": "No",
+                    "current_medications": "No",
+                    "hospitalizations": "No",
+                    "pre_existing_conditions": "No",
+                    "past_surgeries": "Yes",
+                    "surgery_complications": "No",
+                    "chest_pain_or_breathlessness": "No",
+                    "heart_procedures": "No",
+                    "smoking": "No",
+                    "alcohol_consumption": "No",
+                    "physical_activity": "No",
+                    "family_history": "No",
+                    "chronic_conditions": ["Liver Disease"]
+                }
+            }
+        ]
+    }
+  	```
+    Check out the [Fill medical forms API](/medical-api-reference/hr-forms/fill-hr-forms) docs for all the supported props.
+  </Accordion>
+
+  <Accordion title="Dispatch Medical forms" icon="envelopes">
+  	In this method, the Company admin puts a list of employees (emails, nationality ids, or Iqama ids). Yasmina then dispatches the medical form to each employee on email.
+
+  	The employees will get a link to fill the forms themselves.
+
+  	You can check the [Dispatch Medical Form API](/medical-api-reference/hr-forms/dispatch-hr-forms)
+  </Accordion>
+</AccordionGroup>
+
+### Payment
+Yasmina will supply a payment link of which your clients can pay for the insurance. You must share this link in your platform.
+
+### Build with AI
+
+Every page of this documentation is published in an AI-readable format, so an AI coding assistant — Claude Code, Cursor, GitHub Copilot, or any tool that can fetch a URL — can read this guide and the API reference directly and scaffold the integration for you. Appending `.md` to any page URL returns that page as plain Markdown.
+
+| Resource                     | URL                                                                          |
+| ---------------------------- | ---------------------------------------------------------------------------- |
+| This guide                   | `https://docs.yasmina.ai/multi-provider-integrations/sme-medical-insurance.md` |
+| Authentication guide         | `https://docs.yasmina.ai/authentication.md`                                  |
+| SME Medical OpenAPI spec     | `https://docs.yasmina.ai/medical-api-reference/openapi.json`                 |
+
+If your assistant supports the Model Context Protocol, connect it to our documentation MCP server instead — it gives the assistant search and retrieval tools over the entire documentation site:
+
+```text MCP server URL
+https://docs.yasmina.ai/mcp
+```
+
+Copy the prompt below into your assistant and let it read the docs before it writes any code.
+
+```text Prompt for your AI assistant
+You are helping me integrate Yasmina's embedded SME Medical Insurance
+(Multiple Providers) into my platform.
+
+Before writing any code, read these documents:
+- Integration guide: https://docs.yasmina.ai/multi-provider-integrations/sme-medical-insurance.md
+- Authentication:    https://docs.yasmina.ai/authentication.md
+- OpenAPI spec:      https://docs.yasmina.ai/medical-api-reference/openapi.json
+
+Then build a backend integration that:
+1. Authenticates with OAuth 2.0 client credentials and reuses the token until
+   it expires.
+2. Creates a company record for the SME.
+3. Retrieves the available packages, compares them across insurance
+   providers, and presents them for selection.
+4. Issues policies for the selected employees with the chosen provider and
+   per-employee categories.
+5. Submits the HR declaration forms (filled by the admin or dispatched to
+   employees) and shares the payment link with the customer.
+
+Use the Sandbox environment (https://sandbox.yasmina.ai). Read the client ID
+and secret from environment variables, keep all Yasmina API calls on the
+backend, and never expose the credentials or the access token to the browser.
+```
+
+Start in the [Sandbox environment](/environments), review the generated code, and run the full flow end to end before switching to Production. Questions along the way? [Contact us](/contact) — we are happy to help.

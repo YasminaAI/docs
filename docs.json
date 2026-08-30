@@ -62,7 +62,7 @@
                 "group": "Single Insurance Provider",
                 "expanded": true,
                 "pages": [
-                  "single-provider-integrations/medical",
+                  "single-provider-integrations/sme-medical-insurance",
                   "single-provider-integrations/car",
                   "single-provider-integrations/cartpl",
                   "single-provider-integrations/property",
@@ -75,6 +75,7 @@
                 "group": "Multiple Insurance Providers",
                 "expanded": true,
                 "pages": [
+                  "multi-provider-integrations/sme-medical-insurance",
                   "multi-provider-integrations/motor-insurance",
                   "multi-provider-integrations/cartpl",
                   "multi-provider-integrations/property"
@@ -231,6 +232,10 @@
     {
       "source": "/multi-provider-integrations/car",
       "destination": "/multi-provider-integrations/motor-insurance"
+    },
+    {
+      "source": "/single-provider-integrations/medical",
+      "destination": "/single-provider-integrations/sme-medical-insurance"
     }
   ]
 }
