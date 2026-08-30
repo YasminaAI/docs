@@ -75,7 +75,7 @@
                 "group": "Multiple Insurance Providers",
                 "expanded": true,
                 "pages": [
-                  "multi-provider-integrations/car",
+                  "multi-provider-integrations/motor-insurance",
                   "multi-provider-integrations/cartpl",
                   "multi-provider-integrations/property"
                 ]
@@ -226,7 +226,11 @@
     },
     {
       "source": "/integrations/car",
-      "destination": "/multi-provider-integrations/car"
+      "destination": "/multi-provider-integrations/motor-insurance"
+    },
+    {
+      "source": "/multi-provider-integrations/car",
+      "destination": "/multi-provider-integrations/motor-insurance"
     }
   ]
 }
