@@ -26,12 +26,9 @@ issue the policy — front, back, right, left, and the chassis (VIN) number. Use
 <a href="/car-api-reference/quotes/upload-vehicle-photos" target="_blank">Upload Vehicle Photos API</a>,
 against the quote request and the price the customer selected.
 
-Call it **before you request the payment OTP**: the insurance provider checks every
-image during this call, so a photo it cannot read is rejected while the customer can
-still retake it.
-
 <Warning>This step is required for comprehensive cover. If the photos are not uploaded,
-the customer cannot continue with the purchase.</Warning>
+the customer cannot continue with the purchase. It must happen before you request the
+payment OTP.</Warning>
 
 Example of a request
 
