@@ -71,7 +71,7 @@ All requests must conform to these validation rules.
 |-------|------|-------|-------------|
 | `insurance_provider` | string | required, in: `walaa` | This comes from the prices API |
 | `personal_details` | object | required | Contains personal information of the policyholder. |
-| `personal_details.name_en` | string | required, max:255 | Full name of the policyholder in English. Must not contain Arabic characters. |
+| `personal_details.name` | string | required, max:255 | Full name of the policyholder in English. Must not contain Arabic characters. |
 | `personal_details.name_ar` | string | required, max:255 | Full name of the policyholder in Arabic script. |
 | `personal_details.gender` | string | required, in: `M`, `F` | Gender of the policyholder. |
 | `personal_details.email` | string | required, max:255 | Email address of the policyholder. |
@@ -111,7 +111,7 @@ Content-Length: 868
     "personal_details": {
         "email": "someone@example.com",
         "gender": "M",
-        "name_en": "Customer Name",
+        "name": "Customer Name",
         "name_ar": "اسم العميل",
         "phone_number": "+9665XXXXXXX",
         "birthdate": "1990-01-01",
@@ -162,7 +162,7 @@ Example Response
             "apartment_size": 200
         },
         "personal_details": {
-            "name_en": "Customer Name",
+            "name": "Customer Name",
             "name_ar": "اسم العميل",
             "email": "someone@example.com",
             "gender": "M",

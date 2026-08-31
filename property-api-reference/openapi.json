@@ -778,7 +778,7 @@
                         "type": "string",
                         "example": "+966501234567"
                       },
-                      "name_en": {
+                      "name": {
                         "type": "string",
                         "description": "Full name of the policyholder in English. Must not contain Arabic characters.",
                         "example": "Fahad Al-Qahtani"
@@ -1077,7 +1077,7 @@
                     "required": [
                       "email",
                       "phone_number",
-                      "name_en",
+                      "name",
                       "name_ar",
                       "birthdate",
                       "nationality",
