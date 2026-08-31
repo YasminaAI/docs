@@ -71,7 +71,8 @@ All requests must conform to these validation rules.
 |-------|------|-------|-------------|
 | `insurance_provider` | string | required, in: `walaa` | This comes from the prices API |
 | `personal_details` | object | required | Contains personal information of the policyholder. |
-| `personal_details.name` | string | required, max:255 | Full name of the policyholder. |
+| `personal_details.name` | string | required, max:255 | Full name of the policyholder in English. Must not contain Arabic characters. |
+| `personal_details.name_ar` | string | required, max:255 | Full name of the policyholder in Arabic script. |
 | `personal_details.gender` | string | required, in: `M`, `F` | Gender of the policyholder. |
 | `personal_details.email` | string | required, max:255 | Email address of the policyholder. |
 | `personal_details.phone_number` | string | required, regex: `/^\+\d{10,15}$/` | Phone number in **international format** (e.g., `+966512345678`). |
@@ -92,6 +93,7 @@ All requests must conform to these validation rules.
 | `address.unit_number` | string | required, max:20 | Unit/flat number. |
 | `property_cost` | numeric | nullable, required_without: `contents_cost` | Estimated value of the building/property. Required if `contents_cost` is not provided. |
 | `contents_cost` | numeric | nullable, required_without: `property_cost` | Estimated value of the home contents. Required if `property_cost` is not provided. |
+| `iban` | string | required, regex: `/^SA\d{22}$/` | The customer's Saudi IBAN (`SA` followed by 22 digits, no spaces). Insurance providers use it to transfer claim settlements and refunds directly to the customer; the account is never charged. |
 | `start_date` | date | required, after: today | Desired policy start date in `YYYY-MM-DD` format. Must be tomorrow or later. |
 | `has_agreed_to_terms_and_conditions` | boolean | accepted (`true`, `1`, `yes`) | Must explicitly confirm acceptance of terms and conditions. |
 
@@ -110,6 +112,7 @@ Content-Length: 868
         "email": "someone@example.com",
         "gender": "M",
         "name": "Customer Name",
+        "name_ar": "اسم العميل",
         "phone_number": "+9665XXXXXXX",
         "birthdate": "1990-01-01",
         "nationality": "JO",
@@ -131,6 +134,7 @@ Content-Length: 868
     },
     "property_cost": 500000,
     "contents_cost": 100000,
+    "iban": "SA0380000000608010167519",
     "start_date": "2025-12-11",
     "has_agreed_to_terms_and_conditions": true,
     "redirect_url": "https://www.example.com?policy_id=XXXXXX"
@@ -159,6 +163,7 @@ Example Response
         },
         "personal_details": {
             "name": "Customer Name",
+            "name_ar": "اسم العميل",
             "email": "someone@example.com",
             "gender": "M",
             "birthdate": "1990-01-01",
@@ -167,6 +172,7 @@ Example Response
             "nationality_id": "**********"
         },
         "insurance_provider": "walaa",
+        "iban": "SA0380000000608010167519",
         "start_date": "2025-12-11",
         "has_agreed_to_terms_and_conditions": true
     },
