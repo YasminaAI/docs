@@ -25,7 +25,9 @@
     "/prices": {
       "get": {
         "description": "Shows prices from different insurance companies based on the provided property and contents cost. You must provide at least one of property_cost or contents_cost. You can also provide both",
-        "tags": ["Prices"],
+        "tags": [
+          "Prices"
+        ],
         "summary": "List prices",
         "parameters": [
           {
@@ -48,10 +50,14 @@
         "x-validation": {
           "anyOf": [
             {
-              "required": ["property_cost"]
+              "required": [
+                "property_cost"
+              ]
             },
             {
-              "required": ["contents_cost"]
+              "required": [
+                "contents_cost"
+              ]
             }
           ]
         },
@@ -218,7 +224,9 @@
     "/policies": {
       "get": {
         "description": "Listing requested policies",
-        "tags": ["Policies"],
+        "tags": [
+          "Policies"
+        ],
         "summary": "List policies",
         "parameters": [
           {
@@ -678,7 +686,9 @@
             "in": "query",
             "schema": {
               "type": "string",
-              "enum": ["walaa"]
+              "enum": [
+                "walaa"
+              ]
             }
           },
           {
@@ -709,7 +719,6 @@
               "type": "number"
             }
           },
-
           {
             "name": "per_page",
             "in": "query",
@@ -740,7 +749,9 @@
       "post": {
         "description": "For issuing a new policy",
         "summary": "Issue policy",
-        "tags": ["Policies"],
+        "tags": [
+          "Policies"
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -767,9 +778,15 @@
                         "type": "string",
                         "example": "+966501234567"
                       },
-                      "name": {
+                      "name_en": {
                         "type": "string",
+                        "description": "Full name of the policyholder in English. Must not contain Arabic characters.",
                         "example": "Fahad Al-Qahtani"
+                      },
+                      "name_ar": {
+                        "type": "string",
+                        "description": "Full name of the policyholder in Arabic script.",
+                        "example": "فهد القحطاني"
                       },
                       "birthdate": {
                         "type": "string",
@@ -1060,7 +1077,8 @@
                     "required": [
                       "email",
                       "phone_number",
-                      "name",
+                      "name_en",
+                      "name_ar",
                       "birthdate",
                       "nationality",
                       "nationality_id"
@@ -1294,6 +1312,12 @@
                     "type": "number",
                     "example": 100000
                   },
+                  "iban": {
+                    "type": "string",
+                    "pattern": "^SA\\d{22}$",
+                    "description": "The customer's Saudi IBAN: SA followed by 22 digits, no spaces. Insurance providers use it to transfer claim settlements and refunds directly to the customer; the account is never charged.",
+                    "example": "SA0380000000608010167519"
+                  },
                   "start_date": {
                     "type": "string",
                     "format": "date",
@@ -1310,6 +1334,7 @@
                   "personal_details",
                   "building_details",
                   "address",
+                  "iban",
                   "start_date",
                   "has_agreed_to_terms_and_conditions"
                 ]
@@ -1388,7 +1413,9 @@
       "post": {
         "description": "Upload supporting documents for the related property or contents",
         "summary": "Upload documents",
-        "tags": ["Policies"],
+        "tags": [
+          "Policies"
+        ],
         "parameters": [
           {
             "required": true,
@@ -1436,7 +1463,9 @@
                     "code": "42201",
                     "message": "The document field cannot be empty.",
                     "details": {
-                      "document": ["The document field cannot be empty."]
+                      "document": [
+                        "The document field cannot be empty."
+                      ]
                     }
                   }
                 }
@@ -1448,7 +1477,9 @@
     },
     "/policies/{propertyPolicy}/claims": {
       "post": {
-        "tags": ["Claims"],
+        "tags": [
+          "Claims"
+        ],
         "parameters": [
           {
             "in": "path",
