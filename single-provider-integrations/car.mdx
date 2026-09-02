@@ -52,7 +52,9 @@ chassis=@chassis.jpg
 
 - **All five together.** A partial upload is rejected with a `422`.
 - **JPG or PNG, up to 3 MB each.**
-- **Once per vehicle.** A second upload comes back as a `409`.
+- **Once per vehicle.** The insurance provider keeps the first set it accepts. A later
+  upload for the same vehicle still succeeds, with `already_registered: true` in the
+  response, but the registered photos do not change — so check the photos before sending them.
 - **Comprehensive only.** A `quote_price_id` belonging to a TPL quote is rejected.
 
 ## Issue policy
