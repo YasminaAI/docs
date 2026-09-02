@@ -14,7 +14,6 @@ This guide describes the Yasmina's **Comprehensive Motor Insurance APIs for Sing
 Our APIs use the RESTful standard and is structured to provide consistent inputs and outputs, making it quick and easy to integrate, test, and maintain within your systems.
 
 ## What you will learn
-- Best practices and branding guidelines
 - Uploading vehicle photos
 - Issuing and managing policies
 - Payment link
@@ -24,40 +23,6 @@ Our APIs use the RESTful standard and is structured to provide consistent inputs
 1. **Account in Yasmina** - See the <a href="/introduction#onboarding" target="_blank">Onboarding section</a> for details. You need to add "Comprehensive Motor Insurance (Single Provider)" in the products field.
 2. **Authenticated Token** - Follow the <a href="/authentication" target="_blank">Authentication guide</a> to generate one.
 3. **Backend server** - Required to securely call Yasmina APIs.
-
-## Best practices and branding guidelines
-
-Show a provider attribution alongside every set of quotes — naming the licensed
-insurance broker behind the offers and its Insurance Authority licence — together with
-the support routes a customer can use if they need help. This is expected of every
-integration.
-
-Rather than hard-coding the wording, fetch it from the
-<a href="/car-api-reference/quotes/guideline-texts" target="_blank">Guideline Texts API</a>.
-English and Arabic come back together, so a bilingual page needs one request — and when
-the wording changes, it reaches you without an integration change.
-
-```
-GET /api/v1/car-comp/guideline-texts HTTP/1.1
-Authorization: Bearer *****
-Accept: application/json
-```
-
-The response has three parts under each locale:
-
-| Key | What it is |
-| --- | --- |
-| `provider` | The attribution line — `pre`, `brand`, `brand_url`, `supervision`, `license` |
-| `support` | WhatsApp, terms and toll-free routes to the provider's support team |
-| `faq` | Eight question-and-answer pairs covering the questions buyers ask most |
-
-Rendered, the attribution reads *"Quotes are provided through **Shahin** · Under
-supervision of the Insurance Authority, license و س ط/No. 20158/82"*, with `brand`
-linking to `brand_url`. The FAQ is optional but recommended — it answers the questions
-buyers raise most often before choosing a policy.
-
-<Note>The licence number and the toll-free number are the same in both locales. Wrap
-them in `<bdi>` so they are not reordered when the page is rendered right-to-left.</Note>
 
 ## Vehicle photos
 
@@ -69,9 +34,6 @@ against the quote request and the price the customer selected.
 <Warning>This step is required for comprehensive cover. If the photos are not uploaded,
 the customer cannot continue with the purchase. It must happen before you request the
 payment OTP.</Warning>
-
-See <a href="#best-practices-and-branding-guidelines" target="_blank">Best practices and branding guidelines</a>
-for what to show alongside the quotes.
 
 Example of a request
 

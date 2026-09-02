@@ -78,8 +78,7 @@ Then build a backend integration that:
 3. Uploads the five required vehicle photos (front, back, right, left, chassis
    number) before issuing a comprehensive policy.
 4. Requests an issue OTP and issues the policy with the selected quote.
-5. Handles validation and error responses as described in the guide, and
-   follows its best-practice and branding guidelines.
+5. Handles validation and error responses as described in the guide.
 
 Use the Sandbox environment (https://sandbox.yasmina.ai). Read the client ID
 and secret from environment variables, keep all Yasmina API calls on the
@@ -92,9 +91,6 @@ backend, and never expose the credentials or the access token to the browser.
   issued — see [Environments](/environments).
 - **Keep credentials server-side.** Yasmina APIs must be called from your backend; make
   sure generated code never ships the client secret or token to the browser.
-- **Hold the assistant to the guide.** The best-practice and branding guidelines in the
-  guide are integration requirements, not suggestions — ask the assistant to implement
-  them, then verify it did.
 - **Review before Production.** Treat the generated integration as a draft: run the full
   flow end to end in Sandbox and review the code before switching the base URL to
   Production.
