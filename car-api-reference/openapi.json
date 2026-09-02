@@ -511,7 +511,7 @@
       "post": {
         "tags": ["Quotes"],
         "summary": "Upload vehicle photos",
-        "description": "Uploads the five vehicle photos required for comprehensive cover and registers them with the insurance provider against the selected quote. Call it before requesting the payment OTP: the provider downloads and checks every image during this call, so a photo it cannot read is rejected while the customer can still retake it, rather than after they have paid. All five are required together — a partial set is rejected — and the photos can only be submitted once for a vehicle; a second upload returns 409. The quote_price_id must belong to a comprehensive quote.",
+        "description": "Uploads the five vehicle photos required for comprehensive cover and registers them with the insurance provider against the selected quote. Call it before requesting the payment OTP: the provider downloads and checks every image during this call, so a photo it cannot read is rejected while the customer can still retake it, rather than after they have paid. All five are required together — a partial set is rejected. The provider keeps the first set of photos it accepts for a vehicle, so a later upload for the same vehicle still returns 200 with `already_registered: true` and leaves the registered photos as they are. The quote_price_id must belong to a comprehensive quote.",
         "parameters": [
           {
             "name": "id",
@@ -583,6 +583,11 @@
                         "left": "https://cdn.yasmina.ai/vehicle-photos/jkl012.jpg",
                         "chassis": "https://cdn.yasmina.ai/vehicle-photos/mno345.jpg"
                       }
+                    },
+                    "already_registered": {
+                      "type": "boolean",
+                      "description": "True when the provider already held photos for this vehicle from an earlier upload and kept them. Nothing to act on — the quote is ready for the payment OTP either way.",
+                      "example": false
                     }
                   }
                 }
@@ -590,20 +595,6 @@
             }
           },
           "401": { "$ref": "#/components/responses/Unauthorized" },
-          "409": {
-            "description": "The photos for this vehicle are already registered with the insurance provider",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "example": {
-                    "code": 40000,
-                    "message": "Attachments already exist for this vehicle."
-                  }
-                }
-              }
-            }
-          },
           "422": {
             "description": "A photo is missing, is not a JPG/PNG image, or is larger than 3 MB",
             "content": {
