@@ -1,0 +1,333 @@
+---
+title: "Motor Insurance Iframe and WebView"
+description: "Drop the whole comprehensive motor journey into your website or your mobile app. Your customer compares prices, picks a plan and gets a policy without leaving you."
+icon: "window"
+---
+
+Give us the customer's details from your backend, and we give you back a URL. Put that URL in an iframe on your website, or in a WebView in your app, and the rest of the journey happens inside it: comparing quotes across providers, add-ons, the payout account, vehicle photos and the verification code. When the policy is issued we hand it to you with a payment link, and the embed goes blank so your own screen can take over.
+
+You do not build any of those screens, and you do not handle the customer's verification code.
+
+<Note>
+  This covers **Comprehensive Motor Insurance (Multiple Providers)**. Your account needs that product enabled. See [Onboarding](/introduction#onboarding).
+</Note>
+
+## Before you start
+
+Register where the embed is allowed to run, in [API Management](https://portal.yasmina.ai/api-management) under **Yasmina Iframe and WebView**. A session can only be opened for something on these lists.
+
+| Field | For | Example |
+| --- | --- | --- |
+| **Iframe hosts (websites)** | the iframe | `https://www.example.com` |
+| **WebView deep links (mobile apps)** | the WebView | `myapp://insurance/done` |
+
+Add every site you will embed from. `https://example.com` and `https://www.example.com` are different sites to a browser, so list both if you serve both.
+
+## The flow
+
+<Steps>
+  <Step title="Send the verification code">
+    Call the [Quote OTP API](/car-api-reference/otps/request-otp-for-quote-verification) with the customer's ID, email and phone. This one is yours because it happens before the embed exists.
+  </Step>
+  <Step title="Open a session">
+    Call **Create Embed Session** with the same payload you would send to [Request Quotes](/car-api-reference/quotes/request-quotes), plus where the session will run. We fetch the quotes and hand back a URL.
+  </Step>
+  <Step title="Show it">
+    Put the URL in an iframe or a WebView.
+  </Step>
+  <Step title="Receive the policy">
+    We send you the issued policy, including its payment link. Take the customer to payment from there.
+  </Step>
+</Steps>
+
+## Open a session
+
+```
+POST /api/v1/car-comp/embed-sessions
+```
+
+Everything [Request Quotes](/car-api-reference/quotes/request-quotes) takes, plus:
+
+<ParamField body="platform" type="string" required>
+  `web` for an iframe, `webview` for a mobile app. There is no default: each one requires a different field below.
+</ParamField>
+
+<ParamField body="parent_origin" type="string" required>
+  Web only. The site the iframe will sit on, scheme and domain with nothing after it. Must be one of your iframe hosts.
+</ParamField>
+
+<ParamField body="deep_link" type="string" required>
+  WebView only. Where your app is reopened once the policy is issued. Must be one of your registered deep links.
+</ParamField>
+
+<ParamField body="locale" type="string">
+  `ar` or `en`. Defaults to the customer's browser.
+</ParamField>
+
+<CodeGroup>
+```bash Website
+curl -X POST 'https://sandbox.yasmina.ai/api/v1/car-comp/embed-sessions' \
+  --header 'Authorization: Bearer <token>' \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "otp": "1234",
+    "owner_id": "1234567890",
+    "email": "customer@example.com",
+    "phone": "0500000000",
+    "birthdate": "1990-01-01",
+    "car_sequence_number": "123456789",
+    "car_estimated_cost": 45000,
+    "car_model_year": 2022,
+    "is_ownership_transfer": false,
+    "platform": "web",
+    "parent_origin": "https://www.example.com"
+  }'
+```
+
+```bash Mobile app
+curl -X POST 'https://sandbox.yasmina.ai/api/v1/car-comp/embed-sessions' \
+  --header 'Authorization: Bearer <token>' \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "otp": "1234",
+    "owner_id": "1234567890",
+    "email": "customer@example.com",
+    "phone": "0500000000",
+    "birthdate": "1990-01-01",
+    "car_sequence_number": "123456789",
+    "car_estimated_cost": 45000,
+    "car_model_year": 2022,
+    "is_ownership_transfer": false,
+    "platform": "webview",
+    "deep_link": "myapp://insurance/done"
+  }'
+```
+</CodeGroup>
+
+```json Response
+{
+  "id": 1,
+  "quote_request_id": 42,
+  "platform": "web",
+  "embed_url": "https://.../embed?session=8TJLiR0YhE8ikWSH3N16br2Q4qDg0ozGu18c5c3E",
+  "expires_at": "2026-01-01T12:00:00+00:00"
+}
+```
+
+<Warning>
+  There is no permanent embed URL. Each one belongs to one customer and expires after **one hour**. Create a session per customer, when they are ready to see prices.
+</Warning>
+
+`quote_request_id` is yours to keep for your own records. You never have to send it back.
+
+## On a website
+
+```html
+<iframe
+  src="EMBED_URL"
+  width="100%"
+  height="900"
+  style="border: 0"
+  title="Insurance"
+  allow="camera"
+></iframe>
+```
+
+`allow="camera"` matters only if you want customers to take vehicle photos with their camera rather than choosing existing ones.
+
+Listen for the policy. Always check the origin, and use the origin of the `embed_url` you were given rather than hardcoding one:
+
+```js
+const embedOrigin = new URL(embedUrl).origin
+
+window.addEventListener('message', (event) => {
+  if (event.origin !== embedOrigin) return
+
+  if (event.data.type === 'yasmina:policy-issued') {
+    const policy = event.data.policy
+    window.location = policy.payment_link
+  }
+})
+```
+
+Only the site you registered as `parent_origin` can load the embed. Anywhere else gets a blank frame, refused by the browser.
+
+## In a mobile app
+
+Load the same `embed_url` in a WebView. When the policy is issued we reopen your app at your `deep_link` with the policy id on it:
+
+```
+myapp://insurance/done?yasmina_policy_id=9001
+```
+
+Look the policy up with [Show Policy](/car-api-reference/policies/show-policy) to get its payment link.
+
+<Warning>
+  A WebView needs setting up before this works. Two things fail **silently** if you skip them: on Android the vehicle photo step does nothing at all without a file chooser, and JavaScript is disabled by default. Neither shows an error.
+</Warning>
+
+### iOS
+
+```swift
+import WebKit
+
+final class InsuranceViewController: UIViewController, WKNavigationDelegate {
+    private var webView: WKWebView!
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        webView = WKWebView(frame: view.bounds)
+        webView.navigationDelegate = self
+        view.addSubview(webView)
+
+        webView.load(URLRequest(url: URL(string: embedUrl)!))
+    }
+
+    // Required: WKWebView will not open your deep link on its own.
+    func webView(
+        _ webView: WKWebView,
+        decidePolicyFor navigationAction: WKNavigationAction,
+        decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
+    ) {
+        guard let url = navigationAction.request.url else {
+            decisionHandler(.allow)
+            return
+        }
+
+        if url.scheme == "myapp" {
+            decisionHandler(.cancel)
+            finish(with: url)   // read yasmina_policy_id
+            return
+        }
+
+        decisionHandler(.allow)
+    }
+}
+```
+
+Add `NSCameraUsageDescription` and `NSPhotoLibraryUsageDescription` to your `Info.plist`, or the app closes when the customer opens the photo picker.
+
+### Android
+
+```kotlin
+webView.settings.javaScriptEnabled = true   // off by default
+webView.settings.domStorageEnabled = true
+
+webView.webViewClient = object : WebViewClient() {
+    override fun shouldOverrideUrlLoading(
+        view: WebView,
+        request: WebResourceRequest
+    ): Boolean {
+        if (request.url.scheme == "myapp") {
+            finish(request.url)   // read yasmina_policy_id
+            return true
+        }
+        return false
+    }
+}
+
+// Required for the vehicle photos. Without this, tapping does nothing.
+webView.webChromeClient = object : WebChromeClient() {
+    override fun onShowFileChooser(
+        view: WebView,
+        callback: ValueCallback<Array<Uri>>,
+        params: FileChooserParams
+    ): Boolean {
+        // Launch your picker, then hand the result to callback.
+        return true
+    }
+}
+
+webView.loadUrl(embedUrl)
+```
+
+Request `CAMERA` at runtime if customers will photograph the vehicle in the app.
+
+### Getting the whole policy instead of just the id
+
+Optional. If you would rather receive the full policy than look it up, expose a bridge and we will use it, falling back to the deep link if it is not there.
+
+<CodeGroup>
+```swift iOS
+let controller = WKUserContentController()
+controller.add(self, name: "yasmina")     // this exact name
+
+let config = WKWebViewConfiguration()
+config.userContentController = controller
+webView = WKWebView(frame: view.bounds, configuration: config)
+
+// WKScriptMessageHandler
+func userContentController(
+    _ controller: WKUserContentController,
+    didReceive message: WKScriptMessage
+) {
+    guard let json = message.body as? String else { return }
+    // { "type": "yasmina:policy-issued", "policy": { ... } }
+}
+```
+
+```kotlin Android
+class YasminaBridge(private val onMessage: (String) -> Unit) {
+    @JavascriptInterface
+    fun postMessage(payload: String) = onMessage(payload)
+}
+
+webView.addJavascriptInterface(
+    YasminaBridge { json -> /* handle */ },
+    "YasminaAndroid",                      // this exact name
+)
+```
+</CodeGroup>
+
+## What you receive
+
+```json
+{
+  "type": "yasmina:policy-issued",
+  "policy": {
+    "id": 9001,
+    "policy_number": "...",
+    "status": 0,
+    "payment_link": "https://...",
+    "company_name": "..."
+  }
+}
+```
+
+The embed also sends `{ "type": "yasmina:ready" }` once it has loaded, which is useful for hiding your own loading state.
+
+The policy is issued but unpaid. Take the customer to `payment_link` to activate it. Your [webhooks](/webhooks/guide) fire on payment as they always do.
+
+## Reopening a session
+
+The URL works for its full hour and survives a refresh, so a customer who reloads keeps their place.
+
+To show the same quotes again later, open a new session on the quotes you already have by sending `quote_request_id` instead of the full payload:
+
+```json
+{
+  "quote_request_id": 42,
+  "platform": "web",
+  "parent_origin": "https://www.example.com"
+}
+```
+
+`GET /api/v1/car-comp/embed-sessions/{id}` returns a session you already created, and tells you whether it has expired.
+
+## When something is wrong
+
+| Response | Meaning |
+| --- | --- |
+| `422` on `platform` | Say `web` or `webview`. It is never assumed. |
+| `422` on `parent_origin` | The site is not one of your iframe hosts. The message names it. |
+| `422` on `deep_link` | The link is not one of your registered deep links. The message names it. |
+| `422` on `return_url` or `parent_origin` being prohibited | You sent the field belonging to the other platform. |
+| A blank iframe | The page is framed on a site you did not register. |
+| `400` with a quote error | The quote itself failed. Same codes and messages as [Request Quotes](/car-api-reference/quotes/request-quotes). |
+
+<Tip>
+  Send `Accept: application/json` on every call. Without it an error comes back as an HTML page instead of a JSON body.
+</Tip>
