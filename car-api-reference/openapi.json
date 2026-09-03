@@ -326,7 +326,7 @@
           "Embed sessions"
         ],
         "summary": "Create embed session",
-        "description": "Requests quotes and opens an embeddable session on them in one call, and returns a URL to put in an iframe or a WebView. Takes everything Request Quotes takes, plus where the session will run.\n\nThe customer compares quotes, chooses add-ons, gives a payout account, uploads vehicle photos and verifies by OTP inside the embed. The issued policy and its payment link are handed back to your page or your app.\n\nRegister the sites and app links a session may be opened for in API Management first.",
+        "description": "Requests quotes and opens an embeddable session on them in one call, and returns a URL to put in an iframe or a WebView. Takes everything Request Quotes takes, plus where the session will run.\n\nThe customer compares quotes, chooses add-ons, gives a payout account, uploads vehicle photos and verifies by OTP inside the embed. The issued policy and its payment link are handed back to your page or your app.\n\nTo show the quotes again after the hour is up, call this again with the same payload. The quote OTP stays valid for hours, so the customer is not asked to verify twice.\n\nRegister the sites and app links a session may be opened for in API Management first.",
         "requestBody": {
           "required": true,
           "content": {
@@ -367,11 +367,6 @@
                           "en"
                         ],
                         "description": "The language the embed opens in. Defaults to the customer's browser."
-                      },
-                      "quote_request_id": {
-                        "type": "integer",
-                        "description": "Optional. Send this on its own, in place of the quote payload, to open a new session on quotes you already hold rather than requesting them again.",
-                        "example": 42
                       }
                     }
                   }
