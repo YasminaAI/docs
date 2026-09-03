@@ -26,7 +26,9 @@
   "paths": {
     "/vehicle-makers": {
       "get": {
-        "tags": ["Vehicle lookups"],
+        "tags": [
+          "Vehicle lookups"
+        ],
         "summary": "List vehicle makers",
         "description": "Returns vehicle makers that have at least one model. Use the returned code when requesting a quote with a customs number.",
         "parameters": [
@@ -59,7 +61,9 @@
     },
     "/vehicle-models": {
       "get": {
-        "tags": ["Vehicle lookups"],
+        "tags": [
+          "Vehicle lookups"
+        ],
         "summary": "List vehicle models",
         "description": "Returns models belonging to the selected maker. The model code submitted in a customs-number quote must belong to its maker code.",
         "parameters": [
@@ -102,7 +106,9 @@
     },
     "/vehicle-body-types": {
       "get": {
-        "tags": ["Vehicle lookups"],
+        "tags": [
+          "Vehicle lookups"
+        ],
         "summary": "List vehicle body types",
         "description": "Returns body types accepted when requesting a quote with a customs number.",
         "parameters": [
@@ -135,7 +141,9 @@
     },
     "/quote-requests/{id}": {
       "get": {
-        "tags": ["Quotes"],
+        "tags": [
+          "Quotes"
+        ],
         "summary": "Show quote",
         "parameters": [
           {
@@ -165,7 +173,9 @@
       },
       "delete": {
         "summary": "Delete quote",
-        "tags": ["Quotes"],
+        "tags": [
+          "Quotes"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -201,7 +211,9 @@
     },
     "/quote-requests": {
       "get": {
-        "tags": ["Quotes"],
+        "tags": [
+          "Quotes"
+        ],
         "summary": "List quotes",
         "parameters": [
           {
@@ -262,7 +274,9 @@
       },
       "post": {
         "description": "For getting prices with benefits. \nThe Quote IDs can be used later to issue a policy",
-        "tags": ["Quotes"],
+        "tags": [
+          "Quotes"
+        ],
         "summary": "Request quotes",
         "parameters": [
           {
@@ -272,7 +286,9 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": ["ar"],
+              "enum": [
+                "ar"
+              ],
               "example": "ar"
             }
           }
@@ -297,165 +313,171 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "otp": {
-                    "type": "string",
-                    "pattern": "^\\d{4}$",
-                    "description": "The OTP received by the customer from the Request OTP API",
-                    "example": "1234"
-                  },
-                  "owner_id": {
-                    "type": "string",
-                    "pattern": "^(1|2)\\d{9}$",
-                    "description": "The owner's national ID (starts with 1 for Saudi nationals) or Iqama ID (starts with 2 for residents). Must be exactly 10 digits."
-                  },
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "description": "Email address must be valid and belongs to the customer"
-                  },
-                  "phone": {
-                    "type": "string",
-                    "pattern": "^05\\d{8}$",
-                    "description": "Phone number must start with 05 and be 10 digits"
-                  },
-                  "birthdate": {
-                    "type": "string",
-                    "format": "date",
-                    "description": "Birthdate in YYYY-MM-DD format"
-                  },
-                  "car_sequence_number": {
-                    "type": "string",
-                    "pattern": "^\\d{8,9}$",
-                    "description": "Car sequence number must be 8 or 9 digits"
-                  },
-                  "custom_number": {
-                    "type": "string",
-                    "pattern": "^[1-9]\\d{5,9}$",
-                    "description": "Customs card number between 100000 and 9999999999 for an imported vehicle. When provided, maker_code, model_code, and body_type_code are required, and car_sequence_number must be omitted."
-                  },
-                  "maker_code": {
-                    "type": "integer",
-                    "description": "Required with custom_number. Use a code returned by GET /vehicle-makers.",
-                    "example": 101
-                  },
-                  "model_code": {
-                    "type": "integer",
-                    "description": "Required with custom_number. Use a code returned by GET /vehicle-models for the selected maker_code.",
-                    "example": 1001
-                  },
-                  "body_type_code": {
-                    "type": "integer",
-                    "description": "Required with custom_number. Use a code returned by GET /vehicle-body-types.",
-                    "example": 3
-                  },
-                  "is_ownership_transfer": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Indicates if the ownership is being transferred"
-                  },
-                  "current_car_owner_id": {
-                    "type": "string",
-                    "pattern": "^(1|2)\\d{9}$",
-                    "description": "Required if is_ownership_transfer is true; the current owner's national ID (starts with 1) or Iqama ID (starts with 2). Must be exactly 10 digits."
-                  },
-                  "car_estimated_cost": {
-                    "type": "number",
-                    "description": "Estimated cost of the car"
-                  },
-                  "car_model_year": {
-                    "type": "integer",
-                    "minimum": 1950,
-                    "maximum": 2026,
-                    "description": "Car model year between 1950 and next year"
-                  },
-                  "start_date": {
-                    "type": "string",
-                    "format": "date",
-                    "description": "Desired policy start date in YYYY-MM-DD. Must be between tomorrow and 28 days from today (inclusive). The platform validates this range server-side.",
-                    "example": "2025-12-11"
-                  },
-                  "drivers": {
-                    "type": "array",
-                    "description": "List of drivers for the vehicle. When provided, the sum of all driving_percentage values must equal 100, and the owner must be included among the drivers.",
-                    "items": {
-                      "type": "object",
-                      "required": [
-                        "owner_id",
-                        "birthdate",
-                        "driving_percentage"
-                      ],
-                      "properties": {
-                        "owner_id": {
-                          "type": "string",
-                          "pattern": "^(1|2)\\d{9}$",
-                          "description": "Driver's national ID (starts with 1 for Saudi nationals) or Iqama ID (starts with 2 for residents). Must be exactly 10 digits."
-                        },
-                        "birthdate": {
-                          "type": "string",
-                          "format": "date",
-                          "description": "Driver's birthdate in YYYY-MM-DD format."
-                        },
-                        "driving_percentage": {
-                          "type": "integer",
-                          "enum": [25, 50, 75, 100],
-                          "description": "Percentage of driving for this driver. Valid values are 25, 50, 75, or 100. The sum of all drivers' percentages must equal 100."
-                        }
-                      }
-                    },
-                    "example": [
-                      {
-                        "owner_id": "1234567890",
-                        "birthdate": "1990-01-15",
-                        "driving_percentage": 50
-                      },
-                      {
-                        "owner_id": "2345678901",
-                        "birthdate": "1985-06-20",
-                        "driving_percentage": 50
-                      }
-                    ]
-                  }
-                },
-                "oneOf": [
-                  {
-                    "required": ["car_sequence_number"],
-                    "not": {
-                      "required": ["custom_number"]
-                    }
-                  },
-                  {
-                    "required": [
-                      "custom_number",
-                      "maker_code",
-                      "model_code",
-                      "body_type_code"
-                    ],
-                    "not": {
-                      "required": ["car_sequence_number"]
-                    }
-                  }
-                ],
-                "required": [
-                  "otp",
-                  "owner_id",
-                  "email",
-                  "phone",
-                  "birthdate",
-                  "car_estimated_cost"
-                ]
+                "$ref": "#/components/schemas/QuoteRequest"
               }
             }
           }
         }
       }
     },
+    "/embed-sessions": {
+      "post": {
+        "tags": [
+          "Embed sessions"
+        ],
+        "summary": "Create embed session",
+        "description": "Requests quotes and opens an embeddable session on them in one call, and returns a URL to put in an iframe or a WebView. Takes everything Request Quotes takes, plus where the session will run.\n\nThe customer compares quotes, chooses add-ons, gives a payout account, uploads vehicle photos and verifies by OTP inside the embed. The issued policy and its payment link are handed back to your page or your app.\n\nRegister the sites and app links a session may be opened for in API Management first.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/QuoteRequest"
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "platform"
+                    ],
+                    "properties": {
+                      "platform": {
+                        "type": "string",
+                        "enum": [
+                          "web",
+                          "webview"
+                        ],
+                        "description": "Where the session will run. `web` for an iframe, `webview` for a mobile app. There is no default: each one requires a different field below."
+                      },
+                      "parent_origin": {
+                        "type": "string",
+                        "description": "Web only, and required there. The site the iframe will sit on: scheme and domain with nothing after it. Must be one of the iframe hosts registered in API Management. Prohibited for a webview, which has no origin.",
+                        "example": "https://www.example.com"
+                      },
+                      "deep_link": {
+                        "type": "string",
+                        "description": "WebView only, and required there. Where your app is reopened once the policy is issued, with `?yasmina_policy_id=` added. Must be one of the deep links registered in API Management. Prohibited for the web, which is handed the policy by postMessage instead.",
+                        "example": "myapp://insurance/done"
+                      },
+                      "locale": {
+                        "type": "string",
+                        "enum": [
+                          "ar",
+                          "en"
+                        ],
+                        "description": "The language the embed opens in. Defaults to the customer's browser."
+                      },
+                      "quote_request_id": {
+                        "type": "integer",
+                        "description": "Optional. Send this on its own, in place of the quote payload, to open a new session on quotes you already hold rather than requesting them again.",
+                        "example": 42
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The session, with the URL to embed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmbedSession"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        }
+      }
+    },
+    "/embed-sessions/{id}": {
+      "get": {
+        "tags": [
+          "Embed sessions"
+        ],
+        "summary": "Show embed session",
+        "description": "Returns a session you created earlier, including its URL and whether it has expired.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The session id returned when it was created.",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/EmbedSession"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "parent_origin": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "The site allowed to frame it. Null for a webview."
+                        },
+                        "deep_link": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "Where the app is reopened. Null for the web."
+                        },
+                        "locale": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "expired": {
+                          "type": "boolean",
+                          "description": "Whether the URL has stopped working."
+                        },
+                        "first_opened_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "nullable": true,
+                          "description": "When the customer first opened it, if they have."
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
     "/guideline-texts": {
       "get": {
-        "tags": ["Quotes"],
+        "tags": [
+          "Quotes"
+        ],
         "summary": "Guideline texts",
-        "description": "Returns the copy you are expected to show alongside motor quotes \u2014 the provider attribution and its Insurance Authority licence, the Shahin support routes, and the buyer FAQ. English and Arabic are returned together, so a bilingual page needs a single request and does not have to hold the strings itself. Fetch it rather than hard-coding the wording: changes reach you without an integration change.",
+        "description": "Returns the copy you are expected to show alongside motor quotes — the provider attribution and its Insurance Authority licence, the Shahin support routes, and the buyer FAQ. English and Arabic are returned together, so a bilingual page needs a single request and does not have to hold the strings itself. Fetch it rather than hard-coding the wording: changes reach you without an integration change.",
         "responses": {
           "200": {
             "description": "The guideline texts, keyed by locale",
@@ -489,8 +511,13 @@
                       ]
                     },
                     "ar": {
-                      "provider": { "pre": "هذه العروض مقدَّمة عبر", "brand": "شاهين" },
-                      "support": { "lead": "للدعم والمساعدة عبر" },
+                      "provider": {
+                        "pre": "هذه العروض مقدَّمة عبر",
+                        "brand": "شاهين"
+                      },
+                      "support": {
+                        "lead": "للدعم والمساعدة عبر"
+                      },
                       "faq": [
                         {
                           "question": "ما الفرق بين التأمين ضد الغير والتأمين الشامل؟",
@@ -503,22 +530,29 @@
               }
             }
           },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
         }
       }
     },
     "/quote-requests/{id}/attachments": {
       "post": {
-        "tags": ["Quotes"],
+        "tags": [
+          "Quotes"
+        ],
         "summary": "Upload vehicle photos",
-        "description": "Uploads the five vehicle photos required for comprehensive cover and registers them with the insurance provider against the selected quote. Call it before requesting the payment OTP: the provider downloads and checks every image during this call, so a photo it cannot read is rejected while the customer can still retake it, rather than after they have paid. All five are required together — a partial set is rejected — and the photos can only be submitted once for a vehicle; a second upload returns 409. The quote_price_id must belong to a comprehensive quote.",
+        "description": "Uploads the five vehicle photos required for comprehensive cover and registers them with the insurance provider against the selected quote. Call it before requesting the payment OTP: the provider downloads and checks every image during this call, so a photo it cannot read is rejected while the customer can still retake it, rather than after they have paid. All five are required together — a partial set is rejected. The provider keeps the first set of photos it accepts for a vehicle, so a later upload for the same vehicle still returns 200 with `already_registered: true` and leaves the registered photos as they are. The quote_price_id must belong to a comprehensive quote.",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
             "description": "ID of the quote request the photos belong to",
-            "schema": { "type": "integer", "example": 11 }
+            "schema": {
+              "type": "integer",
+              "example": 11
+            }
           }
         ],
         "requestBody": {
@@ -560,7 +594,14 @@
                     "description": "Photo of the chassis (VIN) number. JPG or PNG, up to 3 MB."
                   }
                 },
-                "required": ["quote_price_id", "front", "back", "right", "left", "chassis"]
+                "required": [
+                  "quote_price_id",
+                  "front",
+                  "back",
+                  "right",
+                  "left",
+                  "chassis"
+                ]
               }
             }
           }
@@ -583,26 +624,19 @@
                         "left": "https://cdn.yasmina.ai/vehicle-photos/jkl012.jpg",
                         "chassis": "https://cdn.yasmina.ai/vehicle-photos/mno345.jpg"
                       }
+                    },
+                    "already_registered": {
+                      "type": "boolean",
+                      "description": "True when the provider already held photos for this vehicle from an earlier upload and kept them. Nothing to act on — the quote is ready for the payment OTP either way.",
+                      "example": false
                     }
                   }
                 }
               }
             }
           },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "409": {
-            "description": "The photos for this vehicle are already registered with the insurance provider",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "example": {
-                    "code": 40000,
-                    "message": "Attachments already exist for this vehicle."
-                  }
-                }
-              }
-            }
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           },
           "422": {
             "description": "A photo is missing, is not a JPG/PNG image, or is larger than 3 MB",
@@ -613,7 +647,11 @@
                   "example": {
                     "code": "42201",
                     "message": "The chassis field is required.",
-                    "details": { "chassis": ["The chassis field is required."] }
+                    "details": {
+                      "chassis": [
+                        "The chassis field is required."
+                      ]
+                    }
                   }
                 }
               }
@@ -625,7 +663,9 @@
     "/policies/{carPolicy}": {
       "get": {
         "description": "Show a specific policy",
-        "tags": ["Policies"],
+        "tags": [
+          "Policies"
+        ],
         "summary": "Show policy",
         "parameters": [
           {
@@ -654,7 +694,9 @@
     "/policies": {
       "get": {
         "description": "Listing requested policies",
-        "tags": ["Policies"],
+        "tags": [
+          "Policies"
+        ],
         "summary": "List policies",
         "parameters": [
           {
@@ -693,7 +735,6 @@
               "type": "string"
             }
           },
-
           {
             "name": "previous_owner_id",
             "in": "query",
@@ -701,7 +742,6 @@
               "type": "string"
             }
           },
-
           {
             "name": "status",
             "in": "query",
@@ -723,7 +763,6 @@
               "type": "number"
             }
           },
-
           {
             "name": "per_page",
             "in": "query",
@@ -781,7 +820,9 @@
       "post": {
         "description": "For issuing a new policy",
         "summary": "Issue policy",
-        "tags": ["Policies"],
+        "tags": [
+          "Policies"
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -868,11 +909,15 @@
                     "code": "42201",
                     "message": "The vin must be 17 characters. (and 3 more errors)",
                     "details": {
-                      "vin": ["The vin must be 17 characters."],
+                      "vin": [
+                        "The vin must be 17 characters."
+                      ],
                       "car_sequence_number": [
                         "The car sequence number must be 9 digits."
                       ],
-                      "new_owner_id": ["The new owner id must be 10 digits."],
+                      "new_owner_id": [
+                        "The new owner id must be 10 digits."
+                      ],
                       "current_car_owner": [
                         "The current owner id field cannot be empty."
                       ]
@@ -887,7 +932,9 @@
     },
     "/quote-otp": {
       "post": {
-        "tags": ["OTPs"],
+        "tags": [
+          "OTPs"
+        ],
         "summary": "Request OTP for quote verification",
         "description": "Sends a quote verification OTP to the provided email and phone number. The OTP remains valid for 8 hours and can be reused for multiple quote requests during that period. Requesting a new quote OTP invalidates the previous one.",
         "requestBody": {
@@ -916,7 +963,11 @@
                     "description": "National ID or Iqama ID of the car owner (10 digits)"
                   }
                 },
-                "required": ["email", "phone", "owner_id"]
+                "required": [
+                  "email",
+                  "phone",
+                  "owner_id"
+                ]
               }
             }
           }
@@ -971,7 +1022,9 @@
     },
     "/issue-otp": {
       "post": {
-        "tags": ["OTPs"],
+        "tags": [
+          "OTPs"
+        ],
         "summary": "Request OTP for Issuing Policy",
         "description": "Sends a separate policy issuance OTP. This OTP is valid for 15 minutes and must be submitted to POST /policies before it expires. The 8-hour quote OTP validity does not apply to policy issuance.",
         "requestBody": {
@@ -1137,7 +1190,11 @@
     "schemas": {
       "VehicleLookupItem": {
         "type": "object",
-        "required": ["code", "name_en", "name_ar"],
+        "required": [
+          "code",
+          "name_en",
+          "name_ar"
+        ],
         "properties": {
           "code": {
             "type": "integer",
@@ -1248,7 +1305,11 @@
                 },
                 "type": {
                   "type": "string",
-                  "enum": ["TPL", "TPL +", "Comprehensive"],
+                  "enum": [
+                    "TPL",
+                    "TPL +",
+                    "Comprehensive"
+                  ],
                   "description": "Normalised insurance category used to group and filter quotes. Always one of `TPL`, `TPL +`, or `Comprehensive`."
                 },
                 "insurance_type_display": {
@@ -1319,7 +1380,11 @@
           },
           "type": {
             "type": "string",
-            "enum": ["TPL", "TPL +", "Comprehensive"],
+            "enum": [
+              "TPL",
+              "TPL +",
+              "Comprehensive"
+            ],
             "description": "Normalised insurance category used to group and filter quotes. Always one of `TPL`, `TPL +`, or `Comprehensive`."
           },
           "insurance_type_display": {
@@ -1664,6 +1729,200 @@
           },
           "message": {
             "type": "string"
+          }
+        }
+      },
+      "QuoteRequest": {
+        "type": "object",
+        "properties": {
+          "otp": {
+            "type": "string",
+            "pattern": "^\\d{4}$",
+            "description": "The OTP received by the customer from the Request OTP API",
+            "example": "1234"
+          },
+          "owner_id": {
+            "type": "string",
+            "pattern": "^(1|2)\\d{9}$",
+            "description": "The owner's national ID (starts with 1 for Saudi nationals) or Iqama ID (starts with 2 for residents). Must be exactly 10 digits."
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address must be valid and belongs to the customer"
+          },
+          "phone": {
+            "type": "string",
+            "pattern": "^05\\d{8}$",
+            "description": "Phone number must start with 05 and be 10 digits"
+          },
+          "birthdate": {
+            "type": "string",
+            "format": "date",
+            "description": "Birthdate in YYYY-MM-DD format"
+          },
+          "car_sequence_number": {
+            "type": "string",
+            "pattern": "^\\d{8,9}$",
+            "description": "Car sequence number must be 8 or 9 digits"
+          },
+          "custom_number": {
+            "type": "string",
+            "pattern": "^[1-9]\\d{5,9}$",
+            "description": "Customs card number between 100000 and 9999999999 for an imported vehicle. When provided, maker_code, model_code, and body_type_code are required, and car_sequence_number must be omitted."
+          },
+          "maker_code": {
+            "type": "integer",
+            "description": "Required with custom_number. Use a code returned by GET /vehicle-makers.",
+            "example": 101
+          },
+          "model_code": {
+            "type": "integer",
+            "description": "Required with custom_number. Use a code returned by GET /vehicle-models for the selected maker_code.",
+            "example": 1001
+          },
+          "body_type_code": {
+            "type": "integer",
+            "description": "Required with custom_number. Use a code returned by GET /vehicle-body-types.",
+            "example": 3
+          },
+          "is_ownership_transfer": {
+            "type": "boolean",
+            "default": false,
+            "description": "Indicates if the ownership is being transferred"
+          },
+          "current_car_owner_id": {
+            "type": "string",
+            "pattern": "^(1|2)\\d{9}$",
+            "description": "Required if is_ownership_transfer is true; the current owner's national ID (starts with 1) or Iqama ID (starts with 2). Must be exactly 10 digits."
+          },
+          "car_estimated_cost": {
+            "type": "number",
+            "description": "Estimated cost of the car"
+          },
+          "car_model_year": {
+            "type": "integer",
+            "minimum": 1950,
+            "maximum": 2026,
+            "description": "Car model year between 1950 and next year"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Desired policy start date in YYYY-MM-DD. Must be between tomorrow and 28 days from today (inclusive). The platform validates this range server-side.",
+            "example": "2025-12-11"
+          },
+          "drivers": {
+            "type": "array",
+            "description": "List of drivers for the vehicle. When provided, the sum of all driving_percentage values must equal 100, and the owner must be included among the drivers.",
+            "items": {
+              "type": "object",
+              "required": [
+                "owner_id",
+                "birthdate",
+                "driving_percentage"
+              ],
+              "properties": {
+                "owner_id": {
+                  "type": "string",
+                  "pattern": "^(1|2)\\d{9}$",
+                  "description": "Driver's national ID (starts with 1 for Saudi nationals) or Iqama ID (starts with 2 for residents). Must be exactly 10 digits."
+                },
+                "birthdate": {
+                  "type": "string",
+                  "format": "date",
+                  "description": "Driver's birthdate in YYYY-MM-DD format."
+                },
+                "driving_percentage": {
+                  "type": "integer",
+                  "enum": [
+                    25,
+                    50,
+                    75,
+                    100
+                  ],
+                  "description": "Percentage of driving for this driver. Valid values are 25, 50, 75, or 100. The sum of all drivers' percentages must equal 100."
+                }
+              }
+            },
+            "example": [
+              {
+                "owner_id": "1234567890",
+                "birthdate": "1990-01-15",
+                "driving_percentage": 50
+              },
+              {
+                "owner_id": "2345678901",
+                "birthdate": "1985-06-20",
+                "driving_percentage": 50
+              }
+            ]
+          }
+        },
+        "oneOf": [
+          {
+            "required": [
+              "car_sequence_number"
+            ],
+            "not": {
+              "required": [
+                "custom_number"
+              ]
+            }
+          },
+          {
+            "required": [
+              "custom_number",
+              "maker_code",
+              "model_code",
+              "body_type_code"
+            ],
+            "not": {
+              "required": [
+                "car_sequence_number"
+              ]
+            }
+          }
+        ],
+        "required": [
+          "otp",
+          "owner_id",
+          "email",
+          "phone",
+          "birthdate",
+          "car_estimated_cost"
+        ]
+      },
+      "EmbedSession": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "The session id, for reading it back later.",
+            "example": 1
+          },
+          "quote_request_id": {
+            "type": "integer",
+            "description": "The quote request the embed was opened on. Yours to keep; you never send it back.",
+            "example": 42
+          },
+          "platform": {
+            "type": "string",
+            "enum": [
+              "web",
+              "webview"
+            ],
+            "description": "What the session was opened for."
+          },
+          "embed_url": {
+            "type": "string",
+            "description": "Put this in an iframe or a WebView. Belongs to one customer and expires after an hour.",
+            "example": "https://.../embed?session=8TJLiR0YhE8ikWSH3N16br2Q4qDg0ozGu18c5c3E"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the URL stops working."
           }
         }
       }
