@@ -30,7 +30,7 @@ Add every site you will embed from. `https://example.com` and `https://www.examp
     Call the [Quote OTP API](/car-api-reference/otps/request-otp-for-quote-verification) with the customer's ID, email and phone. This one is yours because it happens before the embed exists.
   </Step>
   <Step title="Open a session">
-    Call **Create Embed Session** with the same payload you would send to [Request Quotes](/car-api-reference/quotes/request-quotes), plus where the session will run. We fetch the quotes and hand back a URL.
+    Call [Create Embed Session](/car-api-reference/embed-sessions/create-embed-session) with the same payload you would send to [Request Quotes](/car-api-reference/quotes/request-quotes), plus where the session will run. We fetch the quotes and hand back a URL.
   </Step>
   <Step title="Show it">
     Put the URL in an iframe or a WebView.
@@ -45,6 +45,8 @@ Add every site you will embed from. `https://example.com` and `https://www.examp
 ```
 POST /api/v1/car-comp/embed-sessions
 ```
+
+Send `Accept: application/json`, as with every Yasmina API.
 
 Everything [Request Quotes](/car-api-reference/quotes/request-quotes) takes, plus:
 
@@ -312,7 +314,7 @@ To show the same quotes again later, open a new session on the quotes you alread
 }
 ```
 
-`GET /api/v1/car-comp/embed-sessions/{id}` returns a session you already created, and tells you whether it has expired.
+[Show Embed Session](/car-api-reference/embed-sessions/show-embed-session) returns a session you already created, and tells you whether it has expired.
 
 ## When something is wrong
 
@@ -324,7 +326,3 @@ To show the same quotes again later, open a new session on the quotes you alread
 | `422` on `return_url` or `parent_origin` being prohibited | You sent the field belonging to the other platform. |
 | A blank iframe | The page is framed on a site you did not register. |
 | `400` with a quote error | The quote itself failed. Same codes and messages as [Request Quotes](/car-api-reference/quotes/request-quotes). |
-
-<Tip>
-  Send `Accept: application/json` on every call, as with all Yasmina APIs. Without it an error comes back as an HTML page instead of a JSON body.
-</Tip>
