@@ -300,19 +300,11 @@ The embed also sends `{ "type": "yasmina:ready" }` once it has loaded, which is 
 
 The policy is issued but unpaid. Take the customer to `payment_link` to activate it. Your [webhooks](/webhooks/guide) fire on payment as they always do.
 
-## Reopening a session
+## Showing the quotes again
 
 The URL works for its full hour and survives a refresh, so a customer who reloads keeps their place.
 
-To show the same quotes again later, open a new session on the quotes you already have by sending `quote_request_id` instead of the full payload:
-
-```json
-{
-  "quote_request_id": 42,
-  "platform": "web",
-  "parent_origin": "https://www.example.com"
-}
-```
+Once the hour is up, call the same endpoint again with the same payload. You can reuse the verification code the customer already gave you, since it stays valid for hours, so they are not asked for a new one. The new session opens on fresh quotes rather than hour-old prices.
 
 [Show Embed Session](/car-api-reference/embed-sessions/show-embed-session) returns a session you already created, and tells you whether it has expired.
 
