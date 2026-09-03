@@ -131,11 +131,8 @@ curl -X POST 'https://sandbox.yasmina.ai/api/v1/car-comp/embed-sessions' \
   height="900"
   style="border: 0"
   title="Insurance"
-  allow="camera"
 ></iframe>
 ```
-
-`allow="camera"` matters only if you want customers to take vehicle photos with their camera rather than choosing existing ones.
 
 Listen for the policy. Always check the origin, and use the origin of the `embed_url` you were given rather than hardcoding one:
 
@@ -208,7 +205,7 @@ final class InsuranceViewController: UIViewController, WKNavigationDelegate {
 }
 ```
 
-Add `NSCameraUsageDescription` and `NSPhotoLibraryUsageDescription` to your `Info.plist`, or the app closes when the customer opens the photo picker.
+Add `NSCameraUsageDescription` to your `Info.plist`. Without it iOS terminates the app the moment a customer taps **Take Photo** on the vehicle photo step. Choosing an existing photo instead goes through a picker that runs outside your app, and needs no key.
 
 ### Android
 
@@ -329,5 +326,5 @@ To show the same quotes again later, open a new session on the quotes you alread
 | `400` with a quote error | The quote itself failed. Same codes and messages as [Request Quotes](/car-api-reference/quotes/request-quotes). |
 
 <Tip>
-  Send `Accept: application/json` on every call. Without it an error comes back as an HTML page instead of a JSON body.
+  Send `Accept: application/json` on every call, as with all Yasmina APIs. Without it an error comes back as an HTML page instead of a JSON body.
 </Tip>
