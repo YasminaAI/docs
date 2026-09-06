@@ -301,11 +301,94 @@
     "/medical-forms/fill": {
       "post": {
         "summary": "Fill Medical forms",
-        "description": "This if the HR wants to fill the Medical forms themselves.",
+        "description": "This is if the HR wants to fill the Medical forms on behalf of the employees. The answers in `all_employees` apply to every employee; use `ids_or_emails` to override the answers for specific employees. Use the Get the Medical form questions API to see the question text for each key.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "all_employees"
+                ],
+                "properties": {
+                  "all_employees": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/MedicalFormAnswers"
+                      }
+                    ],
+                    "description": "Default answers applied to all employees of the company"
+                  },
+                  "ids_or_emails": {
+                    "type": "array",
+                    "description": "Per-employee overrides. Identify the employee by email, nationality id, or Iqama id.",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "id_or_email",
+                        "answers"
+                      ],
+                      "properties": {
+                        "id_or_email": {
+                          "type": "string"
+                        },
+                        "answers": {
+                          "$ref": "#/components/schemas/MedicalFormAnswers"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "example": {
+                "all_employees": {
+                  "allergies": "No",
+                  "current_medications": "No",
+                  "hospitalizations": "No",
+                  "pre_existing_conditions": "No",
+                  "past_surgeries": "No",
+                  "surgery_complications": "No",
+                  "chest_pain_or_breathlessness": "No",
+                  "heart_procedures": "No",
+                  "smoking": "No",
+                  "alcohol_consumption": "No",
+                  "physical_activity": "No",
+                  "family_history": "No",
+                  "chronic_disease": [
+                    "None of the above"
+                  ]
+                },
+                "ids_or_emails": [
+                  {
+                    "id_or_email": "john.doe@example.com",
+                    "answers": {
+                      "allergies": "No",
+                      "current_medications": "No",
+                      "hospitalizations": "No",
+                      "pre_existing_conditions": "No",
+                      "past_surgeries": "Yes",
+                      "surgery_complications": "No",
+                      "chest_pain_or_breathlessness": "No",
+                      "heart_procedures": "No",
+                      "smoking": "No",
+                      "alcohol_consumption": "No",
+                      "physical_activity": "No",
+                      "family_history": "No",
+                      "chronic_disease": [
+                        "Liver Disease"
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
         "tags": ["Medical Forms"],
         "responses": {
           "204": {
-            "description": "Forms dispatched successfully"
+            "description": "Forms submitted successfully"
           },
           "400": {
             "description": "Bad request",
@@ -321,6 +404,9 @@
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
           }
         }
       }
@@ -791,6 +877,124 @@
       }
     },
     "schemas": {
+      "MedicalFormAnswers": {
+        "type": "object",
+        "required": [
+          "allergies",
+          "current_medications",
+          "hospitalizations",
+          "pre_existing_conditions",
+          "past_surgeries",
+          "surgery_complications",
+          "chest_pain_or_breathlessness",
+          "heart_procedures",
+          "smoking",
+          "alcohol_consumption",
+          "physical_activity",
+          "family_history"
+        ],
+        "properties": {
+          "allergies": {
+            "type": "string",
+            "enum": [
+              "Yes",
+              "No"
+            ]
+          },
+          "current_medications": {
+            "type": "string",
+            "enum": [
+              "Yes",
+              "No"
+            ]
+          },
+          "hospitalizations": {
+            "type": "string",
+            "enum": [
+              "Yes",
+              "No"
+            ]
+          },
+          "pre_existing_conditions": {
+            "type": "string",
+            "enum": [
+              "Yes",
+              "No"
+            ]
+          },
+          "past_surgeries": {
+            "type": "string",
+            "enum": [
+              "Yes",
+              "No"
+            ]
+          },
+          "surgery_complications": {
+            "type": "string",
+            "enum": [
+              "Yes",
+              "No"
+            ]
+          },
+          "chest_pain_or_breathlessness": {
+            "type": "string",
+            "enum": [
+              "Yes",
+              "No"
+            ]
+          },
+          "heart_procedures": {
+            "type": "string",
+            "enum": [
+              "Yes",
+              "No"
+            ]
+          },
+          "smoking": {
+            "type": "string",
+            "enum": [
+              "Yes",
+              "No"
+            ]
+          },
+          "alcohol_consumption": {
+            "type": "string",
+            "enum": [
+              "Yes",
+              "No"
+            ]
+          },
+          "physical_activity": {
+            "type": "string",
+            "enum": [
+              "Yes",
+              "No"
+            ]
+          },
+          "family_history": {
+            "type": "string",
+            "enum": [
+              "Yes",
+              "No"
+            ]
+          },
+          "chronic_disease": {
+            "type": "array",
+            "description": "Optional. Chronic conditions the employee has.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "Diabetes",
+                "Asthma",
+                "Chronic Kidney Disease",
+                "Liver Disease",
+                "Cancer",
+                "None of the above"
+              ]
+            }
+          }
+        }
+      },
       "Insured": {
         "type": "object",
         "properties": {

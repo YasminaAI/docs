@@ -1,6 +1,6 @@
 ---
 title: 'SME Medical Insurance'
-description: 'Facilitate efficient and automated insurance claims processes between Healthcare Providers and Insurance Companies.'
+description: 'Issue SME medical insurance policies for a company’s employees and collect their health declarations.'
 icon: 'users-medical'
 ---
 
@@ -88,7 +88,7 @@ Each employee can have a separate package. Coverage values can either be a numbe
 
 ### Issue insurance policies
 To issue policies, you need to execute the [Issue policies API](/medical-api-reference/policies/issue-policies).
-The API takes two fields. The company_id as referenced above. And an array called insured. The insured are the employees that the company wants to issue insurance for.policies
+The API takes two fields. The company_id as referenced above. And an array called insured. The insured are the employees that the company wants to issue insurance for.
 Here is an example of a payload you would send
 ```
 {
@@ -97,7 +97,7 @@ Here is an example of a payload you would send
         "name": "Abdullah Enizi",
         "nationality_iso": "SA",
         "category": "basic",
-        "iqama_id": "123",
+        "nationality_id": "1012345678",
         "date_of_birth": "1988-04-20",
         "number_of_dependents": 1
     },
@@ -105,7 +105,7 @@ Here is an example of a payload you would send
         "name": "Samer Najjar",
         "nationality_iso": "JO",
         "category": "standard",
-        "nationality_id": "123",
+        "iqama_id": "2345678901",
         "date_of_birth": "1988-04-20",
         "number_of_dependents": 1
     }
@@ -114,7 +114,7 @@ Here is an example of a payload you would send
 }
 ```
 
-<Note>Notice in the above, there are two employees within the company. One of them we are supplying the `iqama_id` as he is a Non-Saudi while the other we supply a `nationality_id` as he is Saudi.</Note>
+<Note>Notice in the above, there are two employees within the company. Abdullah is Saudi (`nationality_iso` is `SA`), so we supply his `nationality_id`. Samer is not Saudi, so we supply his `iqama_id` instead. The API rejects the request if a Saudi employee has no `nationality_id` or a non-Saudi employee has no `iqama_id`.</Note>
 The `category` that we are supplying is what was returned from the [Categories API](/medical-api-reference/products/list-categories)
 
 ### HR declaration forms
@@ -152,7 +152,7 @@ Detailed explanations for each method are provided below.
             "alcohol_consumption": "No",
             "physical_activity": "No",
             "family_history": "No",
-            "chronic_conditions": ["None of the above"]
+            "chronic_disease": ["None of the above"]
         },
         "ids_or_emails": [
             {
@@ -170,13 +170,13 @@ Detailed explanations for each method are provided below.
                     "alcohol_consumption": "No",
                     "physical_activity": "No",
                     "family_history": "No",
-                    "chronic_conditions": ["Liver Disease"]
+                    "chronic_disease": ["Liver Disease"]
                 }
             }
         ]
     }
   	```
-    Check out the [Fill medical forms API](/medical-api-reference/hr-forms/fill-hr-forms) docs for all the supported props.
+    Check out the [Fill medical forms API](/medical-api-reference/medical-forms/fill-medical-forms) docs for all the supported props.
   </Accordion>
 
   <Accordion title="Dispatch Medical forms" icon="envelopes">
@@ -184,9 +184,7 @@ Detailed explanations for each method are provided below.
 
   	The employees will get a link to fill the forms themselves.
 
-  	You can check the [Dispatch Medical Form API](/medical-api-reference/hr-forms/dispatch-hr-forms)
-
-    You can put other components inside Accordions.
+  	You can check the [Dispatch Medical Form API](/medical-api-reference/medical-forms/dispatch-medical-forms)
   </Accordion>
 </AccordionGroup>
 
