@@ -54,7 +54,7 @@ You can also visit the [List companies API](/medical-api-reference/company/list-
 
 ### List and compare available packages
 Yasmina works with multiple insurance providers. After creating a company record, you can list the packages available to the company from every provider and compare them, helping the company choose the most suitable option for its employees. Check out the [Categories API](/medical-api-reference/products/list-categories).
-This gives you a list of available insurance categories per provider.
+Call it once per provider, passing `insurance_provider=medgulf` or `insurance_provider=bupa` (it defaults to `medgulf`). Each call gives you that provider's insurance categories.
 1. The Insurance provider PDF
 	- Contains an overview picture of what is provided by the Insurance provider
 2. The translations
@@ -65,6 +65,9 @@ This gives you a list of available insurance categories per provider.
 Each employee can have a separate package. Coverage values can either be a number (the amount), or a boolean (whether it's covered or not), or a text (the type of coverage) Each item in the categories has a `category` property and an `insurance_provider` property. These are important properties as they are what you will need to provide when you issue policies. Notice the category and insurance_provider fields in the following sample of the categories response API.
 
 ```
+    "insurance_provider": "medgulf",
+    "medgulf_pdf": "https://...",
+    "translations": { ... },
     "categories": {
         "basic": {
             "name": "Basic",
@@ -109,7 +112,7 @@ Here is an example of a payload you would send
 ```
 
 <Note>Notice in the above, there are two employees within the company. Abdullah is Saudi (`nationality_iso` is `SA`), so we supply his `nationality_id`. Samer is not Saudi, so we supply his `iqama_id` instead. The API rejects the request if a Saudi employee has no `nationality_id` or a non-Saudi employee has no `iqama_id`.</Note>
-The `category` and `insurance_provider` that we are supplying are what was returned from the [Categories API](/medical-api-reference/products/list-categories). All insured employees of a company are covered by the same provider, so the `insurance_provider` is supplied once at the top level.
+The `category` and `insurance_provider` that we are supplying are what was returned from the [Categories API](/medical-api-reference/products/list-categories). All insured employees of a company are covered by the same provider, so the `insurance_provider` is supplied once at the top level, and every `category` has to be one of that provider's packages or the request is rejected.
 
 ### HR declaration forms
 The companies that have requested insurance needs to be supply the insurance provider with Medical forms. These are mandatory for insurance providers to know past medical histories.
