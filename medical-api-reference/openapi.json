@@ -215,7 +215,20 @@
             "application/json": {
               "schema": {
                 "type": "object",
+                "required": [
+                  "insurance_provider",
+                  "company_id",
+                  "insured"
+                ],
                 "properties": {
+                  "insurance_provider": {
+                    "type": "string",
+                    "enum": [
+                      "medgulf",
+                      "bupa"
+                    ],
+                    "description": "The insurance provider the company chose. Every employee in `insured` is covered by this provider, and each `category` has to be one of its packages (see List categories)."
+                  },
                   "insured": {
                     "type": "array",
                     "items": {
@@ -280,6 +293,23 @@
       "get": {
         "tags": ["Products"],
         "summary": "List categories",
+        "description": "The medical insurance packages one insurance provider offers. Call it once per provider to compare them. Each item in `categories` carries the `category` and `insurance_provider` values to send when issuing policies.",
+        "parameters": [
+          {
+            "name": "insurance_provider",
+            "in": "query",
+            "required": false,
+            "description": "Which provider's packages to list. Defaults to `medgulf`.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "medgulf",
+                "bupa"
+              ],
+              "default": "medgulf"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
@@ -287,7 +317,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "description": "All the categories that medgulf offers"
+                  "description": "The provider's packages, keyed by category"
                 }
               }
             }
@@ -1006,17 +1036,7 @@
           },
           "category": {
             "type": "string",
-            "description": "group",
-            "enum": [
-              "basic",
-              "economy",
-              "standard",
-              "classic",
-              "advance",
-              "premier",
-              "executive",
-              "elite"
-            ]
+            "description": "The package for this employee: a `category` key from the List categories response of the chosen `insurance_provider` (for example `basic` for Medgulf or `essential1.1` for Bupa)"
           },
           "nationality_id": {
             "type": "string",

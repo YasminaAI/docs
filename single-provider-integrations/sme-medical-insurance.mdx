@@ -88,10 +88,11 @@ Each employee can have a separate package. Coverage values can either be a numbe
 
 ### Issue insurance policies
 To issue policies, you need to execute the [Issue policies API](/medical-api-reference/policies/issue-policies).
-The API takes two fields. The company_id as referenced above. And an array called insured. The insured are the employees that the company wants to issue insurance for.
+The API takes three fields. The company_id as referenced above, the insurance_provider (`medgulf` for this integration), and an array called insured. The insured are the employees that the company wants to issue insurance for.
 Here is an example of a payload you would send
 ```
 {
+  "insurance_provider": "medgulf",
   "insured": [
     {
         "name": "Abdullah Enizi",
