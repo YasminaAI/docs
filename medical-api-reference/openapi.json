@@ -276,8 +276,8 @@
                     "details": {
                       "type": "object",
                       "example": {
-                        "insured.1.number_of_dependents": [
-                          "The insured.1.number_of_dependents field cannot be empty."
+                        "insured.1.iqama_id": [
+                          "The insured.1.iqama_id field cannot be empty unless insured.1.nationality_iso is in SA."
                         ]
                       }
                     }
@@ -1025,6 +1025,45 @@
           }
         }
       },
+      "Dependent": {
+        "type": "object",
+        "required": [
+          "name",
+          "relationship",
+          "nationality_iso",
+          "date_of_birth"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "spouse",
+              "child",
+              "parent"
+            ],
+            "description": "How the dependent is related to the employee"
+          },
+          "nationality_iso": {
+            "type": "string",
+            "description": "ISO 3166-1 alpha-2 country code"
+          },
+          "nationality_id": {
+            "type": "string",
+            "description": "Required when nationality_iso is SA"
+          },
+          "iqama_id": {
+            "type": "string",
+            "description": "Required when nationality_iso is not SA"
+          },
+          "date_of_birth": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
       "Insured": {
         "type": "object",
         "properties": {
@@ -1046,8 +1085,12 @@
             "type": "string",
             "description": "For Non-Saudi's"
           },
-          "number_of_dependents": {
-            "type": "number"
+          "dependents": {
+            "type": "array",
+            "description": "Family members covered under this employee's policy. They get the same provider and category as the employee. Optional; omit or send an empty array for an employee without dependents.",
+            "items": {
+              "$ref": "#/components/schemas/Dependent"
+            }
           },
           "date_of_birth": {
             "type": "string"
@@ -1057,8 +1100,7 @@
           "name",
           "nationality_iso",
           "category",
-          "date_of_birth",
-          "number_of_dependents"
+          "date_of_birth"
         ]
       },
       "Policy": {

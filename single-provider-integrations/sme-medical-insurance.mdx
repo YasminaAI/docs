@@ -100,7 +100,22 @@ Here is an example of a payload you would send
         "category": "basic",
         "nationality_id": "1012345678",
         "date_of_birth": "1988-04-20",
-        "number_of_dependents": 1
+        "dependents": [
+            {
+                "name": "Noura Enizi",
+                "relationship": "spouse",
+                "nationality_iso": "SA",
+                "nationality_id": "1087654321",
+                "date_of_birth": "1990-06-15"
+            },
+            {
+                "name": "Faisal Enizi",
+                "relationship": "child",
+                "nationality_iso": "SA",
+                "nationality_id": "1198765432",
+                "date_of_birth": "2016-02-01"
+            }
+        ]
     },
     {
         "name": "Samer Najjar",
@@ -108,7 +123,7 @@ Here is an example of a payload you would send
         "category": "standard",
         "iqama_id": "2345678901",
         "date_of_birth": "1988-04-20",
-        "number_of_dependents": 1
+        "dependents": []
     }
   ],
   "company_id": 1
@@ -117,6 +132,9 @@ Here is an example of a payload you would send
 
 <Note>Notice in the above, there are two employees within the company. Abdullah is Saudi (`nationality_iso` is `SA`), so we supply his `nationality_id`. Samer is not Saudi, so we supply his `iqama_id` instead. The API rejects the request if a Saudi employee has no `nationality_id` or a non-Saudi employee has no `iqama_id`.</Note>
 The `category` that we are supplying is what was returned from the [Categories API](/medical-api-reference/products/list-categories)
+
+#### Dependents
+An employee can bring family members onto the policy through the `dependents` array. Each dependent needs a `name`, a `relationship` to the employee (`spouse`, `child` or `parent`), a `nationality_iso`, a `date_of_birth`, and the same identifier rule as the employee: `nationality_id` for Saudis, `iqama_id` for everyone else. Dependents are covered by the employee's provider and category; they cannot have a package of their own. Leave the array out, or send it empty, for an employee with no dependents.
 
 ### HR declaration forms
 The companies that have requested insurance needs to be supply the insurance provider with Medical forms. These are mandatory for insurance providers to know past medical histories.
