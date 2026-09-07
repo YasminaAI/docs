@@ -95,21 +95,21 @@ Here is an example of a payload you would send
         "nationality_iso": "SA",
         "category": "basic",
         "nationality_id": "1012345678",
-        "date_of_birth": "1988-04-20",
+        "date_of_birth": "1409-09-14",
         "dependents": [
             {
                 "name": "Noura Enizi",
                 "relationship": "spouse",
                 "nationality_iso": "SA",
                 "nationality_id": "1087654321",
-                "date_of_birth": "1990-06-15"
+                "date_of_birth": "1411-01-05"
             },
             {
                 "name": "Faisal Enizi",
                 "relationship": "child",
                 "nationality_iso": "SA",
                 "nationality_id": "1198765432",
-                "date_of_birth": "2016-02-01"
+                "date_of_birth": "1437-04-22"
             }
         ]
     },
@@ -131,6 +131,9 @@ The `category` and `insurance_provider` that we are supplying are what was retur
 
 #### Dependents
 An employee can bring family members onto the policy through the `dependents` array. Each dependent needs a `name`, a `relationship` to the employee (`spouse`, `child` or `parent`), a `nationality_iso`, a `date_of_birth`, and the same identifier rule as the employee: `nationality_id` for Saudis, `iqama_id` for everyone else. Dependents are covered by the employee's provider and category; they cannot have a package of their own. Leave the array out, or send it empty, for an employee with no dependents.
+
+#### Dates of birth
+Send every `date_of_birth` as `YYYY-MM-DD`. Saudi nationals whose national id starts with `1` give the Hijri (Umm al-Qura) date printed on their id, as Abdullah and his family do above; everyone else gives a Gregorian date. Employees must be between 18 and 110 years old; dependents can be any age.
 
 ### HR declaration forms
 The companies that have requested insurance needs to be supply the insurance provider with Medical forms. These are mandatory for insurance providers to know past medical histories.

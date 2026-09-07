@@ -1060,7 +1060,7 @@
           },
           "date_of_birth": {
             "type": "string",
-            "format": "date"
+            "description": "Format YYYY-MM-DD. Saudi nationals whose national id starts with 1 give the Hijri (Umm al-Qura) date printed on their id, for example 1409-09-14; everyone else gives a Gregorian date. A dependent can be any age up to 110."
           }
         }
       },
@@ -1093,7 +1093,8 @@
             }
           },
           "date_of_birth": {
-            "type": "string"
+            "type": "string",
+            "description": "Format YYYY-MM-DD. Saudi nationals whose national id starts with 1 give the Hijri (Umm al-Qura) date printed on their id, for example 1409-09-14; everyone else gives a Gregorian date. Employees must be between 18 and 110 years old."
           }
         },
         "required": [
