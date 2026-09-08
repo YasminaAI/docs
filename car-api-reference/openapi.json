@@ -767,6 +767,128 @@
         }
       }
     },
+    "/embed-sessions/{id}/photos": {
+      "tags": [
+        "Embed sessions"
+      ],
+      "summary": "Store vehicle photos for an embed session",
+      "description": "**Embedded flow only.** If your site or app already holds the five vehicle photos comprehensive cover needs, hand them over here after opening the session and before the customer opens the embed. The customer is then not asked to upload photos inside the frame: Yasmina registers this set with the insurance provider itself, against whichever quotation the customer picks.\n\nSame files and limits as Upload vehicle photos, without a `quote_price_id`. The photos are checked and stored only; nothing is sent to the provider by this call. All five are required together, and calling it again replaces the stored set.\n\nDo not use this from a server-to-server integration: there, upload the photos against the selected quote with Upload vehicle photos.",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "The session id returned when it was created.",
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "multipart/form-data": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "front": {
+                  "type": "string",
+                  "format": "binary",
+                  "description": "Photo of the front of the vehicle. JPG or PNG, up to 3 MB."
+                },
+                "back": {
+                  "type": "string",
+                  "format": "binary",
+                  "description": "Photo of the rear of the vehicle. JPG or PNG, up to 3 MB."
+                },
+                "right": {
+                  "type": "string",
+                  "format": "binary",
+                  "description": "Photo of the right-hand side of the vehicle. JPG or PNG, up to 3 MB."
+                },
+                "left": {
+                  "type": "string",
+                  "format": "binary",
+                  "description": "Photo of the left-hand side of the vehicle. JPG or PNG, up to 3 MB."
+                },
+                "chassis": {
+                  "type": "string",
+                  "format": "binary",
+                  "description": "Photo of the chassis (VIN) number. JPG or PNG, up to 3 MB."
+                }
+              },
+              "required": [
+                "front",
+                "back",
+                "right",
+                "left",
+                "chassis"
+              ]
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Photos stored on the session’s quote request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "The session id.",
+                    "example": 1
+                  },
+                  "quote_request_id": {
+                    "type": "integer",
+                    "description": "The quote request the photos were stored on.",
+                    "example": 42
+                  },
+                  "attachments": {
+                    "type": "object",
+                    "description": "The stored photo URLs, keyed by position.",
+                    "example": {
+                      "front": "https://cdn.yasmina.ai/vehicle-photos/abc123.jpg",
+                      "back": "https://cdn.yasmina.ai/vehicle-photos/def456.jpg",
+                      "right": "https://cdn.yasmina.ai/vehicle-photos/ghi789.jpg",
+                      "left": "https://cdn.yasmina.ai/vehicle-photos/jkl012.jpg",
+                      "chassis": "https://cdn.yasmina.ai/vehicle-photos/mno345.jpg"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "401": {
+          "$ref": "#/components/responses/Unauthorized"
+        },
+        "422": {
+          "description": "A photo is missing, is not a JPG/PNG image, or is larger than 3 MB",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "code": "42201",
+                  "message": "The chassis field is required.",
+                  "details": {
+                    "chassis": [
+                      "The chassis field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "$ref": "#/components/responses/NotFound"
+        }
+      }
+    },
     "/guideline-texts": {
       "get": {
         "tags": [
@@ -838,7 +960,7 @@
           "Quotes"
         ],
         "summary": "Upload vehicle photos",
-        "description": "Uploads the five vehicle photos required for comprehensive cover and registers them with the insurance provider against the selected quote. Call it before requesting the payment OTP: the provider downloads and checks every image during this call, so a photo it cannot read is rejected while the customer can still retake it, rather than after they have paid. All five are required together — a partial set is rejected. The provider keeps the first set of photos it accepts for a vehicle, so a later upload for the same vehicle still returns 200 with `already_registered: true` and leaves the registered photos as they are. The quote_price_id must belong to a comprehensive quote.",
+        "description": "Uploads the five vehicle photos required for comprehensive cover and registers them with the insurance provider against the selected quote. Call it before requesting the payment OTP: the provider downloads and checks every image during this call, so a photo it cannot read is rejected while the customer can still retake it, rather than after they have paid. All five are required together — a partial set is rejected. The provider keeps the first set of photos it accepts for a vehicle, so a later upload for the same vehicle still returns 200 with `already_registered: true` and leaves the registered photos as they are. The quote_price_id must belong to a comprehensive quote. In the embedded flow, photos stored with Store vehicle photos for an embed session are registered by the embed itself; you do not call this endpoint.",
         "parameters": [
           {
             "name": "id",
