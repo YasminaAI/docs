@@ -308,6 +308,12 @@ Once the hour is up, call the same endpoint again with the same payload. You can
 
 [Show Embed Session](/car-api-reference/embed-sessions/show-embed-session) returns a session you already created, and tells you whether it has expired.
 
+## Skipping the photo step
+
+Comprehensive cover needs five photos of the car, and by default the customer takes them inside the embed. If your site or app already has them, hand them over with [Store Vehicle Photos for an Embed Session](/car-api-reference/embed-sessions/store-vehicle-photos-for-an-embed-session) right after opening the session: the same five files as the upload endpoint, JPG or PNG, up to 3 MB each. The embed then shows no photo step, and Yasmina registers your photos with the provider against whichever quote the customer picks.
+
+This call exists for the embed only. A server-to-server integration uploads photos against the selected quote with [Upload Vehicle Photos](/car-api-reference/quote-requests/upload-vehicle-photos) instead.
+
 ## When something is wrong
 
 | Response | Meaning |
