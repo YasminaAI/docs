@@ -1,5 +1,5 @@
 ---
-title: "Comprehensive Motor Insurance"
+title: "Motor Insurance"
 description: "Seamless insurance for the cars you're selling and the drivers that are buying from you."
 icon: "car"
 ---
@@ -11,7 +11,7 @@ icon: "car"
 
 ## Introduction
 
-This guide introduces Yasmina’s **Comprehensive Motor Insurance APIs for Multiple Insurance Providers** (for the single-provider version, [click here](/single-provider-integrations/car)). These APIs enable you to retrieve quotes from several insurance companies before issuing a policy to your customer. The guide covers all key operations, including requesting quotes, issuing and managing policies, generating payment links, and handling claims.
+This guide introduces Yasmina’s **Motor Insurance APIs for Multiple Insurance Providers**, covering both comprehensive and TPL cover (for the single-provider versions, see [Comprehensive](/single-provider-integrations/car) and [TPL](/single-provider-integrations/cartpl)). These APIs enable you to retrieve quotes from several insurance companies before issuing a policy to your customer. The guide covers all key operations, including requesting quotes, issuing and managing policies, generating payment links, and handling claims.
 Our APIs are built on RESTful principles and follow consistent input and output structures, making them simple to integrate, test, and maintain within your systems
 
 ## What you will learn
@@ -23,13 +23,13 @@ Our APIs are built on RESTful principles and follow consistent input and output 
 
 ## Prerequisites
 
-1. **Account in Yasmina** - See the <a href="/introduction#onboarding" target="_blank">Onboarding section</a> for details. You need to add "Comprehensive Motor Insurance (Multiple Providers)" in the products field.
+1. **Account in Yasmina** - See the <a href="/introduction#onboarding" target="_blank">Onboarding section</a> for details. You need "Motor Insurance Comprehensive (Multiple Providers)", "Motor Insurance TPL (Multiple Providers)", or both in the products field, depending on the cover you want quoted.
 2. **Authenticated Token** - You can follow the <a href="/authentication" target="_blank">Authentication guide</a> or head straight to the <a href="/auth-api-reference/oauth-20/generate-token" target="_blank">Generate Token API</a>.
 3. **Backend server** - Required to securely call Yasmina APIs.
 
 ## Quotes
 
-Quotes represent the different premiums, benefits, and deductibles offered by insurance providers. Before issuing a Comprehensive Motor Insurance policy, you need to provide the car details to retrieve quotes from various insurance providers. These quotes are then used when issuing the policy.
+Quotes represent the different premiums, benefits, and deductibles offered by insurance providers. Before issuing a motor insurance policy, you need to provide the car details to retrieve quotes from various insurance providers. A single quote request returns both comprehensive and TPL offers, so the same flow covers either cover type. These quotes are then used when issuing the policy.
 
 ### OTP for quotations
 
@@ -220,11 +220,13 @@ Content-Length: 226
 }
 ```
 
-Once you execute this you will get a response that includes pricing and benefits from multiple insurance providers. This is an example of a response in json
+Once you execute this you will get a response that includes pricing and benefits
+from multiple insurance providers. This is an example of a response, trimmed to a
+single provider quote:
 
-```
+```json
 {
-  "owner_id": 1234567890,
+  "owner_id": "1234567890",
   "email": "someone@example.com",
   "phone": "0555555555",
   "birthdate": "1990-01-01",
@@ -233,6 +235,7 @@ Once you execute this you will get a response that includes pricing and benefits
   "current_car_owner_id": "1000000000",
   "car_estimated_cost": 45000,
   "car_model_year": 2024,
+  "start_date": "2026-07-28",
   "drivers": [
     {
       "owner_id": "1234567890",
@@ -248,16 +251,16 @@ Once you execute this you will get a response that includes pricing and benefits
   "quotes": [
     {
       "type": "Comprehensive",
-      "fix_type": "workshop",
-      "vehicle_estimated_value": 45000,
-      "company_logo": "https://axjqy4nuifd8.compat.objectstorage.me-jeddah-1.oraclecloud.com/Yasmina-Dev-bucket/logos/takaful.png",
-      "company_logo_url": "https://axjqy4nuifd8.compat.objectstorage.me-jeddah-1.oraclecloud.com/Yasmina-Dev-bucket/company-logos/art.png",
-      "square_company_logo_url": "https://axjqy4nuifd8.compat.objectstorage.me-jeddah-1.oraclecloud.com/Yasmina-Dev-bucket/insurance-logos/alrajhi.png",
-      "company_name": "Al Rajhi Takaful",
-      "company_name_ar": "تكافل الراجحي",
-      "type": "Comprehensive",
       "insurance_type_display": "Comprehensive",
       "insurance_type_display_ar": "شامل",
+      "fix_type": "workshop",
+      "vehicle_estimated_value": 45000,
+      "company_name": "Al Rajhi Takaful",
+      "company_name_ar": "تكافل الراجحي",
+      "company_logo": "/images/company-logos/art.png",
+      "company_logo_url": "https://cdn.yasmina.ai/company-logos/art.png",
+      "square_company_logo_url": "https://cdn.yasmina.ai/insurance-logos/alrajhi.png",
+      "quote_expiry_date": "2026-10-09T22:03:56+00:00",
       "quote_reference_id": "6c7c18a7-ee89-49fe-9f7e-dde72ad809ce",
       "prices": [
         {
@@ -267,7 +270,15 @@ Once you execute this you will get a response that includes pricing and benefits
           "vat_percentage": 15,
           "vat": 784.82,
           "total": 6016.94
-        }, ...
+        },
+        {
+          "quote_price_id": "40fe40ec-e7d0-f011-972d-005056a9891a",
+          "deductible": 1000,
+          "subtotal": 5145.03,
+          "vat_percentage": 15,
+          "vat": 771.75,
+          "total": 5916.78
+        }
       ],
       "benefits": [
         {
@@ -278,29 +289,322 @@ Once you execute this you will get a response that includes pricing and benefits
           "amount": 0,
           "vat": 0,
           "url": null
-        }, ...
+        },
+        {
+          "quote_benefit_id": "67fe40ec-e7d0-f011-972d-005056a9891a",
+          "id": "600100",
+          "name": "Roadside assistance service",
+          "name_ar": "خدمة المساعدة على الطريق",
+          "amount": 10,
+          "vat": 1.5,
+          "url": null
+        }
       ]
     }
   ],
+  "attachments": null,
   "client_id": "9f757acd-1ab4-466f-8cb2-d65ddedb2374",
-  "updated_at": "2025-10-06T22:03:56.000000Z",
-  "created_at": "2025-10-06T22:03:56.000000Z",
+  "updated_at": "2026-10-06T22:03:56.000000Z",
+  "created_at": "2026-10-06T22:03:56.000000Z",
   "id": 25
 }
 ```
 
-#### Explaining the Quotes Request response
+### Explaining the Quotes Request response
 
-The ID value represents Yasmina's unique identifier for this quote request. You will later need to provide in the <a href="/car-api-reference/policies/issue-policy" target="_blank">Issue policy API</a>
-as `quote_id`
+The response has two halves.
 
-The Quote reference ID must also be provided to the Issue Policy API as `quote_reference_id`. Each insurance provider has its own quote_reference_id.
+The first is an **echo of what you sent** — `owner_id`, `email`, `phone`,
+`birthdate`, the vehicle identifier, `drivers`, `start_date`. Nothing new, but it
+means a stored response is enough to re-render the customer's page later without
+keeping your own copy of the request.
 
-Each insurance provider gives a `prices` array. This represents different pricing options. Each has its own deductible and total. You will need to provide `quote_price_id` when issuing a policy.
+The second is **the offers**: the top-level `id`, and the `quotes` array with one
+entry per offer the insurance providers returned.
 
-Finally we have the `benefits` array. We have two types. Some require an additional price and are optional (`amount` > 0), while others are considered free and are automatically added (`amount` = 0).
+<Note>
+  The same insurance company can appear several times in `quotes`. Each entry is a
+  distinct offer — a cover type (`type`) combined with a repair type (`fix_type`).
+  Al Rajhi Takaful, for instance, commonly returns a Comprehensive/Agency offer, a
+  Comprehensive/Workshop offer and a TPL offer: three entries, each with its own
+  `quote_reference_id`, its own prices and its own benefits. Group by
+  `company_name` if you want one card per company in your UI.
+</Note>
 
-For those that have a price, you need to provide the `quote_benefit_id` in the `benefits` array in the Issue Policy API.
+#### The shape at a glance
+
+```text
+id .......................... the quote request itself → send as quote_request_id
+quotes[] .................... one entry per provider offer
+├── company_name ............ who is offering
+├── type / fix_type ......... what cover, and where it is repaired
+├── quote_expiry_date ....... how long the offer stands
+├── quote_reference_id ...... identifies this offer → send when issuing
+├── prices[] ................ one entry per deductible
+│   ├── quote_price_id ...... identifies the chosen deductible → send when issuing
+│   └── deductible, subtotal, vat, total
+└── benefits[] .............. add-ons attached to this offer
+    ├── amount .............. 0 = already included, > 0 = optional extra
+    └── quote_benefit_id .... send only for the paid extras the customer picked
+```
+
+#### The identifiers you carry into issuance
+
+Policy issuance never re-sends the car or the customer details — it points back at
+one exact selection inside this response. Four values do that:
+
+| What the customer chose             | Field you read from this response   | Field you send to the Issue APIs |
+| ----------------------------------- | ----------------------------------- | -------------------------------- |
+| This quote request                  | `id` (top level)                    | `quote_request_id`               |
+| The provider and cover they picked  | `quotes[].quote_reference_id`       | `quote_reference_id`             |
+| The deductible and price they picked| `quotes[].prices[].quote_price_id`  | `quote_price_id`                 |
+| Each paid add-on they ticked        | `quotes[].benefits[].quote_benefit_id` | `benefits[]`                  |
+
+<Warning>
+  All four must describe one consistent selection: the price must belong to the
+  same `quotes[]` entry as the reference, and the benefits must belong to that
+  same entry too. A `quote_price_id` from one provider sent with another
+  provider's `quote_reference_id` is rejected.
+</Warning>
+
+The <a href="/car-api-reference/otps/request-otp-for-quote-verification" target="_blank">Issue Policy OTP API</a>
+takes the first three; the <a href="/car-api-reference/policies/issue-policy" target="_blank">Issue Policy API</a>
+takes all four. Keep the customer's selection around between the two calls.
+
+#### Top-level fields
+
+<ResponseField name="id" type="integer">
+  Yasmina's identifier for this quote request. Send it as `quote_request_id` when
+  issuing, and use it to fetch the request again with the
+  <a href="/car-api-reference/quotes/show-quote" target="_blank">Show Quote Request API</a>.
+</ResponseField>
+
+<ResponseField name="quotes" type="object[]">
+  The offers returned by the insurance providers. Empty if no provider priced
+  this vehicle and driver combination. Each entry is described under **Each
+  offer (`quotes[]`)** below.
+</ResponseField>
+
+<ResponseField name="attachments" type="object | null">
+  The five vehicle photos once they have been uploaded, keyed by position
+  (`front`, `back`, `right`, `left`, `chassis`). `null` until you call the
+  <a href="/car-api-reference/quotes/upload-vehicle-photos" target="_blank">Upload Vehicle Photos API</a>.
+</ResponseField>
+
+<ResponseField name="client_id" type="string (uuid)">
+  Your client identifier. Same value on every quote request you create.
+</ResponseField>
+
+<ResponseField name="created_at" type="string (date-time)">
+  When the quote request was made. Useful together with `quote_expiry_date` when
+  deciding whether to re-quote.
+</ResponseField>
+
+<ResponseField name="updated_at" type="string (date-time)">
+  When the record last changed — for example after vehicle photos were uploaded.
+</ResponseField>
+
+Alongside those, the request values come back unchanged: `owner_id`, `email`,
+`phone`, `birthdate`, `is_ownership_transfer`, `current_car_owner_id`,
+`car_estimated_cost`, `car_model_year`, `start_date` and `drivers`, plus the
+vehicle identifier you used. Two details are worth knowing:
+
+- `current_car_owner_id` is filled with `owner_id` when `is_ownership_transfer` is `false`.
+- The customs-card fields (`custom_number`, `maker_code`, `model_code`, `body_type_code`) appear only for imported vehicles; `car_sequence_number` appears only for locally registered ones.
+
+<Note>
+  Anything not listed here or below is internal bookkeeping. Do not build against
+  fields this page does not document — they can change without notice.
+</Note>
+
+#### Each offer (`quotes[]`)
+
+<ResponseField name="quote_reference_id" type="string (uuid)">
+  The provider's identifier for this offer. Send it as `quote_reference_id` when
+  issuing. It is unique per offer, not per company: a company returning three
+  cover types returns three different reference IDs.
+</ResponseField>
+
+<ResponseField name="company_name" type="string">
+  English name of the insurance company, e.g. `Al Rajhi Takaful`.
+</ResponseField>
+
+<ResponseField name="company_name_ar" type="string">
+  Arabic name of the same company. Falls back to the English name if a company is
+  not yet mapped.
+</ResponseField>
+
+<ResponseField name="company_logo_url" type="string (uri)">
+  Absolute CDN URL of the company's wide logo — the one to put on a quote card.
+  Empty string if the company has no logo on file. The CDN host differs between
+  sandbox and production, so always render the URL as returned rather than
+  rebuilding it.
+</ResponseField>
+
+<ResponseField name="square_company_logo_url" type="string (uri)">
+  Absolute CDN URL of the same company's square logo, for avatars, list rows and
+  other tight spaces. Empty string if none is on file.
+</ResponseField>
+
+<ResponseField name="company_logo" type="string">
+  **Deprecated.** A path relative to Yasmina's own web app, not a usable URL from
+  your side. Kept for backward compatibility only — use `company_logo_url`.
+</ResponseField>
+
+<ResponseField name="type" type="string">
+  The normalised cover category, and the field to filter and group on. Always one
+  of:
+
+  | Value           | Meaning                                                                  |
+  | --------------- | ------------------------------------------------------------------------ |
+  | `Comprehensive` | Covers damage to the customer's own vehicle as well as third parties.    |
+  | `TPL`           | Third-party liability only.                                              |
+  | `TPL +`         | Any enhanced third-party product. Providers name these differently; they are all normalised to this one value. |
+</ResponseField>
+
+<ResponseField name="insurance_type_display" type="string">
+  The provider's own wording for the same product, unnormalised — `TPL Plus`,
+  `TPL + OD`, `Wafi Smart`, and so on. Show this to the customer; filter on
+  `type`.
+</ResponseField>
+
+<ResponseField name="insurance_type_display_ar" type="string">
+  Arabic translation of `insurance_type_display`. Falls back to the English value
+  for provider-specific products that have no translation yet.
+</ResponseField>
+
+<ResponseField name="fix_type" type="string">
+  Where a claim gets repaired: `Agency` (the manufacturer's authorised dealer,
+  more expensive) or `workshop` (an approved independent garage). Empty for TPL
+  offers, which carry no own-damage repair. This is the single biggest reason two
+  offers from the same company differ in price, so it is worth surfacing in the
+  UI.
+</ResponseField>
+
+<ResponseField name="vehicle_estimated_value" type="number">
+  The vehicle value this offer was priced against, in SAR. Normally the provider's
+  own valuation; it falls back to the `car_estimated_cost` you sent when the
+  provider does not return one. Worth showing on Comprehensive offers, since it is
+  the ceiling of an own-damage payout.
+</ResponseField>
+
+<ResponseField name="quote_expiry_date" type="string (date-time)">
+  When the provider's offer lapses. Validity varies by provider and by product —
+  some offers stand for days, others for months. After this moment the offer can
+  no longer be issued, so request fresh quotes rather than replaying a stored
+  response.
+</ResponseField>
+
+<ResponseField name="prices" type="object[]">
+  The price options for this offer, one per deductible. See below.
+</ResponseField>
+
+<ResponseField name="benefits" type="object[]">
+  The benefits attached to this offer, both included and optional. See below.
+</ResponseField>
+
+#### Price options (`quotes[].prices[]`)
+
+One offer carries several prices — the same cover at different deductibles. The
+deductible is what the customer pays out of their own pocket on a claim, so a
+higher deductible buys a lower premium. A comprehensive offer routinely comes with
+ten or more of these; a TPL offer usually has exactly one.
+
+<ResponseField name="quote_price_id" type="string (uuid)">
+  Identifies the price the customer picked. Send it as `quote_price_id` when
+  issuing, and to the Upload Vehicle Photos API.
+</ResponseField>
+
+<ResponseField name="deductible" type="number | null">
+  The excess in SAR that the customer bears on each claim. `null` on TPL offers,
+  which have no deductible.
+</ResponseField>
+
+<ResponseField name="subtotal" type="number">
+  The premium for this option in SAR, before VAT.
+</ResponseField>
+
+<ResponseField name="vat_percentage" type="number">
+  The VAT rate applied, as a percentage. `15` in Saudi Arabia today.
+</ResponseField>
+
+<ResponseField name="vat" type="number">
+  The VAT amount in SAR for this option.
+</ResponseField>
+
+<ResponseField name="total" type="number">
+  `subtotal` + `vat` — what the customer pays for the cover itself. It does **not**
+  include any optional benefits — see **What the customer actually pays** below.
+</ResponseField>
+
+#### Benefits (`quotes[].benefits[]`)
+
+Benefits are the add-ons that come with an offer. `amount` alone tells you which
+of the two kinds you are looking at:
+
+| `amount` | Kind       | What you do                                                                                   |
+| -------- | ---------- | ---------------------------------------------------------------------------------------------- |
+| `0`      | Included   | Already part of the cover. Display it; do **not** send it when issuing.                        |
+| `> 0`    | Optional   | An extra the customer may add. Send its `quote_benefit_id` in `benefits[]` when issuing to buy it. |
+
+<ResponseField name="quote_benefit_id" type="string (uuid)">
+  Identifies this benefit on this offer. Collect the IDs of the paid benefits the
+  customer ticked and send them as the `benefits` array to the Issue Policy API.
+  The ID is specific to one offer — a benefit that also appears on another
+  provider's offer has a different `quote_benefit_id` there.
+</ResponseField>
+
+<ResponseField name="id" type="string">
+  The provider's benefit code, e.g. `600100` for roadside assistance. Stable
+  across quote requests, so it is the right key if you want to remember a
+  customer's preferences or map benefits to your own icons and copy.
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  English name of the benefit, e.g. `Roadside assistance service`.
+</ResponseField>
+
+<ResponseField name="name_ar" type="string">
+  Arabic name of the same benefit.
+</ResponseField>
+
+<ResponseField name="amount" type="number">
+  Price of the benefit in SAR, excluding VAT. `0` means it is included in the
+  cover at no extra cost.
+</ResponseField>
+
+<ResponseField name="vat" type="number">
+  VAT on `amount`, in SAR. `0` for included benefits.
+</ResponseField>
+
+<ResponseField name="url" type="string | null">
+  A provider link with the benefit's terms, when the provider supplies one.
+  Usually `null` — render the link only when it is present.
+</ResponseField>
+
+#### What the customer actually pays
+
+`prices[].total` is the price of the cover on its own. Every paid benefit the
+customer adds is charged on top of it, with its own VAT. Taking the example
+response above, with the 500 SAR deductible and roadside assistance added:
+
+| Line                            | Amount (SAR) |
+| ------------------------------- | ------------ |
+| Premium (`subtotal`)            | 5232.12      |
+| VAT on the premium (`vat`)      | 784.82       |
+| Roadside assistance (`amount`)  | 10.00        |
+| VAT on roadside assistance      | 1.50         |
+| **Total charged**               | **6028.44**  |
+
+You do not have to compute this yourself to charge the customer — the Issue Policy
+API returns the final `price` on the policy object and generates a payment link
+for exactly that amount. Compute it only to show the customer a breakdown before
+they commit.
+
+<Note>
+  Included benefits (`amount` = 0) never change the price. Adding them to the
+  `benefits` array when issuing is unnecessary.
+</Note>
 
 #### Arabic localisation fields
 
@@ -312,7 +616,10 @@ Each quote object includes Arabic counterparts for the fields that typically app
 | `insurance_type_display` | `insurance_type_display_ar` | Arabic label for the insurance type as the provider intends it to be shown. Falls back to the English value for provider-specific types without a translation |
 | `benefits[].name` | `benefits[].name_ar` | Arabic name of each benefit |
 
-`insurance_type` and `type` are normalised category values used internally for filtering (`TPL`, `TPL +`, `Comprehensive`) and do not have Arabic equivalents — use `insurance_type_display_ar` for display purposes.
+`type` is a normalised category value used for filtering and grouping (`TPL`, `TPL +`, `Comprehensive`) and has no Arabic equivalent — use `insurance_type_display_ar` for display purposes.
+
+Both languages are present in every quote, so rendering an Arabic quote card never
+takes a second call.
 
 ### List Quotes Requests
 
