@@ -17,20 +17,21 @@ YasminaSDKKit is the official iOS client for embedding Yasmina insurance experie
 
 ### Swift Package Manager
 
-Add the package from `https://github.com/YasminaAI/Yasmina-iOS.git` and select version `0.0.1` (or newer).
+Add the package from `https://github.com/YasminaAI/Yasmina-iOS.git` and select version `0.0.2` (or newer). It offers two products: `YasminaSDKKit`, the API client, and `YasminaWebView`, the [Motor Insurance WebView](#motor-insurance-webview). Add the ones you use.
 
 ```swift Package.swift
 .dependencies: [
-    .package(url: "https://github.com/YasminaAI/Yasmina-iOS.git", from: "0.0.1")
+    .package(url: "https://github.com/YasminaAI/Yasmina-iOS.git", from: "0.0.2")
 ]
 ```
 
 ### CocoaPods
 
-Use the Git repository and tag `0.0.1` from your `Podfile`.
+Use the Git repository from your `Podfile`. `YasminaSDKKit` is the API client and `YasminaWebView` the Motor Insurance WebView.
 
 ```ruby Podfile
-pod 'YasminaSDKKit', :git => 'https://github.com/YasminaAI/Yasmina-iOS.git', :tag => '0.0.1'
+pod 'YasminaSDKKit', :git => 'https://github.com/YasminaAI/Yasmina-iOS.git', :tag => '0.0.2'
+pod 'YasminaWebView', :git => 'https://github.com/YasminaAI/Yasmina-iOS.git', :tag => '0.1.0'
 ```
 
 Then install:
@@ -95,6 +96,91 @@ YasminaSdk.Companion.shared.get().requestMultiProvidersCarQuotes(
   print("Response \(String(describing: response))")
 }
 ```
+
+## Motor Insurance WebView
+
+Instead of building the quote, add-on and policy screens with the calls above, you can show the whole [Motor Insurance journey](/whitelabel/motor-insurance) inside your app. Your customer compares prices, picks a plan, uploads the vehicle photos and enters the verification code in a WebView, and you get the issued policy back.
+
+The `YasminaWebView` product does what a plain `WKWebView` does not:
+
+- **Vehicle photos.** The API refuses any photo above 3 MB, and a photo straight from an iPhone camera is usually 3–8 MB. The SDK replaces WebKit's file picker with a native one and downsizes every photo under the limit before the page sees it, so customers are not stopped at that step.
+- **Camera safety.** The camera is only offered when your app declares `NSCameraUsageDescription`. iOS terminates an app that opens the camera without it.
+- **The return to your app.** The `deep_link` from the session is intercepted and reported to you with the policy, instead of being opened as a URL.
+- Links to provider documents open in the browser, and the page reloads itself if iOS kills the web content process.
+
+<Note>
+  Register a deep link for your app in [API Management](https://portal.yasmina.ai/api-management) under **Yasmina Iframe and WebView**, for example `myapp://insurance/done`. The SDK intercepts it, so your app does not need to handle the URL scheme itself.
+</Note>
+
+### 1. Open a session
+
+Either from your backend with [Create Embed Session](/car-api-reference/embed-sessions/create-embed-session), or from the app once the customer has received the quote OTP:
+
+```swift Swift
+YasminaSdk.Companion.shared.get().createMotorInsuranceWebviewSession(
+  ownerId: "<OWNER_ID>",
+  email: "<EMAIL>",
+  phone: "<PHONE>",
+  birthdate: "<YYYY-MM-DD>",
+  carSequenceNumber: "<CAR_SEQUENCE_NUMBER>",
+  isOwnershipTransfer: false,
+  currentCarOwnerId: nil,
+  carEstimatedCost: 45000,
+  carModelYear: 2025,
+  otp: "<OTP>",
+  deepLink: "myapp://insurance/done",
+  locale: "ar"
+) { session, error in
+  if let error = error {
+    print("Error: \(error.message)")
+    return
+  }
+  guard let session = session, let url = URL(string: session.embedUrl) else { return }
+  DispatchQueue.main.async { self.showInsurance(url) }
+}
+```
+
+The session expires after one hour. To show the quotes again later, open a new one with the same payload; the OTP the customer already gave you stays valid.
+
+### 2. Show it
+
+```swift Swift
+import YasminaWebView
+
+func showInsurance(_ embedURL: URL) {
+  let controller = YasminaMotorInsuranceViewController(embedURL: embedURL)
+  controller.onPolicyIssued = { [weak self] policy in
+    // Issued but unpaid. Take the customer to the payment link.
+    self?.dismiss(animated: true) {
+      if let link = policy.paymentLink { UIApplication.shared.open(link) }
+    }
+  }
+  present(UINavigationController(rootViewController: controller), animated: true)
+}
+```
+
+```swift SwiftUI
+YasminaMotorInsuranceView(embedURL: embedURL) { policy in
+  // open policy.paymentLink
+}
+```
+
+`onPolicyIssued` fires once, with the policy's `id`, `policyNumber`, `paymentLink` and `companyName`. Your [webhooks](/webhooks/guide) fire on payment as they always do.
+
+To place the web view inside your own layout, use `YasminaMotorInsuranceWebView` directly and set its `delegate`.
+
+### Options
+
+```swift Swift
+var options = YasminaWebViewOptions()
+options.photoUpload.maxBytes = 2_000_000    // default 2.5 MB; must stay under the API's 3 MB
+options.photoUpload.maxPixelSize = 1600     // default 2048 on the longest edge
+options.photoUpload.allowsCamera = false    // photo library only
+
+let controller = YasminaMotorInsuranceViewController(embedURL: embedURL, options: options)
+```
+
+If your deep link is an `https://` universal link rather than a custom scheme, list it in `options.returnURLPrefixes` so the SDK can tell it apart from the page's own navigation.
 
 ## Support
 
