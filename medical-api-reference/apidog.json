@@ -1221,8 +1221,7 @@
                 "properties": {
                   "grant_type": {
                     "type": "string",
-                    "description": "Must be client_credentials",
-                    "faker": "client_credentials"
+                    "description": "Must be client_credentials"
                   },
                   "client_id": {
                     "type": "string"
@@ -1258,8 +1257,7 @@
                       "description": "status code"
                     },
                     "expires_in": {
-                      "type": "integer",
-                      "faker": "31536000"
+                      "type": "integer"
                     },
                     "access_token": {
                       "type": "string",
@@ -1606,7 +1604,8 @@
                       "description": "0 submitted, 1 being verified, 2 approved, 3 rejected, 4 payment sent"
                     },
                     "supporting_document": {
-                      "type": "null"
+                      "type": "string",
+                      "nullable": true
                     },
                     "description": {
                       "type": "string"
@@ -2801,13 +2800,16 @@
             "$ref": "#/components/schemas/Insured"
           },
           "start_date": {
-            "type": "null"
+            "type": "string",
+            "nullable": true
           },
           "provider_policy_id": {
-            "type": "null"
+            "type": "string",
+            "nullable": true
           },
           "provider_policy": {
-            "type": "null"
+            "type": "string",
+            "nullable": true
           },
           "order_status": {
             "type": "integer"
@@ -2816,7 +2818,8 @@
             "type": "integer"
           },
           "end_date": {
-            "type": "null"
+            "type": "string",
+            "nullable": true
           },
           "is_claimed": {
             "type": "boolean"
@@ -2835,10 +2838,12 @@
             "nullable": true
           },
           "invoice": {
-            "type": "null"
+            "type": "string",
+            "nullable": true
           },
           "cancellation_document": {
-            "type": "null"
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
