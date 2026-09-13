@@ -43,7 +43,14 @@
                   },
                   "sponsor_number": {
                     "type": "string",
-                    "description": "Sponsor number"
+                    "description": "Sponsor number (exactly 10 digits)",
+                    "pattern": "^[0-9]{10}$",
+                    "example": "1010123456"
+                  },
+                  "unified_national_number": {
+                    "type": "string",
+                    "description": "Unified national number of the company",
+                    "example": "7001234567"
                   },
                   "email_address": {
                     "type": "string",
@@ -55,13 +62,16 @@
                   },
                   "commercial_registration_number": {
                     "type": "string",
-                    "description": "The registration number of the company"
+                    "description": "The commercial registration number of the company (exactly 10 digits, starting with 7)",
+                    "pattern": "^7[0-9]{9}$",
+                    "example": "7010123456"
                   }
                 },
                 "required": [
                   "name",
                   "name_ar",
                   "sponsor_number",
+                  "unified_national_number",
                   "email_address",
                   "phone_number",
                   "commercial_registration_number"
@@ -206,8 +216,8 @@
     },
     "/request-policies": {
       "post": {
-        "description": "",
-        "summary": "Issue policies",
+        "summary": "Enrol employees",
+        "description": "Puts the company's employees on one medical policy, as members. Enrol again before the policy is paid for and the same policy is updated: an employee already on it, matched by their `nationality_id` or `iqama_id`, is replaced, and anyone new is added. Once the policy is paid for and issued, the next enrolment starts a new one.",
         "tags": ["Policies"],
         "requestBody": {
           "required": true,
@@ -225,7 +235,10 @@
                     "type": "string",
                     "enum": [
                       "medgulf",
-                      "bupa"
+                      "walaa",
+                      "alrajhi",
+                      "tawuniya",
+                      "malath"
                     ],
                     "description": "The insurance provider the company chose. Every employee in `insured` is covered by this provider, and each `category` has to be one of its packages (see List categories)."
                   },
@@ -245,9 +258,53 @@
           }
         },
         "responses": {
-          "201": {
-            "description": "Policies requested",
-            "content": {}
+          "200": {
+            "description": "The company's policy, with its members",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "description": "The company's policy."
+                    },
+                    "price": {
+                      "type": "number",
+                      "description": "The premium for everyone on it, for a year."
+                    },
+                    "provider_policy_id": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "The insurer's policy number, once it is paid for and issued."
+                    },
+                    "policy_url": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "The policy schedule, once it is issued."
+                    },
+                    "meta_data": {
+                      "type": "object",
+                      "properties": {
+                        "company_id": {
+                          "type": "integer"
+                        },
+                        "insurance_provider": {
+                          "type": "string"
+                        },
+                        "insured": {
+                          "type": "array",
+                          "description": "The members on this policy.",
+                          "items": {
+                            "$ref": "#/components/schemas/Insured"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -293,7 +350,7 @@
       "get": {
         "tags": ["Products"],
         "summary": "List categories",
-        "description": "The medical insurance packages one insurance provider offers. Call it once per provider to compare them. Each item in `categories` carries the `category` and `insurance_provider` values to send when issuing policies.",
+        "description": "Each category carries a `price`, the yearly premium per person, which is what the payment flow charges. The medical insurance packages one insurance provider offers. Call it once per provider to compare them. Each item in `categories` carries the `category` and `insurance_provider` values to send when issuing policies.",
         "parameters": [
           {
             "name": "insurance_provider",
@@ -304,7 +361,10 @@
               "type": "string",
               "enum": [
                 "medgulf",
-                "bupa"
+                "walaa",
+                "alrajhi",
+                "tawuniya",
+                "malath"
               ],
               "default": "medgulf"
             }
@@ -339,9 +399,14 @@
               "schema": {
                 "type": "object",
                 "required": [
+                  "company_id",
                   "all_employees"
                 ],
                 "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "description": "The company whose employees are being declared for."
+                  },
                   "all_employees": {
                     "allOf": [
                       {
@@ -417,8 +482,29 @@
         },
         "tags": ["Medical Forms"],
         "responses": {
-          "204": {
-            "description": "Forms submitted successfully"
+          "200": {
+            "description": "The answers were stored",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "declared": {
+                      "type": "integer",
+                      "description": "How many employees now have a declaration."
+                    },
+                    "remaining": {
+                      "type": "integer",
+                      "description": "How many are still missing one."
+                    }
+                  },
+                  "example": {
+                    "declared": 2,
+                    "remaining": 0
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad request",
@@ -441,62 +527,35 @@
         }
       }
     },
-    "/medical-forms/dispatch": {
-      "post": {
-        "summary": "Dispatch Medical forms",
-        "description": "This is to dispatch the medical Medical forms to employees. They will be provided with a link, once they answer it will be applied to the policy",
-        "tags": ["Medical Forms"],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "description": "The national Ids of the people you need to dispatch the medical forms. Emails also work",
-                "type": "object",
-                "required": ["company_id", "ids_or_emails"],
-                "properties": {
-                  "company_id": {
-                    "type": "integer"
-                  },
-                  "ids_or_emails": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
+    "/medical-forms/download": {
+      "get": {
+        "summary": "Download the declaration form",
+        "description": "The health declaration as a printable PDF, so a company can hand it to the employees who have to fill it in. Pass a `company_id` and the file carries one page per enrolled employee, with their name, id and package already filled in; leave it out for a single blank form.",
+        "tags": [
+          "Medical Forms"
+        ],
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "required": false,
+            "description": "Produce a page per employee of this company.",
+            "schema": {
+              "type": "integer"
             }
           }
-        },
+        ],
         "responses": {
-          "204": {
-            "description": "Forms dispatched successfully"
-          },
-          "422": {
-            "description": "Unprocessable Content",
+          "200": {
+            "description": "The form, as a PDF attachment",
             "content": {
-              "application/json": {
+              "application/pdf": {
                 "schema": {
-                  "description": "Validation failure",
-                  "type": "object",
-                  "example": {
-                    "code": "42201",
-                    "message": "The selected company id is invalid. (and 1 more error)",
-                    "details": {
-                      "company_id": [
-                        "The selected company id is invalid."
-                      ],
-                      "ids_or_emails": [
-                        "The ids or emails field cannot be empty."
-                      ]
-                    }
-                  }
+                  "type": "string",
+                  "format": "binary"
                 }
               }
             }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
           }
         }
       }
@@ -804,7 +863,18 @@
     },
     "/payment-link": {
       "get": {
-        "description": "To generate a payment link for check out page",
+        "description": "A signed link to Yasmina's card payment page, covering every policy of this company that has not been issued yet. Every employee has to have a health declaration on file first, so a company with any of them missing gets a 422 naming who. A company that owes nothing gets a 422 too. The link expires after 15 minutes.",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "required": true,
+            "description": "The company being paid for.",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
         "summary": "Payment link",
         "tags": ["Payment"],
         "responses": {
@@ -826,7 +896,18 @@
     },
     "/payment-due": {
       "get": {
-        "description": "Get the payment required",
+        "description": "The amount this company still owes: the premiums of its policies that have not been issued yet.",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "required": true,
+            "description": "The company being paid for.",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
         "summary": "Payment due",
         "tags": ["Payment"],
         "responses": {
@@ -1052,11 +1133,15 @@
           },
           "nationality_id": {
             "type": "string",
-            "description": "Required when nationality_iso is SA"
+            "description": "Required when nationality_iso is SA. Exactly 10 digits.",
+            "pattern": "^[0-9]{10}$",
+            "example": "1087654321"
           },
           "iqama_id": {
             "type": "string",
-            "description": "Required when nationality_iso is not SA"
+            "description": "Required when nationality_iso is not SA. Exactly 10 digits.",
+            "pattern": "^[0-9]{10}$",
+            "example": "2345678901"
           },
           "date_of_birth": {
             "type": "string",
@@ -1075,15 +1160,24 @@
           },
           "category": {
             "type": "string",
-            "description": "The package for this employee: a `category` key from the List categories response of the chosen `insurance_provider` (for example `basic` for Medgulf or `essential1.1` for Bupa)"
+            "description": "The package for this employee: a `category` key from the List categories response of the chosen `insurance_provider` (for example `basic` for MedGulf or `gold` for Al-Rajhi Takaful)"
           },
           "nationality_id": {
             "type": "string",
-            "description": "For Saudi's"
+            "description": "For Saudis. Exactly 10 digits.",
+            "pattern": "^[0-9]{10}$",
+            "example": "1012345678"
           },
           "iqama_id": {
             "type": "string",
-            "description": "For Non-Saudi's"
+            "description": "For non-Saudis. Exactly 10 digits.",
+            "pattern": "^[0-9]{10}$",
+            "example": "2345678901"
+          },
+          "mobile_number": {
+            "type": "string",
+            "description": "The employee's mobile number.",
+            "example": "0512345678"
           },
           "dependents": {
             "type": "array",
@@ -1101,6 +1195,7 @@
           "name",
           "nationality_iso",
           "category",
+          "mobile_number",
           "date_of_birth"
         ]
       },
@@ -1167,6 +1262,9 @@
           "sponsor_number": {
             "type": "string"
           },
+          "unified_national_number": {
+            "type": "string"
+          },
           "email_address": {
             "type": "string"
           },
@@ -1192,10 +1290,11 @@
         "example": {
           "name": "Example company name",
           "name_ar": "مثال اسم شركة",
-          "sponsor_number": "789",
+          "sponsor_number": "1010123456",
+          "unified_national_number": "7001234567",
           "email_address": "example@example.com",
           "phone_number": "+966512345678",
-          "commercial_registration_number": "9876543210",
+          "commercial_registration_number": "7010123456",
           "client_id": "a1b2c3d4-5678-90ab-cdef-1234567890ab",
           "updated_at": "2025-08-01T14:22:30.000000Z",
           "created_at": "2025-08-01T14:22:30.000000Z",

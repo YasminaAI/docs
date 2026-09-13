@@ -13,9 +13,9 @@ Using our secure and reliable endpoints, you'll be able to request and manage po
 1. **Authorize**: Get an access token to authenticate all API requests.
 2. **Create a Company**: Register the SME that will provide medical insurance for its employees.
 3. **Choose a Package**: Retrieve and compare available medical insurance packages from multiple insurance providers.
-4. **Issue Insurance**: Select the employees who will be covered and create their policies with the chosen provider.
-5. **Health Declarations**: Complete forms on behalf of employees or send them directly for completion.
-6. **Payment**: Receive a secure payment link to finalize the purchase.
+4. **Enrol Employees**: Put the employees who will be covered onto the company's policy with the chosen provider.
+5. **Health Declarations**: Get the declaration questions, download a printable form, or fill them in on the employees' behalf.
+6. **Payment**: Receive a secure payment link to finalize the purchase, and get each employee's policy documents once it clears.
 
 ### Authorization
 
@@ -33,17 +33,18 @@ Authorization: Bearer \{access_token\}
 
 After acquiring an access_token, you can begin using the APIs. Before you produce policies for a company, you must create a company record. After creating the company record, you can request to issue policies to the employees of that company.
 
-The <a href="/medical-api-reference/company/create-company" target="_blank">The Create Company API</a>, will require few fields that define details of the company such as Email, Phone etc...
+The <a href="/medical-api-reference/company/create-company" target="_blank">The Create Company API</a>, will require a few fields that define details of the company such as Email, Phone, the company's unified national number, a 10-digit sponsor number, and a 10-digit commercial registration number that starts with 7.
 
 It will return a response with a unique identifier (id). Here is an example of the response from the POST companies API.
 ```
 {
   "name": "Example company name",
   "name_ar": "مثال اسم شركة",
-  "sponsor_number": "789",
+  "sponsor_number": "1010123456",
+  "unified_national_number": "7001234567",
   "email_address": "example@example.com",
   "phone_number": "+966512345678",
-  "commercial_registration_number": "9876543210",
+  "commercial_registration_number": "7010123456",
   "client_id": "a1b2c3d4-5678-90ab-cdef-1234567890ab",
   "updated_at": "2025-08-01T14:22:30.000000Z",
   "created_at": "2025-08-01T14:22:30.000000Z",
@@ -54,7 +55,17 @@ You can also visit the [List companies API](/medical-api-reference/company/list-
 
 ### List and compare available packages
 Yasmina works with multiple insurance providers. After creating a company record, you can list the packages available to the company from every provider and compare them, helping the company choose the most suitable option for its employees. Check out the [Categories API](/medical-api-reference/products/list-categories).
-Call it once per provider, passing `insurance_provider=medgulf` or `insurance_provider=bupa` (it defaults to `medgulf`). Each call gives you that provider's insurance categories.
+Call it once per provider, passing `insurance_provider` as one of the values below. Omit it and you get MedGulf, the default. Each call gives you that provider's insurance categories.
+
+| Insurance provider | `insurance_provider` |
+| ------------------ | -------------------- |
+| MedGulf (default)  | `medgulf`            |
+| Walaa              | `walaa`              |
+| Al-Rajhi Takaful   | `alrajhi`            |
+| Tawuniya           | `tawuniya`           |
+| Malath             | `malath`             |
+Alongside the categories, the response repeats the provider as `insurance_provider` and its display name as `insurance_provider_name`.
+
 1. The Insurance provider PDF
 	- Contains an overview picture of what is provided by the Insurance provider
 2. The translations
@@ -82,9 +93,11 @@ Each employee can have a separate package. Coverage values can either be a numbe
     }
 ```
 
-### Issue insurance policies
-To issue policies, you need to execute the [Issue policies API](/medical-api-reference/policies/issue-policies).
-The API takes three fields. The company_id as referenced above, the insurance_provider the company selected when comparing packages, and an array called insured. The insured are the employees that the company wants to issue insurance for.
+### Enrol the employees
+A company buys one policy, and its employees are the members on it, which is how the insurer issues it and how the policy document reads. Call the [Enrol employees API](/medical-api-reference/policies/enrol-employees) and you get that one policy back, with every employee inside `meta_data.insured` and the premium for all of them in `price`.
+
+Enrol again before the policy is paid for and the same policy is updated: an employee already on it, matched by their id, is replaced, and anyone new is added. Once it is paid for and issued, the next enrolment starts a new policy.
+The API takes three fields. The company_id as referenced above, the insurance_provider the company selected when comparing packages, and an array called insured. The insured are the employees that the company wants to cover.
 Here is an example of a payload you would send
 ```
 {
@@ -95,6 +108,7 @@ Here is an example of a payload you would send
         "nationality_iso": "SA",
         "category": "basic",
         "nationality_id": "1012345678",
+        "mobile_number": "0512345678",
         "date_of_birth": "1409-09-14",
         "dependents": [
             {
@@ -118,6 +132,7 @@ Here is an example of a payload you would send
         "nationality_iso": "JO",
         "category": "standard",
         "iqama_id": "2345678901",
+        "mobile_number": "0512345679",
         "date_of_birth": "1988-04-20",
         "dependents": []
     }
@@ -126,88 +141,75 @@ Here is an example of a payload you would send
 }
 ```
 
-<Note>Notice in the above, there are two employees within the company. Abdullah is Saudi (`nationality_iso` is `SA`), so we supply his `nationality_id`. Samer is not Saudi, so we supply his `iqama_id` instead. The API rejects the request if a Saudi employee has no `nationality_id` or a non-Saudi employee has no `iqama_id`.</Note>
+<Note>Notice in the above, there are two employees within the company. Abdullah is Saudi (`nationality_iso` is `SA`), so we supply his `nationality_id`. Samer is not Saudi, so we supply his `iqama_id` instead. The API rejects the request if a Saudi employee has no `nationality_id` or a non-Saudi employee has no `iqama_id`. Every identifier, for employees and dependents alike, must be exactly 10 digits, and every employee needs a `mobile_number`.</Note>
 The `category` and `insurance_provider` that we are supplying are what was returned from the [Categories API](/medical-api-reference/products/list-categories). All insured employees of a company are covered by the same provider, so the `insurance_provider` is supplied once at the top level, and every `category` has to be one of that provider's packages or the request is rejected.
 
 #### Dependents
-An employee can bring family members onto the policy through the `dependents` array. Each dependent needs a `name`, a `relationship` to the employee (`spouse`, `child` or `parent`), a `nationality_iso`, a `date_of_birth`, and the same identifier rule as the employee: `nationality_id` for Saudis, `iqama_id` for everyone else. Dependents are covered by the employee's provider and category; they cannot have a package of their own. Leave the array out, or send it empty, for an employee with no dependents.
+An employee can bring family members onto the policy through the `dependents` array. Each dependent needs a `name`, a `relationship` to the employee (`spouse`, `child` or `parent`), a `nationality_iso`, a `date_of_birth`, and the same identifier rule as the employee: a 10-digit `nationality_id` for Saudis, a 10-digit `iqama_id` for everyone else. Dependents do not carry their own mobile number. Dependents are covered by the employee's provider and category; they cannot have a package of their own. Leave the array out, or send it empty, for an employee with no dependents.
 
 #### Dates of birth
 Send every `date_of_birth` as `YYYY-MM-DD`. Saudi nationals whose national id starts with `1` give the Hijri (Umm al-Qura) date printed on their id, as Abdullah and his family do above; everyone else gives a Gregorian date. Employees must be between 18 and 110 years old; dependents can be any age.
 
-### HR declaration forms
-The companies that have requested insurance needs to be supply the insurance provider with Medical forms. These are mandatory for insurance providers to know past medical histories.
+### Health declaration forms
+Insurers require a past medical history from every employee before they will cover them. Yasmina publishes the questions and prints the form; the company collects the answers itself, on paper or inside your own platform.
 
-Yasmina offers two methods for submitting these forms:
+1. **The questions**: the [Medical form API](/medical-api-reference/medical-forms/get-the-medical-form-questions) returns every question, grouped the way the insurers ask them, so you can build your own screen for it.
 
-1. **Fill Medical Forms:** Company administrators fill out the forms on behalf of the employees.
+2. **The printable form**: the [Download declaration form API](/medical-api-reference/medical-forms/download-the-declaration-form) returns the same declaration as a PDF. Pass a `company_id` and the file carries one page per employee you have already enrolled, with their name, id and package filled in, ready to print or email. Leave `company_id` out for a single blank form.
 
-2. **Dispatch Medical Forms:** Company administrators dispatch the forms to employees, who then complete them individually.
+3. **Filling them in for the employees**: a company admin can answer on their behalf with the [Fill medical forms API](/medical-api-reference/medical-forms/fill-medical-forms). It takes the `company_id`, `all_employees`, the default answers for everyone, and `ids_or_emails`, the employees whose answers differ. Name an employee by their `nationality_id` or `iqama_id`; one that matches nobody in the company is rejected. The answers are stored against each employee's policy, and the response tells you how many are now declared and how many are still missing.
 
-Detailed explanations for each method are provided below.
-<AccordionGroup>
-  <Accordion title="Fill medical forms" icon="pen-field">
-  	The fill medical forms allows the company admin to do so on behalf of the employers of the company. It takes two fields of which both are objects `all_employees` and `ids_or_emails`.
+	For example, if nobody has had surgery except john.doe@example.com, declare `No` for `past_surgeries` under `all_employees` and override that one employee:
 
-  	The idea behind the two fields, is to allow the Company admin to select the default answers for all employees, and then override the answers for specific employees.
-
-  	For example, let us say that all employees except 1 (for example employee with email john.doe@example.com), never had surgeries before, we can declare the answer `No` on the surgery question in the all_employees field, but declare `Yes` for the other employee.
-
-  	Here's an example of such case
-
-  	```
-  	{
-        "all_employees": {
-            "allergies": "No",
-            "current_medications": "No",
-            "hospitalizations": "No",
-            "pre_existing_conditions": "No",
-            "past_surgeries": "No",
-            "surgery_complications": "No",
-            "chest_pain_or_breathlessness": "No",
-            "heart_procedures": "No",
-            "smoking": "No",
-            "alcohol_consumption": "No",
-            "physical_activity": "No",
-            "family_history": "No",
-            "chronic_disease": ["None of the above"]
-        },
-        "ids_or_emails": [
-            {
-                "id_or_email": "john.doe@example.com",
-                "answers": {
-                    "allergies": "No",
-                    "current_medications": "No",
-                    "hospitalizations": "No",
-                    "pre_existing_conditions": "No",
-                    "past_surgeries": "Yes",
-                    "surgery_complications": "No",
-                    "chest_pain_or_breathlessness": "No",
-                    "heart_procedures": "No",
-                    "smoking": "No",
-                    "alcohol_consumption": "No",
-                    "physical_activity": "No",
-                    "family_history": "No",
-                    "chronic_disease": ["Liver Disease"]
-                }
-            }
-        ]
-    }
-  	```
-    Check out the [Fill medical forms API](/medical-api-reference/medical-forms/fill-medical-forms) docs for all the supported props.
-  </Accordion>
-
-  <Accordion title="Dispatch Medical forms" icon="envelopes">
-  	In this method, the Company admin puts a list of employees (emails, nationality ids, or Iqama ids). Yasmina then dispatches the medical form to each employee on email.
-
-  	The employees will get a link to fill the forms themselves.
-
-  	You can check the [Dispatch Medical Form API](/medical-api-reference/medical-forms/dispatch-medical-forms)
-  </Accordion>
-</AccordionGroup>
+	```
+	{
+	    "company_id": 1,
+	    "all_employees": {
+	        "allergies": "No",
+	        "current_medications": "No",
+	        "hospitalizations": "No",
+	        "pre_existing_conditions": "No",
+	        "past_surgeries": "No",
+	        "surgery_complications": "No",
+	        "chest_pain_or_breathlessness": "No",
+	        "heart_procedures": "No",
+	        "smoking": "No",
+	        "alcohol_consumption": "No",
+	        "physical_activity": "No",
+	        "family_history": "No",
+	        "chronic_disease": ["None of the above"]
+	    },
+	    "ids_or_emails": [
+	        {
+	            "id_or_email": "john.doe@example.com",
+	            "answers": {
+	                "allergies": "No",
+	                "current_medications": "No",
+	                "hospitalizations": "No",
+	                "pre_existing_conditions": "No",
+	                "past_surgeries": "Yes",
+	                "surgery_complications": "No",
+	                "chest_pain_or_breathlessness": "No",
+	                "heart_procedures": "No",
+	                "smoking": "No",
+	                "alcohol_consumption": "No",
+	                "physical_activity": "No",
+	                "family_history": "No",
+	                "chronic_disease": ["Liver Disease"]
+	            }
+	        }
+	    ]
+	}
+	```
 
 ### Payment
-Yasmina will supply a payment link of which your clients can pay for the insurance. You must share this link in your platform.
+<Note>Every employee must have a health declaration on file before a company can pay. Ask for a payment link while any of them is missing one and the API answers `422`, naming the employees still to declare.</Note>
+
+Ask for the amount outstanding with the [Payment due API](/medical-api-reference/payment/payment-due). It answers with the sum of the premiums of that company's policies that have not been issued yet, and every package's `price` is in the categories response, so you can show the bill before anyone pays.
+
+Then get a link with the [Payment link API](/medical-api-reference/payment/payment-link) and share it in your platform. It opens Yasmina's secure card page, where the company pays for all of its employees in one go. The link is signed and expires after 15 minutes, so fetch it when the buyer is ready to pay rather than storing it. A company with nothing outstanding gets a `422` instead of a link.
+
+Once the payment succeeds the policy is issued: it gets a policy number from the provider and a policy schedule listing every member, which you can download through the [List policies API](/medical-api-reference/policies/list-policies).
 
 ### Build with AI
 
