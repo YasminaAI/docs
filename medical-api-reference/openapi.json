@@ -457,66 +457,6 @@
         }
       }
     },
-    "/medical-forms/dispatch": {
-      "post": {
-        "summary": "Dispatch Medical forms",
-        "description": "This is to dispatch the medical Medical forms to employees. They will be provided with a link, once they answer it will be applied to the policy",
-        "tags": ["Medical Forms"],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "description": "The national Ids of the people you need to dispatch the medical forms. Emails also work",
-                "type": "object",
-                "required": ["company_id", "ids_or_emails"],
-                "properties": {
-                  "company_id": {
-                    "type": "integer"
-                  },
-                  "ids_or_emails": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "204": {
-            "description": "Forms dispatched successfully"
-          },
-          "422": {
-            "description": "Unprocessable Content",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "description": "Validation failure",
-                  "type": "object",
-                  "example": {
-                    "code": "42201",
-                    "message": "The selected company id is invalid. (and 1 more error)",
-                    "details": {
-                      "company_id": [
-                        "The selected company id is invalid."
-                      ],
-                      "ids_or_emails": [
-                        "The ids or emails field cannot be empty."
-                      ]
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          }
-        }
-      }
-    },
     "/medical-forms/download": {
       "get": {
         "summary": "Download the declaration form",

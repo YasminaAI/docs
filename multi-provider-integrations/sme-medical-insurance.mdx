@@ -14,7 +14,7 @@ Using our secure and reliable endpoints, you'll be able to request and manage po
 2. **Create a Company**: Register the SME that will provide medical insurance for its employees.
 3. **Choose a Package**: Retrieve and compare available medical insurance packages from multiple insurance providers.
 4. **Issue Insurance**: Select the employees who will be covered and create their policies with the chosen provider.
-5. **Health Declarations**: Complete forms on behalf of employees or send them directly for completion.
+5. **Health Declarations**: Get the declaration questions, download a printable form, or fill them in on the employees' behalf.
 6. **Payment**: Receive a secure payment link to finalize the purchase, and get each employee's policy documents once it clears.
 
 ### Authorization
@@ -148,82 +148,56 @@ An employee can bring family members onto the policy through the `dependents` ar
 #### Dates of birth
 Send every `date_of_birth` as `YYYY-MM-DD`. Saudi nationals whose national id starts with `1` give the Hijri (Umm al-Qura) date printed on their id, as Abdullah and his family do above; everyone else gives a Gregorian date. Employees must be between 18 and 110 years old; dependents can be any age.
 
-### HR declaration forms
-The companies that have requested insurance needs to be supply the insurance provider with Medical forms. These are mandatory for insurance providers to know past medical histories.
+### Health declaration forms
+Insurers require a past medical history from every employee before they will cover them. Yasmina publishes the questions and prints the form; the company collects the answers itself, on paper or inside your own platform.
 
-Yasmina offers three ways to collect them:
+1. **The questions**: the [Medical form API](/medical-api-reference/medical-forms/get-the-medical-form-questions) returns every question, grouped the way the insurers ask them, so you can build your own screen for it.
 
-1. **Download the form:** Get a printable PDF and send it to the employees yourself.
+2. **The printable form**: the [Download declaration form API](/medical-api-reference/medical-forms/download-the-declaration-form) returns the same declaration as a PDF. Pass a `company_id` and the file carries one page per employee you have already enrolled, with their name, id and package filled in, ready to print or email. Leave `company_id` out for a single blank form.
 
-2. **Fill Medical Forms:** Company administrators fill out the forms on behalf of the employees.
+3. **Filling them in for the employees**: a company admin can answer on their behalf with the [Fill medical forms API](/medical-api-reference/medical-forms/fill-medical-forms). It takes `all_employees`, the default answers for everyone, and `ids_or_emails`, the employees whose answers differ.
 
-3. **Dispatch Medical Forms:** Company administrators dispatch the forms to employees, who then complete them individually.
+	For example, if nobody has had surgery except john.doe@example.com, declare `No` for `past_surgeries` under `all_employees` and override that one employee:
 
-Detailed explanations for each method are provided below.
-<AccordionGroup>
-  <Accordion title="Download the form" icon="file-arrow-down">
-  	The [Download declaration form API](/medical-api-reference/medical-forms/download-the-declaration-form) returns the declaration as a PDF. Pass the `company_id` and the file carries one page per employee you have already enrolled, with their name, id and package filled in, so the company can print it or email it on. Leave `company_id` out and you get a single blank form.
-  </Accordion>
-
-  <Accordion title="Fill medical forms" icon="pen-field">
-  	The fill medical forms allows the company admin to do so on behalf of the employers of the company. It takes two fields of which both are objects `all_employees` and `ids_or_emails`.
-
-  	The idea behind the two fields, is to allow the Company admin to select the default answers for all employees, and then override the answers for specific employees.
-
-  	For example, let us say that all employees except 1 (for example employee with email john.doe@example.com), never had surgeries before, we can declare the answer `No` on the surgery question in the all_employees field, but declare `Yes` for the other employee.
-
-  	Here's an example of such case
-
-  	```
-  	{
-        "all_employees": {
-            "allergies": "No",
-            "current_medications": "No",
-            "hospitalizations": "No",
-            "pre_existing_conditions": "No",
-            "past_surgeries": "No",
-            "surgery_complications": "No",
-            "chest_pain_or_breathlessness": "No",
-            "heart_procedures": "No",
-            "smoking": "No",
-            "alcohol_consumption": "No",
-            "physical_activity": "No",
-            "family_history": "No",
-            "chronic_disease": ["None of the above"]
-        },
-        "ids_or_emails": [
-            {
-                "id_or_email": "john.doe@example.com",
-                "answers": {
-                    "allergies": "No",
-                    "current_medications": "No",
-                    "hospitalizations": "No",
-                    "pre_existing_conditions": "No",
-                    "past_surgeries": "Yes",
-                    "surgery_complications": "No",
-                    "chest_pain_or_breathlessness": "No",
-                    "heart_procedures": "No",
-                    "smoking": "No",
-                    "alcohol_consumption": "No",
-                    "physical_activity": "No",
-                    "family_history": "No",
-                    "chronic_disease": ["Liver Disease"]
-                }
-            }
-        ]
-    }
-  	```
-    Check out the [Fill medical forms API](/medical-api-reference/medical-forms/fill-medical-forms) docs for all the supported props.
-  </Accordion>
-
-  <Accordion title="Dispatch Medical forms" icon="envelopes">
-  	In this method, the Company admin puts a list of employees (emails, nationality ids, or Iqama ids). Yasmina then dispatches the medical form to each employee on email.
-
-  	The employees will get a link to fill the forms themselves.
-
-  	You can check the [Dispatch Medical Form API](/medical-api-reference/medical-forms/dispatch-medical-forms)
-  </Accordion>
-</AccordionGroup>
+	```
+	{
+	    "all_employees": {
+	        "allergies": "No",
+	        "current_medications": "No",
+	        "hospitalizations": "No",
+	        "pre_existing_conditions": "No",
+	        "past_surgeries": "No",
+	        "surgery_complications": "No",
+	        "chest_pain_or_breathlessness": "No",
+	        "heart_procedures": "No",
+	        "smoking": "No",
+	        "alcohol_consumption": "No",
+	        "physical_activity": "No",
+	        "family_history": "No",
+	        "chronic_disease": ["None of the above"]
+	    },
+	    "ids_or_emails": [
+	        {
+	            "id_or_email": "john.doe@example.com",
+	            "answers": {
+	                "allergies": "No",
+	                "current_medications": "No",
+	                "hospitalizations": "No",
+	                "pre_existing_conditions": "No",
+	                "past_surgeries": "Yes",
+	                "surgery_complications": "No",
+	                "chest_pain_or_breathlessness": "No",
+	                "heart_procedures": "No",
+	                "smoking": "No",
+	                "alcohol_consumption": "No",
+	                "physical_activity": "No",
+	                "family_history": "No",
+	                "chronic_disease": ["Liver Disease"]
+	            }
+	        }
+	    ]
+	}
+	```
 
 ### Payment
 Ask for the amount outstanding with the [Payment due API](/medical-api-reference/company/payment-due). It answers with the sum of the premiums of that company's policies that have not been issued yet, and every package's `price` is in the categories response, so you can show the bill before anyone pays.
