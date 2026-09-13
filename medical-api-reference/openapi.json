@@ -1068,11 +1068,15 @@
           },
           "nationality_id": {
             "type": "string",
-            "description": "Required when nationality_iso is SA"
+            "description": "Required when nationality_iso is SA. Exactly 10 digits.",
+            "pattern": "^[0-9]{10}$",
+            "example": "1087654321"
           },
           "iqama_id": {
             "type": "string",
-            "description": "Required when nationality_iso is not SA"
+            "description": "Required when nationality_iso is not SA. Exactly 10 digits.",
+            "pattern": "^[0-9]{10}$",
+            "example": "2345678901"
           },
           "date_of_birth": {
             "type": "string",
@@ -1091,15 +1095,24 @@
           },
           "category": {
             "type": "string",
-            "description": "The package for this employee: a `category` key from the List categories response of the chosen `insurance_provider` (for example `basic` for Medgulf or `essential1.1` for Bupa)"
+            "description": "The package for this employee: a `category` key from the List categories response of the chosen `insurance_provider` (for example `basic` for MedGulf or `gold` for Al-Rajhi Takaful)"
           },
           "nationality_id": {
             "type": "string",
-            "description": "For Saudi's"
+            "description": "For Saudis. Exactly 10 digits.",
+            "pattern": "^[0-9]{10}$",
+            "example": "1012345678"
           },
           "iqama_id": {
             "type": "string",
-            "description": "For Non-Saudi's"
+            "description": "For non-Saudis. Exactly 10 digits.",
+            "pattern": "^[0-9]{10}$",
+            "example": "2345678901"
+          },
+          "mobile_number": {
+            "type": "string",
+            "description": "The employee's mobile number.",
+            "example": "0512345678"
           },
           "dependents": {
             "type": "array",
@@ -1117,6 +1130,7 @@
           "name",
           "nationality_iso",
           "category",
+          "mobile_number",
           "date_of_birth"
         ]
       },

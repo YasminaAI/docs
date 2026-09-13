@@ -106,6 +106,7 @@ Here is an example of a payload you would send
         "nationality_iso": "SA",
         "category": "basic",
         "nationality_id": "1012345678",
+        "mobile_number": "0512345678",
         "date_of_birth": "1409-09-14",
         "dependents": [
             {
@@ -129,6 +130,7 @@ Here is an example of a payload you would send
         "nationality_iso": "JO",
         "category": "standard",
         "iqama_id": "2345678901",
+        "mobile_number": "0512345679",
         "date_of_birth": "1988-04-20",
         "dependents": []
     }
@@ -137,11 +139,11 @@ Here is an example of a payload you would send
 }
 ```
 
-<Note>Notice in the above, there are two employees within the company. Abdullah is Saudi (`nationality_iso` is `SA`), so we supply his `nationality_id`. Samer is not Saudi, so we supply his `iqama_id` instead. The API rejects the request if a Saudi employee has no `nationality_id` or a non-Saudi employee has no `iqama_id`.</Note>
+<Note>Notice in the above, there are two employees within the company. Abdullah is Saudi (`nationality_iso` is `SA`), so we supply his `nationality_id`. Samer is not Saudi, so we supply his `iqama_id` instead. The API rejects the request if a Saudi employee has no `nationality_id` or a non-Saudi employee has no `iqama_id`. Every identifier, for employees and dependents alike, must be exactly 10 digits, and every employee needs a `mobile_number`.</Note>
 The `category` and `insurance_provider` that we are supplying are what was returned from the [Categories API](/medical-api-reference/products/list-categories). All insured employees of a company are covered by the same provider, so the `insurance_provider` is supplied once at the top level, and every `category` has to be one of that provider's packages or the request is rejected.
 
 #### Dependents
-An employee can bring family members onto the policy through the `dependents` array. Each dependent needs a `name`, a `relationship` to the employee (`spouse`, `child` or `parent`), a `nationality_iso`, a `date_of_birth`, and the same identifier rule as the employee: `nationality_id` for Saudis, `iqama_id` for everyone else. Dependents are covered by the employee's provider and category; they cannot have a package of their own. Leave the array out, or send it empty, for an employee with no dependents.
+An employee can bring family members onto the policy through the `dependents` array. Each dependent needs a `name`, a `relationship` to the employee (`spouse`, `child` or `parent`), a `nationality_iso`, a `date_of_birth`, and the same identifier rule as the employee: a 10-digit `nationality_id` for Saudis, a 10-digit `iqama_id` for everyone else. Dependents do not carry their own mobile number. Dependents are covered by the employee's provider and category; they cannot have a package of their own. Leave the array out, or send it empty, for an employee with no dependents.
 
 #### Dates of birth
 Send every `date_of_birth` as `YYYY-MM-DD`. Saudi nationals whose national id starts with `1` give the Hijri (Umm al-Qura) date printed on their id, as Abdullah and his family do above; everyone else gives a Gregorian date. Employees must be between 18 and 110 years old; dependents can be any age.
