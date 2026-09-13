@@ -48,11 +48,11 @@ It will return a response with a unique identifier (id). Here is an example of t
 {
   "name": "Example company name",
   "name_ar": "مثال اسم شركة",
-  "sponsor_number": "1010123456",
-  "unified_national_number": "7001234567",
+  "sponsor_number": "1000000001",
+  "unified_national_number": "7000000001",
   "email_address": "example@example.com",
   "phone_number": "+966512345678",
-  "commercial_registration_number": "7010123456",
+  "commercial_registration_number": "7000000002",
   "client_id": "a1b2c3d4-5678-90ab-cdef-1234567890ab",
   "updated_at": "2025-08-01T14:22:30.000000Z",
   "created_at": "2025-08-01T14:22:30.000000Z",
@@ -110,35 +110,35 @@ The [Employees API](/medical-api-reference/employees/save-the-employees) holds t
 {
   "employees": [
     {
-        "name": "Abdullah Enizi",
+        "name": "John Doe",
         "nationality_iso": "SA",
         "category": "basic",
-        "nationality_id": "1012345678",
-        "mobile_number": "0512345678",
+        "nationality_id": "1111111111",
+        "mobile_number": "0500000001",
         "date_of_birth": "1409-09-14",
         "dependents": [
             {
-                "name": "Noura Enizi",
+                "name": "Jane Doe",
                 "relationship": "spouse",
                 "nationality_iso": "SA",
-                "nationality_id": "1087654321",
+                "nationality_id": "1111111112",
                 "date_of_birth": "1411-01-05"
             },
             {
-                "name": "Faisal Enizi",
+                "name": "Jack Doe",
                 "relationship": "child",
                 "nationality_iso": "SA",
-                "nationality_id": "1198765432",
+                "nationality_id": "1111111113",
                 "date_of_birth": "1437-04-22"
             }
         ]
     },
     {
-        "name": "Samer Najjar",
+        "name": "Richard Roe",
         "nationality_iso": "JO",
         "category": "executive",
-        "iqama_id": "2345678901",
-        "mobile_number": "0512345679",
+        "iqama_id": "2222222222",
+        "mobile_number": "0500000002",
         "date_of_birth": "1988-04-20",
         "dependents": []
     }
@@ -146,7 +146,7 @@ The [Employees API](/medical-api-reference/employees/save-the-employees) holds t
 }
 ```
 
-<Note>Abdullah is Saudi (`nationality_iso` is `SA`), so we supply his `nationality_id`. Samer is not Saudi, so we supply his `iqama_id` instead. The API rejects the request if a Saudi employee has no `nationality_id` or a non-Saudi employee has no `iqama_id`. Every identifier, for employees and dependents alike, must be exactly 10 digits, and every employee needs a `mobile_number`.</Note>
+<Note>John is Saudi (`nationality_iso` is `SA`), so we supply his `nationality_id`. Richard is not Saudi, so we supply his `iqama_id` instead. The API rejects the request if a Saudi employee has no `nationality_id` or a non-Saudi employee has no `iqama_id`. Every identifier, for employees and dependents alike, must be exactly 10 digits, and every employee needs a `mobile_number`.</Note>
 
 Each employee's `category` is one of the four tiers. Employees can be on different tiers.
 
@@ -154,7 +154,7 @@ Each employee's `category` is one of the four tiers. Employees can be on differe
 An employee can bring family members onto the policy through the `dependents` array. Each dependent needs a `name`, a `relationship` to the employee (`spouse`, `child` or `parent`), a `nationality_iso`, a `date_of_birth`, and the same identifier rule as the employee: a 10-digit `nationality_id` for Saudis, a 10-digit `iqama_id` for everyone else. Dependents do not carry their own mobile number. Dependents are covered under the employee's tier; they cannot have one of their own. Leave the array out, or send it empty, for an employee with no dependents.
 
 #### Dates of birth
-Send every `date_of_birth` as `YYYY-MM-DD`. Saudi nationals whose national id starts with `1` give the Hijri (Umm al-Qura) date printed on their id, as Abdullah and his family do above; everyone else gives a Gregorian date. Employees must be between 18 and 110 years old; dependents can be any age.
+Send every `date_of_birth` as `YYYY-MM-DD`. Saudi nationals whose national id starts with `1` give the Hijri (Umm al-Qura) date printed on their id, as John and his family do above; everyone else gives a Gregorian date. Employees must be between 18 and 110 years old; dependents can be any age.
 
 ### Get prices from every provider
 Call the [Quote request API](/medical-api-reference/quotes/get-prices-from-every-provider) with the `company_id` and you get one response with a quote from every insurance provider, each priced for the employees saved above at the tiers they picked. Every quote carries a `quote_price_id`; the response itself carries an `id`, the `quote_request_id`. Keep both for the next step.
@@ -172,8 +172,8 @@ Call the [Quote request API](/medical-api-reference/quotes/get-prices-from-every
       "total_price": 1600,
       "currency": "SAR",
       "employees": [
-        { "name": "Abdullah Enizi", "identifier": "1012345678", "category": "basic", "dependents": 2, "price": 300 },
-        { "name": "Samer Najjar", "identifier": "2345678901", "category": "executive", "dependents": 0, "price": 1300 }
+        { "name": "John Doe", "identifier": "1111111111", "category": "basic", "dependents": 2, "price": 300 },
+        { "name": "Richard Roe", "identifier": "2222222222", "category": "executive", "dependents": 0, "price": 1300 }
       ]
     },
     { "quote_price_id": "...", "insurance_provider": "walaa", "total_price": 1700, ... },
