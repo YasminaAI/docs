@@ -43,7 +43,14 @@
                   },
                   "sponsor_number": {
                     "type": "string",
-                    "description": "Sponsor number"
+                    "description": "Sponsor number (exactly 10 digits)",
+                    "pattern": "^[0-9]{10}$",
+                    "example": "7001234567"
+                  },
+                  "unified_number": {
+                    "type": "string",
+                    "description": "Unified national number of the company",
+                    "example": "7001234567"
                   },
                   "email_address": {
                     "type": "string",
@@ -55,13 +62,16 @@
                   },
                   "commercial_registration_number": {
                     "type": "string",
-                    "description": "The registration number of the company"
+                    "description": "The commercial registration number of the company (exactly 10 digits)",
+                    "pattern": "^[0-9]{10}$",
+                    "example": "1010123456"
                   }
                 },
                 "required": [
                   "name",
                   "name_ar",
                   "sponsor_number",
+                  "unified_number",
                   "email_address",
                   "phone_number",
                   "commercial_registration_number"
@@ -1167,6 +1177,9 @@
           "sponsor_number": {
             "type": "string"
           },
+          "unified_number": {
+            "type": "string"
+          },
           "email_address": {
             "type": "string"
           },
@@ -1192,10 +1205,11 @@
         "example": {
           "name": "Example company name",
           "name_ar": "مثال اسم شركة",
-          "sponsor_number": "789",
+          "sponsor_number": "7001234567",
+          "unified_number": "7001234567",
           "email_address": "example@example.com",
           "phone_number": "+966512345678",
-          "commercial_registration_number": "9876543210",
+          "commercial_registration_number": "1010123456",
           "client_id": "a1b2c3d4-5678-90ab-cdef-1234567890ab",
           "updated_at": "2025-08-01T14:22:30.000000Z",
           "created_at": "2025-08-01T14:22:30.000000Z",
