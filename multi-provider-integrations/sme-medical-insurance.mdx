@@ -151,14 +151,20 @@ Send every `date_of_birth` as `YYYY-MM-DD`. Saudi nationals whose national id st
 ### HR declaration forms
 The companies that have requested insurance needs to be supply the insurance provider with Medical forms. These are mandatory for insurance providers to know past medical histories.
 
-Yasmina offers two methods for submitting these forms:
+Yasmina offers three ways to collect them:
 
-1. **Fill Medical Forms:** Company administrators fill out the forms on behalf of the employees.
+1. **Download the form:** Get a printable PDF and send it to the employees yourself.
 
-2. **Dispatch Medical Forms:** Company administrators dispatch the forms to employees, who then complete them individually.
+2. **Fill Medical Forms:** Company administrators fill out the forms on behalf of the employees.
+
+3. **Dispatch Medical Forms:** Company administrators dispatch the forms to employees, who then complete them individually.
 
 Detailed explanations for each method are provided below.
 <AccordionGroup>
+  <Accordion title="Download the form" icon="file-arrow-down">
+  	The [Download declaration form API](/medical-api-reference/medical-forms/download-the-declaration-form) returns the declaration as a PDF. Pass the `company_id` and the file carries one page per employee you have already enrolled, with their name, id and package filled in, so the company can print it or email it on. Leave `company_id` out and you get a single blank form.
+  </Accordion>
+
   <Accordion title="Fill medical forms" icon="pen-field">
   	The fill medical forms allows the company admin to do so on behalf of the employers of the company. It takes two fields of which both are objects `all_employees` and `ids_or_emails`.
 

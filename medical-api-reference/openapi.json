@@ -517,6 +517,39 @@
         }
       }
     },
+    "/medical-forms/download": {
+      "get": {
+        "summary": "Download the declaration form",
+        "description": "The health declaration as a printable PDF, so a company can hand it to the employees who have to fill it in. Pass a `company_id` and the file carries one page per enrolled employee, with their name, id and package already filled in; leave it out for a single blank form.",
+        "tags": [
+          "Medical Forms"
+        ],
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "required": false,
+            "description": "Produce a page per employee of this company.",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The form, as a PDF attachment",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/medical-forms": {
       "get": {
         "summary": "Get the Medical form questions",
