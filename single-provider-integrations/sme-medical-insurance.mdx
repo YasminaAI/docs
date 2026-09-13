@@ -88,7 +88,7 @@ Each employee can have a separate package. Coverage values can either be a numbe
 ```
 
 ### Issue insurance policies
-To issue policies, you need to execute the [Issue policies API](/medical-api-reference/policies/issue-policies).
+To issue policies, you need to execute the [Issue policies API](/medical-api-reference/policies/enrol-employees).
 The API takes three fields. The company_id as referenced above, the insurance_provider (`medgulf` for this integration), and an array called insured. The insured are the employees that the company wants to issue insurance for.
 Here is an example of a payload you would send
 ```
@@ -143,11 +143,11 @@ Send every `date_of_birth` as `YYYY-MM-DD`. Saudi nationals whose national id st
 ### HR declaration forms
 The companies that have requested insurance needs to be supply the insurance provider with Medical forms. These are mandatory for insurance providers to know past medical histories.
 
-Yasmina offers two methods for submitting these forms:
+Yasmina offers two ways to collect them:
 
 1. **Fill Medical Forms:** Company administrators fill out the forms on behalf of the employees.
 
-2. **Dispatch Medical Forms:** Company administrators dispatch the forms to employees, who then complete them individually.
+2. **Download the form:** Get a printable PDF and send it to the employees yourself.
 
 Detailed explanations for each method are provided below.
 <AccordionGroup>
@@ -202,12 +202,8 @@ Detailed explanations for each method are provided below.
     Check out the [Fill medical forms API](/medical-api-reference/medical-forms/fill-medical-forms) docs for all the supported props.
   </Accordion>
 
-  <Accordion title="Dispatch Medical forms" icon="envelopes">
-  	In this method, the Company admin puts a list of employees (emails, nationality ids, or Iqama ids). Yasmina then dispatches the medical form to each employee on email.
-
-  	The employees will get a link to fill the forms themselves.
-
-  	You can check the [Dispatch Medical Form API](/medical-api-reference/medical-forms/dispatch-medical-forms)
+  <Accordion title="Download the form" icon="file-arrow-down">
+  	The [Download declaration form API](/medical-api-reference/medical-forms/download-the-declaration-form) returns the declaration as a PDF. Pass the `company_id` and the file carries one page per employee you have already enrolled, with their name, id and package filled in, so the company can print it or email it on. Leave `company_id` out and you get a single blank form.
   </Accordion>
 </AccordionGroup>
 

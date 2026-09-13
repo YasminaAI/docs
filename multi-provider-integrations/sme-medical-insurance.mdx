@@ -13,7 +13,7 @@ Using our secure and reliable endpoints, you'll be able to request and manage po
 1. **Authorize**: Get an access token to authenticate all API requests.
 2. **Create a Company**: Register the SME that will provide medical insurance for its employees.
 3. **Choose a Package**: Retrieve and compare available medical insurance packages from multiple insurance providers.
-4. **Issue Insurance**: Select the employees who will be covered and create their policies with the chosen provider.
+4. **Enrol Employees**: Put the employees who will be covered onto the company's policy with the chosen provider.
 5. **Health Declarations**: Get the declaration questions, download a printable form, or fill them in on the employees' behalf.
 6. **Payment**: Receive a secure payment link to finalize the purchase, and get each employee's policy documents once it clears.
 
@@ -93,9 +93,11 @@ Each employee can have a separate package. Coverage values can either be a numbe
     }
 ```
 
-### Issue insurance policies
-To issue policies, you need to execute the [Issue policies API](/medical-api-reference/policies/issue-policies).
-The API takes three fields. The company_id as referenced above, the insurance_provider the company selected when comparing packages, and an array called insured. The insured are the employees that the company wants to issue insurance for.
+### Enrol the employees
+A company buys one policy, and its employees are the members on it, which is how the insurer issues it and how the policy document reads. Call the [Enrol employees API](/medical-api-reference/policies/enrol-employees) and you get that one policy back, with every employee inside `meta_data.insured` and the premium for all of them in `price`.
+
+Enrol again before the policy is paid for and the same policy is updated: an employee already on it, matched by their id, is replaced, and anyone new is added. Once it is paid for and issued, the next enrolment starts a new policy.
+The API takes three fields. The company_id as referenced above, the insurance_provider the company selected when comparing packages, and an array called insured. The insured are the employees that the company wants to cover.
 Here is an example of a payload you would send
 ```
 {
@@ -203,11 +205,11 @@ Insurers require a past medical history from every employee before they will cov
 ### Payment
 <Note>Every employee must have a health declaration on file before a company can pay. Ask for a payment link while any of them is missing one and the API answers `422`, naming the employees still to declare.</Note>
 
-Ask for the amount outstanding with the [Payment due API](/medical-api-reference/company/payment-due). It answers with the sum of the premiums of that company's policies that have not been issued yet, and every package's `price` is in the categories response, so you can show the bill before anyone pays.
+Ask for the amount outstanding with the [Payment due API](/medical-api-reference/payment/payment-due). It answers with the sum of the premiums of that company's policies that have not been issued yet, and every package's `price` is in the categories response, so you can show the bill before anyone pays.
 
-Then get a link with the [Payment link API](/medical-api-reference/company/payment-link) and share it in your platform. It opens Yasmina's secure card page, where the company pays for all of its employees in one go. The link is signed and expires after 15 minutes, so fetch it when the buyer is ready to pay rather than storing it. A company with nothing outstanding gets a `422` instead of a link.
+Then get a link with the [Payment link API](/medical-api-reference/payment/payment-link) and share it in your platform. It opens Yasmina's secure card page, where the company pays for all of its employees in one go. The link is signed and expires after 15 minutes, so fetch it when the buyer is ready to pay rather than storing it. A company with nothing outstanding gets a `422` instead of a link.
 
-Once the payment succeeds, every policy in that batch is issued: it gets a policy number from the provider and a certificate you can download through the [List policies API](/medical-api-reference/policies/list-policies).
+Once the payment succeeds the policy is issued: it gets a policy number from the provider and a policy schedule listing every member, which you can download through the [List policies API](/medical-api-reference/policies/list-policies).
 
 ### Build with AI
 

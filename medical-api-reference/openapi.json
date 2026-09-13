@@ -216,8 +216,8 @@
     },
     "/request-policies": {
       "post": {
-        "description": "",
-        "summary": "Issue policies",
+        "summary": "Enrol employees",
+        "description": "Puts the company's employees on one medical policy, as members. Enrol again before the policy is paid for and the same policy is updated: an employee already on it, matched by their `nationality_id` or `iqama_id`, is replaced, and anyone new is added. Once the policy is paid for and issued, the next enrolment starts a new one.",
         "tags": ["Policies"],
         "requestBody": {
           "required": true,
@@ -258,9 +258,53 @@
           }
         },
         "responses": {
-          "201": {
-            "description": "Policies requested",
-            "content": {}
+          "200": {
+            "description": "The company's policy, with its members",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "description": "The company's policy."
+                    },
+                    "price": {
+                      "type": "number",
+                      "description": "The premium for everyone on it, for a year."
+                    },
+                    "provider_policy_id": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "The insurer's policy number, once it is paid for and issued."
+                    },
+                    "policy_url": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "The policy schedule, once it is issued."
+                    },
+                    "meta_data": {
+                      "type": "object",
+                      "properties": {
+                        "company_id": {
+                          "type": "integer"
+                        },
+                        "insurance_provider": {
+                          "type": "string"
+                        },
+                        "insured": {
+                          "type": "array",
+                          "description": "The members on this policy.",
+                          "items": {
+                            "$ref": "#/components/schemas/Insured"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
