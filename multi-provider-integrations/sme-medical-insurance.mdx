@@ -15,7 +15,7 @@ Using our secure and reliable endpoints, you'll be able to request and manage po
 3. **Choose a Package**: Retrieve and compare available medical insurance packages from multiple insurance providers.
 4. **Issue Insurance**: Select the employees who will be covered and create their policies with the chosen provider.
 5. **Health Declarations**: Complete forms on behalf of employees or send them directly for completion.
-6. **Payment**: Receive a secure payment link to finalize the purchase.
+6. **Payment**: Receive a secure payment link to finalize the purchase, and get each employee's policy documents once it clears.
 
 ### Authorization
 
@@ -220,7 +220,11 @@ Detailed explanations for each method are provided below.
 </AccordionGroup>
 
 ### Payment
-Yasmina will supply a payment link of which your clients can pay for the insurance. You must share this link in your platform.
+Ask for the amount outstanding with the [Payment due API](/medical-api-reference/company/payment-due). It answers with the sum of the premiums of that company's policies that have not been issued yet, and every package's `price` is in the categories response, so you can show the bill before anyone pays.
+
+Then get a link with the [Payment link API](/medical-api-reference/company/payment-link) and share it in your platform. It opens Yasmina's secure card page, where the company pays for all of its employees in one go. The link is signed and expires after 15 minutes, so fetch it when the buyer is ready to pay rather than storing it. A company with nothing outstanding gets a `422` instead of a link.
+
+Once the payment succeeds, every policy in that batch is issued: it gets a policy number from the provider and a certificate you can download through the [List policies API](/medical-api-reference/policies/list-policies).
 
 ### Build with AI
 

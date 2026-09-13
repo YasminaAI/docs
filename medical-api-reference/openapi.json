@@ -306,7 +306,7 @@
       "get": {
         "tags": ["Products"],
         "summary": "List categories",
-        "description": "The medical insurance packages one insurance provider offers. Call it once per provider to compare them. Each item in `categories` carries the `category` and `insurance_provider` values to send when issuing policies.",
+        "description": "Each category carries a `price`, the yearly premium per person, which is what the payment flow charges. The medical insurance packages one insurance provider offers. Call it once per provider to compare them. Each item in `categories` carries the `category` and `insurance_provider` values to send when issuing policies.",
         "parameters": [
           {
             "name": "insurance_provider",
@@ -820,7 +820,18 @@
     },
     "/payment-link": {
       "get": {
-        "description": "To generate a payment link for check out page",
+        "description": "A signed link to Yasmina's card payment page, covering every policy of this company that has not been issued yet. The link expires after 15 minutes, and a company that owes nothing gets a 422 instead.",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "required": true,
+            "description": "The company being paid for.",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
         "summary": "Payment link",
         "tags": ["Payment"],
         "responses": {
@@ -842,7 +853,18 @@
     },
     "/payment-due": {
       "get": {
-        "description": "Get the payment required",
+        "description": "The amount this company still owes: the premiums of its policies that have not been issued yet.",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "required": true,
+            "description": "The company being paid for.",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
         "summary": "Payment due",
         "tags": ["Payment"],
         "responses": {
