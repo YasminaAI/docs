@@ -13,7 +13,7 @@ Using our secure and reliable endpoints, you'll be able to request and manage po
 1. **Authorize**: Get an access token to authenticate all API requests.
 2. **Create a Company**: Register the SME that will provide medical insurance for its employees.
 3. **Choose a Package**: Retrieve and compare available medical insurance packages from multiple insurance providers.
-4. **Enrol Employees**: Put the employees who will be covered onto the company's policy with the chosen provider.
+4. **Enroll Employees**: Put the employees who will be covered onto the company's policy with the chosen provider.
 5. **Health Declarations**: Get the declaration questions, download a printable form, or fill them in on the employees' behalf.
 6. **Payment**: Receive a secure payment link to finalize the purchase, and get each employee's policy documents once it clears.
 
@@ -93,10 +93,10 @@ Each employee can have a separate package. Coverage values can either be a numbe
     }
 ```
 
-### Enrol the employees
-A company buys one policy, and its employees are the members on it, which is how the insurer issues it and how the policy document reads. Call the [Enrol employees API](/medical-api-reference/policies/enrol-employees) and you get that one policy back, with every employee inside `meta_data.insured` and the premium for all of them in `price`.
+### Enroll the employees
+A company buys one policy, and its employees are the members on it, which is how the insurer issues it and how the policy document reads. Call the [Enroll employees API](/medical-api-reference/policies/enroll-employees) and you get that one policy back, with every employee inside `meta_data.insured` and the premium for all of them in `price`.
 
-Enrol again before the policy is paid for and the same policy is updated: an employee already on it, matched by their id, is replaced, and anyone new is added. Once it is paid for and issued, the next enrolment starts a new policy.
+Enroll again before the policy is paid for and the same policy is updated: an employee already on it, matched by their id, is replaced, and anyone new is added. Once it is paid for and issued, the next enrollment starts a new policy.
 The API takes three fields. The company_id as referenced above, the insurance_provider the company selected when comparing packages, and an array called insured. The insured are the employees that the company wants to cover.
 Here is an example of a payload you would send
 ```
