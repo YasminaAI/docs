@@ -45,12 +45,12 @@
                     "type": "string",
                     "description": "Sponsor number (exactly 10 digits)",
                     "pattern": "^[0-9]{10}$",
-                    "example": "1010123456"
+                    "example": "1000000001"
                   },
                   "unified_national_number": {
                     "type": "string",
                     "description": "Unified national number of the company",
-                    "example": "7001234567"
+                    "example": "7000000001"
                   },
                   "email_address": {
                     "type": "string",
@@ -64,7 +64,7 @@
                     "type": "string",
                     "description": "The commercial registration number of the company (exactly 10 digits, starting with 7)",
                     "pattern": "^7[0-9]{9}$",
-                    "example": "7010123456"
+                    "example": "7000000002"
                   }
                 },
                 "required": [
@@ -1143,13 +1143,13 @@
             "type": "string",
             "description": "Required when nationality_iso is SA. Exactly 10 digits.",
             "pattern": "^[0-9]{10}$",
-            "example": "1087654321"
+            "example": "1111111112"
           },
           "iqama_id": {
             "type": "string",
             "description": "Required when nationality_iso is not SA. Exactly 10 digits.",
             "pattern": "^[0-9]{10}$",
-            "example": "2345678901"
+            "example": "2222222222"
           },
           "date_of_birth": {
             "type": "string",
@@ -1209,18 +1209,18 @@
             "type": "string",
             "description": "For Saudis. Exactly 10 digits.",
             "pattern": "^[0-9]{10}$",
-            "example": "1012345678"
+            "example": "1111111111"
           },
           "iqama_id": {
             "type": "string",
             "description": "For non-Saudis. Exactly 10 digits.",
             "pattern": "^[0-9]{10}$",
-            "example": "2345678901"
+            "example": "2222222222"
           },
           "mobile_number": {
             "type": "string",
             "description": "The employee's mobile number.",
-            "example": "0512345678"
+            "example": "0500000001"
           },
           "dependents": {
             "type": "array",
@@ -1333,11 +1333,11 @@
         "example": {
           "name": "Example company name",
           "name_ar": "مثال اسم شركة",
-          "sponsor_number": "1010123456",
-          "unified_national_number": "7001234567",
+          "sponsor_number": "1000000001",
+          "unified_national_number": "7000000001",
           "email_address": "example@example.com",
           "phone_number": "+966512345678",
-          "commercial_registration_number": "7010123456",
+          "commercial_registration_number": "7000000002",
           "client_id": "a1b2c3d4-5678-90ab-cdef-1234567890ab",
           "updated_at": "2025-08-01T14:22:30.000000Z",
           "created_at": "2025-08-01T14:22:30.000000Z",
