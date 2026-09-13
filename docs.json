@@ -72,12 +72,12 @@
                 ]
               },
               {
-                "group": "Multiple Insurance Providers",
+                "group": "Price Comparison",
                 "expanded": true,
                 "pages": [
-                  "multi-provider-integrations/sme-medical-insurance",
-                  "multi-provider-integrations/motor-insurance",
-                  "multi-provider-integrations/property"
+                  "price-comparison/sme-medical-insurance",
+                  "price-comparison/motor-insurance",
+                  "price-comparison/property"
                 ]
               }
             ]
@@ -221,24 +221,36 @@
   },
   "redirects": [
     {
+      "source": "/multi-provider-integrations/sme-medical-insurance",
+      "destination": "/price-comparison/sme-medical-insurance"
+    },
+    {
+      "source": "/multi-provider-integrations/motor-insurance",
+      "destination": "/price-comparison/motor-insurance"
+    },
+    {
+      "source": "/multi-provider-integrations/property",
+      "destination": "/price-comparison/property"
+    },
+    {
       "source": "/integrations/property",
-      "destination": "/multi-provider-integrations/property"
+      "destination": "/price-comparison/property"
     },
     {
       "source": "/integrations/car",
-      "destination": "/multi-provider-integrations/motor-insurance"
+      "destination": "/price-comparison/motor-insurance"
     },
     {
-      "source": "/multi-provider-integrations/car",
-      "destination": "/multi-provider-integrations/motor-insurance"
+      "source": "/price-comparison/car",
+      "destination": "/price-comparison/motor-insurance"
     },
     {
       "source": "/single-provider-integrations/medical",
       "destination": "/single-provider-integrations/sme-medical-insurance"
     },
     {
-      "source": "/multi-provider-integrations/cartpl",
-      "destination": "/multi-provider-integrations/motor-insurance"
+      "source": "/price-comparison/cartpl",
+      "destination": "/price-comparison/motor-insurance"
     }
   ]
 }
