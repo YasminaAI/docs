@@ -84,7 +84,7 @@
           },
           {
             "group": "Build with AI",
-            "pages": ["build-with-ai/motor"]
+            "pages": ["build-with-ai/motor", "build-with-ai/sme-medical-insurance"]
           },
           {
             "group": "API Resources",

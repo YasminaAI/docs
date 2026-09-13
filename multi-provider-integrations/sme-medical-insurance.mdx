@@ -4,6 +4,11 @@ description: 'Compare SME medical insurance packages from multiple providers, is
 icon: 'users-medical'
 ---
 
+<div className="ai-note">
+  <Icon icon="lightbulb" iconType="solid" color="#2563EB" size={18} />
+  <p><strong>Build it with AI</strong> — an AI coding assistant can scaffold this entire integration for you straight from these docs. See <a href="/build-with-ai/sme-medical-insurance">Build with AI</a> to get started.</p>
+</div>
+
 ### Overview
 This guide walks you through integrating Yasmina's **SME Medical Insurance APIs for Multiple Insurance Providers** into your platform (for the single-provider version, [click here](/single-provider-integrations/sme-medical-insurance)). These APIs let you retrieve and compare medical insurance packages from several insurance providers before issuing policies to a company's employees.
 
@@ -241,48 +246,3 @@ Will become on the response
 ```
 And the customer that purchased the policy will be redirected to
 https://www.example.com?yasmina_policy_id=123
-
-### Build with AI
-
-Every page of this documentation is published in an AI-readable format, so an AI coding assistant — Claude Code, Cursor, GitHub Copilot, or any tool that can fetch a URL — can read this guide and the API reference directly and scaffold the integration for you. Appending `.md` to any page URL returns that page as plain Markdown.
-
-| Resource                     | URL                                                                          |
-| ---------------------------- | ---------------------------------------------------------------------------- |
-| This guide                   | `https://docs.yasmina.ai/multi-provider-integrations/sme-medical-insurance.md` |
-| Authentication guide         | `https://docs.yasmina.ai/authentication.md`                                  |
-| SME Medical OpenAPI spec     | `https://docs.yasmina.ai/medical-api-reference/openapi.json`                 |
-
-If your assistant supports the Model Context Protocol, connect it to our documentation MCP server instead — it gives the assistant search and retrieval tools over the entire documentation site:
-
-```text MCP server URL
-https://docs.yasmina.ai/mcp
-```
-
-Copy the prompt below into your assistant and let it read the docs before it writes any code.
-
-```text Prompt for your AI assistant
-You are helping me integrate Yasmina's embedded SME Medical Insurance
-(Multiple Providers) into my platform.
-
-Before writing any code, read these documents:
-- Integration guide: https://docs.yasmina.ai/multi-provider-integrations/sme-medical-insurance.md
-- Authentication:    https://docs.yasmina.ai/authentication.md
-- OpenAPI spec:      https://docs.yasmina.ai/medical-api-reference/openapi.json
-
-Then build a backend integration that:
-1. Authenticates with OAuth 2.0 client credentials and reuses the token until
-   it expires.
-2. Creates a company record for the SME.
-3. Retrieves the available packages, compares them across insurance
-   providers, and presents them for selection.
-4. Issues policies for the selected employees with the chosen provider and
-   per-employee categories.
-5. Submits the HR declaration forms (filled by the admin or dispatched to
-   employees) and shares the payment link with the customer.
-
-Use the Sandbox environment (https://sandbox.yasmina.ai). Read the client ID
-and secret from environment variables, keep all Yasmina API calls on the
-backend, and never expose the credentials or the access token to the browser.
-```
-
-Start in the [Sandbox environment](/environments), review the generated code, and run the full flow end to end before switching to Production. Questions along the way? [Contact us](https://www.yasmina.ai/yasmina/contact-us) — we are happy to help.

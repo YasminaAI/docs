@@ -1,0 +1,99 @@
+---
+title: "SME Medical Insurance"
+description: "Use an AI coding assistant to build your SME Medical Insurance integration."
+icon: "lightbulb"
+---
+
+## Introduction
+
+Every page of this documentation is published in an AI-readable format, so an AI coding
+assistant — Claude Code, Cursor, GitHub Copilot, or any tool that can fetch a URL — can
+read the [SME Medical Insurance guide](/multi-provider-integrations/sme-medical-insurance) and API
+reference directly and scaffold the integration for you: authentication, company records,
+package comparison, enrollment, health declarations, and payment.
+
+You stay in control of the code. The assistant writes the first draft against our guide
+and OpenAPI spec; you review it, test it in the [Sandbox environment](/environments), and
+harden it before going live.
+
+## What to feed your assistant
+
+Point your assistant at these pages. Appending `.md` to any page URL returns that page as
+plain Markdown.
+
+| Resource                                  | URL                                                          |
+| ----------------------------------------- | ------------------------------------------------------------ |
+| SME Medical Insurance guide               | `https://docs.yasmina.ai/multi-provider-integrations/sme-medical-insurance.md` |
+| Authentication guide                      | `https://docs.yasmina.ai/authentication.md`                  |
+| SME Medical OpenAPI spec                  | `https://docs.yasmina.ai/medical-api-reference/openapi.json` |
+| Index of every page (for broader context) | `https://docs.yasmina.ai/llms.txt`                           |
+
+## Connect over MCP
+
+If your assistant supports the Model Context Protocol, connect it to our documentation
+MCP server instead of pasting URLs — it gives the assistant search and retrieval tools
+over the entire documentation site:
+
+```text MCP server URL
+https://docs.yasmina.ai/mcp
+```
+
+<CodeGroup>
+
+```bash Claude Code
+claude mcp add --transport http yasmina-docs https://docs.yasmina.ai/mcp
+```
+
+```json Cursor (.cursor/mcp.json)
+{
+  "mcpServers": {
+    "yasmina-docs": {
+      "url": "https://docs.yasmina.ai/mcp"
+    }
+  }
+}
+```
+
+</CodeGroup>
+
+## Ready-made prompt
+
+Copy the prompt below into your assistant and let it read the docs before it writes any
+code.
+
+```text Prompt for your AI assistant
+You are helping me integrate Yasmina's embedded SME Medical Insurance
+(Multiple Providers) into my platform.
+
+Before writing any code, read these documents:
+- Integration guide: https://docs.yasmina.ai/multi-provider-integrations/sme-medical-insurance.md
+- Authentication:    https://docs.yasmina.ai/authentication.md
+- OpenAPI spec:      https://docs.yasmina.ai/medical-api-reference/openapi.json
+
+Then build a backend integration that:
+1. Authenticates with OAuth 2.0 client credentials and reuses the token until
+   it expires.
+2. Creates a company record for the SME.
+3. Retrieves the available packages, compares them across insurance
+   providers, and presents them for selection.
+4. Enrolls the selected employees onto the company's policy with the chosen
+   provider and a package per employee.
+5. Collects the health declarations, then shares the payment link with the
+   customer and handles the redirect back.
+
+Use the Sandbox environment (https://sandbox.yasmina.ai). Read the client ID
+and secret from environment variables, keep all Yasmina API calls on the
+backend, and never expose the credentials or the access token to the browser.
+```
+
+## Tips for good results
+
+- **Always start in Sandbox.** The flows mirror Production, but no real policies are
+  issued — see [Environments](/environments).
+- **Keep credentials server-side.** Yasmina APIs must be called from your backend; make
+  sure generated code never ships the client secret or token to the browser.
+- **Review before Production.** Treat the generated integration as a draft: run the full
+  flow end to end in Sandbox and review the code before switching the base URL to
+  Production.
+
+Questions along the way? [Contact us](https://www.yasmina.ai/yasmina/contact-us) — we are happy to help.
