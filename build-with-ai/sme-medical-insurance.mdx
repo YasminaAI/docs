@@ -1,6 +1,6 @@
 ---
-title: "Comprehensive Motor Insurance"
-description: "Use an AI coding assistant to build your Comprehensive Motor Insurance integration."
+title: "SME Medical Insurance"
+description: "Use an AI coding assistant to build your SME Medical Insurance integration."
 icon: "sparkles"
 ---
 
@@ -8,9 +8,9 @@ icon: "sparkles"
 
 Every page of this documentation is published in an AI-readable format, so an AI coding
 assistant — Claude Code, Cursor, GitHub Copilot, or any tool that can fetch a URL — can
-read the [Comprehensive Motor Insurance guide](/multi-provider-integrations/motor-insurance) and API
-reference directly and scaffold the integration for you: authentication, OTPs, quotes,
-photo uploads, policy issuance, and error handling.
+read the [SME Medical Insurance guide](/multi-provider-integrations/sme-medical-insurance) and API
+reference directly and scaffold the integration for you: authentication, company records,
+package comparison, enrollment, health declarations, and payment.
 
 You stay in control of the code. The assistant writes the first draft against our guide
 and OpenAPI spec; you review it, test it in the [Sandbox environment](/environments), and
@@ -23,9 +23,9 @@ plain Markdown.
 
 | Resource                                  | URL                                                          |
 | ----------------------------------------- | ------------------------------------------------------------ |
-| Comprehensive Motor Insurance guide       | `https://docs.yasmina.ai/multi-provider-integrations/motor-insurance.md` |
+| SME Medical Insurance guide               | `https://docs.yasmina.ai/multi-provider-integrations/sme-medical-insurance.md` |
 | Authentication guide                      | `https://docs.yasmina.ai/authentication.md`                  |
-| Motor Insurance OpenAPI spec              | `https://docs.yasmina.ai/car-api-reference/openapi.json`     |
+| SME Medical OpenAPI spec                  | `https://docs.yasmina.ai/medical-api-reference/openapi.json` |
 | Index of every page (for broader context) | `https://docs.yasmina.ai/llms.txt`                           |
 
 ## Connect over MCP
@@ -62,23 +62,24 @@ Copy the prompt below into your assistant and let it read the docs before it wri
 code.
 
 ```text Prompt for your AI assistant
-You are helping me integrate Yasmina's embedded Comprehensive Motor Insurance
+You are helping me integrate Yasmina's embedded SME Medical Insurance
 (Multiple Providers) into my platform.
 
 Before writing any code, read these documents:
-- Integration guide: https://docs.yasmina.ai/multi-provider-integrations/motor-insurance.md
+- Integration guide: https://docs.yasmina.ai/multi-provider-integrations/sme-medical-insurance.md
 - Authentication:    https://docs.yasmina.ai/authentication.md
-- OpenAPI spec:      https://docs.yasmina.ai/car-api-reference/openapi.json
+- OpenAPI spec:      https://docs.yasmina.ai/medical-api-reference/openapi.json
 
 Then build a backend integration that:
 1. Authenticates with OAuth 2.0 client credentials and reuses the token until
    it expires.
-2. Requests a quote OTP for the customer, then requests quotes and presents
-   them for selection.
-3. Uploads the five required vehicle photos (front, back, right, left, chassis
-   number) before issuing a comprehensive policy.
-4. Requests an issue OTP and issues the policy with the selected quote.
-5. Handles validation and error responses as described in the guide.
+2. Creates a company record for the SME.
+3. Retrieves the available packages, compares them across insurance
+   providers, and presents them for selection.
+4. Enrolls the selected employees onto the company's policy with the chosen
+   provider and a package per employee.
+5. Collects the health declarations, then shares the payment link with the
+   customer and handles the redirect back.
 
 Use the Sandbox environment (https://sandbox.yasmina.ai). Read the client ID
 and secret from environment variables, keep all Yasmina API calls on the

@@ -4,6 +4,11 @@ description: 'Compare SME medical insurance packages from multiple providers, is
 icon: 'users-medical'
 ---
 
+<div className="ai-note">
+  <Icon icon="sparkles" iconType="solid" color="#2563EB" size={18} />
+  <p><strong>Build it with AI</strong> — an AI coding assistant can scaffold this entire integration for you straight from these docs. See <a href="/build-with-ai/sme-medical-insurance">Build with AI</a> to get started.</p>
+</div>
+
 ### Overview
 This guide walks you through integrating Yasmina's **SME Medical Insurance APIs for Multiple Insurance Providers** into your platform (for the single-provider version, [click here](/single-provider-integrations/sme-medical-insurance)). These APIs let you retrieve and compare medical insurance packages from several insurance providers before issuing policies to a company's employees.
 
@@ -209,49 +214,35 @@ Ask for the amount outstanding with the [Payment due API](/medical-api-reference
 
 Then get a link with the [Payment link API](/medical-api-reference/payment/payment-link) and share it in your platform. It opens Yasmina's secure card page, where the company pays for all of its employees in one go. The link is signed and expires after 15 minutes, so fetch it when the buyer is ready to pay rather than storing it. A company with nothing outstanding gets a `422` instead of a link.
 
-Once the payment succeeds the policy is issued: it gets a policy number from the provider and a policy schedule listing every member, which you can download through the [List policies API](/medical-api-reference/policies/list-policies).
+### Payment and Policy activation
 
-### Build with AI
+When you first enroll a company's employees, the Policy is not yet activated and the `status` is `0` (which means pending).
 
-Every page of this documentation is published in an AI-readable format, so an AI coding assistant — Claude Code, Cursor, GitHub Copilot, or any tool that can fetch a URL — can read this guide and the API reference directly and scaffold the integration for you. Appending `.md` to any page URL returns that page as plain Markdown.
+Also the `provider_policy` and `provider_policy_id` will both be `null`.
 
-| Resource                     | URL                                                                          |
-| ---------------------------- | ---------------------------------------------------------------------------- |
-| This guide                   | `https://docs.yasmina.ai/multi-provider-integrations/sme-medical-insurance.md` |
-| Authentication guide         | `https://docs.yasmina.ai/authentication.md`                                  |
-| SME Medical OpenAPI spec     | `https://docs.yasmina.ai/medical-api-reference/openapi.json`                 |
+In order for the policy to be activated, the customer needs to make the purchase from the payment link. Once the customer successfully pays. The policy will be activated and the `status` becomes `1`, and the policy schedule listing every member becomes available through the [List policies API](/medical-api-reference/policies/list-policies).
 
-If your assistant supports the Model Context Protocol, connect it to our documentation MCP server instead — it gives the assistant search and retrieval tools over the entire documentation site:
+<Note>Although the payment page is provided by Yasmina, it does not display the Yasmina logo or have any mention of Yasmina. <br /><br />Yasmina does not receive credit card information, instead the payment page sends card information directly to the payment vendor.</Note>
 
-```text MCP server URL
-https://docs.yasmina.ai/mcp
+<Tip>On Sandbox, you can use a testing card with the following information: <br /> Card number: 4111 1111 1111 1111 <br /> Expiry: 02/27 <br /> CVV: 123 <br />Card owner: Yasmina test</Tip>
+
+### Redirect URL
+
+You can supply the payload a `redirect_url`. This is used to redirect the customer to any page or deep link you need. You can also include a query string with policyID and it will automatically replace it with the actual `id` of the policy object.
+
+Example for policy `id` 123
 ```
-
-Copy the prompt below into your assistant and let it read the docs before it writes any code.
-
-```text Prompt for your AI assistant
-You are helping me integrate Yasmina's embedded SME Medical Insurance
-(Multiple Providers) into my platform.
-
-Before writing any code, read these documents:
-- Integration guide: https://docs.yasmina.ai/multi-provider-integrations/sme-medical-insurance.md
-- Authentication:    https://docs.yasmina.ai/authentication.md
-- OpenAPI spec:      https://docs.yasmina.ai/medical-api-reference/openapi.json
-
-Then build a backend integration that:
-1. Authenticates with OAuth 2.0 client credentials and reuses the token until
-   it expires.
-2. Creates a company record for the SME.
-3. Retrieves the available packages, compares them across insurance
-   providers, and presents them for selection.
-4. Issues policies for the selected employees with the chosen provider and
-   per-employee categories.
-5. Submits the HR declaration forms (filled by the admin or dispatched to
-   employees) and shares the payment link with the customer.
-
-Use the Sandbox environment (https://sandbox.yasmina.ai). Read the client ID
-and secret from environment variables, keep all Yasmina API calls on the
-backend, and never expose the credentials or the access token to the browser.
+	{
+		...,
+		redirect_url: "https://www.example.com?yasmina_policy_id=policyID"
+	}
 ```
-
-Start in the [Sandbox environment](/environments), review the generated code, and run the full flow end to end before switching to Production. Questions along the way? [Contact us](https://www.yasmina.ai/yasmina/contact-us) — we are happy to help.
+Will become on the response
+```
+	{
+		...,
+		redirect_url: "https://www.example.com?yasmina_policy_id=123"
+	}
+```
+And the customer that purchased the policy will be redirected to
+https://www.example.com?yasmina_policy_id=123

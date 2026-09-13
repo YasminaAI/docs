@@ -231,6 +231,11 @@
                   "insured"
                 ],
                 "properties": {
+                  "redirect_url": {
+                    "type": "string",
+                    "description": "Where to send the customer once they have paid. `policyID` in it is replaced with the policy's id.",
+                    "example": "https://www.example.com?yasmina_policy_id=policyID"
+                  },
                   "insurance_provider": {
                     "type": "string",
                     "enum": [
