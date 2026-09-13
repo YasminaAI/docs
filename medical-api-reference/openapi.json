@@ -179,7 +179,147 @@
         }
       }
     },
+    "/companies/{companyId}/employees": {
+      "get": {
+        "summary": "List the employees",
+        "description": "The company's employee list as last saved.",
+        "tags": ["Employees"],
+        "parameters": [
+          { "name": "companyId", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "The employees",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "employees": { "type": "array", "items": { "$ref": "#/components/schemas/Insured" } }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      },
+      "put": {
+        "summary": "Save the employees",
+        "description": "Replaces the company's employee list with the one given: who is covered, their dependents, and the tier each has picked (`basic`, `standard`, `premium` or `executive`). Nothing is priced here; see Get prices from every provider.",
+        "tags": ["Employees"],
+        "parameters": [
+          { "name": "companyId", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["employees"],
+                "properties": {
+                  "employees": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/components/schemas/Insured" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "The saved list" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "422": { "$ref": "#/components/responses/UnprocessableEntity" }
+        }
+      }
+    },
+    "/quote-requests": {
+      "post": {
+        "summary": "Get prices from every provider",
+        "description": "Prices the company's saved employees, at the tiers they picked, with every insurance provider at once. One response, one quote per provider, each with its own `quote_price_id`. The response `id` is the `quote_request_id`. A quote prices the employees as they stood when it was asked for.",
+        "tags": ["Quotes"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["company_id"],
+                "properties": {
+                  "company_id": { "type": "integer" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The quotes",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/QuoteRequest" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "422": { "$ref": "#/components/responses/UnprocessableEntity" }
+        }
+      }
+    },
+    "/quote-requests/{quoteRequestId}": {
+      "get": {
+        "summary": "Read a quote request",
+        "tags": ["Quotes"],
+        "parameters": [
+          { "name": "quoteRequestId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "The quote request",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/QuoteRequest" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
     "/policies": {
+      "post": {
+        "summary": "Issue the policy",
+        "description": "Issues the company's policy from one of the quotes it was given: the employees as they were priced, the provider that priced them, and its total as the premium. A company has one policy waiting to be paid for at a time; issuing again before payment replaces it.",
+        "tags": ["Policies"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["quote_request_id", "quote_price_id"],
+                "properties": {
+                  "quote_request_id": { "type": "string", "format": "uuid", "description": "The `id` of the quote request." },
+                  "quote_price_id": { "type": "string", "format": "uuid", "description": "The `quote_price_id` of the chosen provider's quote." },
+                  "redirect_url": {
+                    "type": "string",
+                    "description": "Where to send the customer once they have paid. `policyID` in it is replaced with the policy's id.",
+                    "example": "https://www.example.com?yasmina_policy_id=policyID"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "The company's policy, pending payment" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "422": { "$ref": "#/components/responses/UnprocessableEntity" }
+        }
+      },
       "get": {
         "description": "List policies that you've requested",
         "summary": "List policies",
@@ -213,143 +353,6 @@
         }
       }
 
-    },
-    "/request-policies": {
-      "post": {
-        "summary": "Enroll employees",
-        "description": "Puts the company's employees on one medical policy, as members. Enroll again before the policy is paid for and the same policy is updated: an employee already on it, matched by their `nationality_id` or `iqama_id`, is replaced, and anyone new is added. Once the policy is paid for and issued, the next enrollment starts a new one.",
-        "tags": ["Policies"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "insurance_provider",
-                  "company_id",
-                  "insured"
-                ],
-                "properties": {
-                  "redirect_url": {
-                    "type": "string",
-                    "description": "Where to send the customer once they have paid. `policyID` in it is replaced with the policy's id.",
-                    "example": "https://www.example.com?yasmina_policy_id=policyID"
-                  },
-                  "insurance_provider": {
-                    "type": "string",
-                    "enum": [
-                      "medgulf",
-                      "walaa",
-                      "alrajhi",
-                      "tawuniya",
-                      "malath"
-                    ],
-                    "description": "The insurance provider the company chose. Every employee in `insured` is covered by this provider, and each `category` has to be one of its packages (see List categories)."
-                  },
-                  "insured": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/Insured"
-                    }
-                  },
-                  "company_id": {
-                    "type": "integer",
-                    "description": "One of the company ids that were created from the company API"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "The company's policy, with its members",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer",
-                      "description": "The company's policy."
-                    },
-                    "price": {
-                      "type": "number",
-                      "description": "The premium for everyone on it, for a year."
-                    },
-                    "provider_policy_id": {
-                      "type": "string",
-                      "nullable": true,
-                      "description": "The insurer's policy number, once it is paid for and issued."
-                    },
-                    "policy_url": {
-                      "type": "string",
-                      "nullable": true,
-                      "description": "The policy schedule, once it is issued."
-                    },
-                    "meta_data": {
-                      "type": "object",
-                      "properties": {
-                        "company_id": {
-                          "type": "integer"
-                        },
-                        "insurance_provider": {
-                          "type": "string"
-                        },
-                        "insured": {
-                          "type": "array",
-                          "description": "The members on this policy.",
-                          "items": {
-                            "$ref": "#/components/schemas/Insured"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Problem in the values that you submitted",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "code": {
-                      "type": "string",
-                      "default": 42201
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "details": {
-                      "type": "object",
-                      "example": {
-                        "insured.1.iqama_id": [
-                          "The insured.1.iqama_id field cannot be empty unless insured.1.nationality_iso is in SA."
-                        ]
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
     },
     "/products/categories": {
       "get": {
@@ -1154,6 +1157,40 @@
           }
         }
       },
+      "QuoteRequest": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "description": "The quote_request_id." },
+          "company_id": { "type": "integer" },
+          "employees": { "type": "array", "items": { "$ref": "#/components/schemas/Insured" } },
+          "quotes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "quote_price_id": { "type": "string", "format": "uuid" },
+                "insurance_provider": { "type": "string" },
+                "insurance_provider_name": { "type": "string" },
+                "total_price": { "type": "number", "description": "What the company pays for a year of cover with this provider." },
+                "currency": { "type": "string", "example": "SAR" },
+                "employees": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": { "type": "string" },
+                      "identifier": { "type": "string" },
+                      "category": { "type": "string" },
+                      "dependents": { "type": "integer" },
+                      "price": { "type": "number" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "Insured": {
         "type": "object",
         "properties": {
@@ -1165,7 +1202,8 @@
           },
           "category": {
             "type": "string",
-            "description": "The package for this employee: a `category` key from the List categories response of the chosen `insurance_provider` (for example `basic` for MedGulf or `gold` for Al-Rajhi Takaful)"
+            "enum": ["basic", "standard", "premium", "executive"],
+            "description": "The tier this employee picked. Every provider sells all four, so the quote request can price it with each of them."
           },
           "nationality_id": {
             "type": "string",
