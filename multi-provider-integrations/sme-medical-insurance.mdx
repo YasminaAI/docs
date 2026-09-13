@@ -17,10 +17,11 @@ Using our secure and reliable endpoints, you'll be able to request and manage po
 ### Basic Journey
 1. **Authorize**: Get an access token to authenticate all API requests.
 2. **Create a Company**: Register the SME that will provide medical insurance for its employees.
-3. **Choose a Package**: Retrieve and compare available medical insurance packages from multiple insurance providers.
-4. **Enroll Employees**: Put the employees who will be covered onto the company's policy with the chosen provider.
-5. **Health Declarations**: Get the declaration questions, download a printable form, or fill them in on the employees' behalf.
-6. **Payment**: Receive a secure payment link to finalize the purchase, and get each employee's policy documents once it clears.
+3. **Add the Employees**: Save the company's employees, each with the tier they want.
+4. **Get Prices**: One request prices those employees with every insurance provider at once.
+5. **Issue the Policy**: Pick a quote and issue the company's policy from it.
+6. **Health Declarations**: Get the declaration questions, download a printable form, or fill them in on the employees' behalf.
+7. **Payment**: Receive a secure payment link to finalize the purchase, and get the policy document once it clears.
 
 ### Authorization
 
@@ -58,9 +59,8 @@ It will return a response with a unique identifier (id). Here is an example of t
 ```
 You can also visit the [List companies API](/medical-api-reference/company/list-companies) to show all companies you've created
 
-### List and compare available packages
-Yasmina works with multiple insurance providers. After creating a company record, you can list the packages available to the company from every provider and compare them, helping the company choose the most suitable option for its employees. Check out the [Categories API](/medical-api-reference/products/list-categories).
-Call it once per provider, passing `insurance_provider` as one of the values below. Omit it and you get MedGulf, the default. Each call gives you that provider's insurance categories.
+### Compare the packages
+Every insurance provider sells the same four tiers, so an employee's choice can be priced by all of them: `basic`, `standard`, `premium` and `executive`. What each provider puts inside a tier, and what it charges for it, is its own. The [Categories API](/medical-api-reference/products/list-categories) shows one provider's tiers at a time; call it once per provider, passing `insurance_provider` as one of the values below, or omit it for MedGulf.
 
 | Insurance provider | `insurance_provider` |
 | ------------------ | -------------------- |
@@ -69,19 +69,21 @@ Call it once per provider, passing `insurance_provider` as one of the values bel
 | Al-Rajhi Takaful   | `alrajhi`            |
 | Tawuniya           | `tawuniya`           |
 | Malath             | `malath`             |
-Alongside the categories, the response repeats the provider as `insurance_provider` and its display name as `insurance_provider_name`.
+
+Each response carries the provider as `insurance_provider` and its display name as `insurance_provider_name`, then:
 
 1. The Insurance provider PDF
 	- Contains an overview picture of what is provided by the Insurance provider
 2. The translations
 	- The translations includes **keys** that map to the instructional text in Arabic and English that were provided by the insurance provider.
 3. The categories
-	- The categories items uses these keys and gives the coverage values
+	- One entry per tier, with the coverage values and the yearly `price` per person
 
-Each employee can have a separate package. Coverage values can either be a number (the amount), or a boolean (whether it's covered or not), or a text (the type of coverage) Each item in the categories has a `category` property and an `insurance_provider` property. These are important properties as they are what you will need to provide when you issue policies. Notice the category and insurance_provider fields in the following sample of the categories response API.
+Coverage values can either be a number (the amount), or a boolean (whether it's covered or not), or a text (the type of coverage).
 
 ```
     "insurance_provider": "medgulf",
+    "insurance_provider_name": "MedGulf",
     "medgulf_pdf": "https://...",
     "translations": { ... },
     "categories": {
@@ -89,6 +91,7 @@ Each employee can have a separate package. Coverage values can either be a numbe
             "name": "Basic",
             "category": "basic",
             "insurance_provider": "medgulf",
+            "price": 300,
             "maximum_annual_benefit_limit_per_person": 500000,
             "geography": "Saudi Arabia",
             "general_coverage": {
@@ -98,16 +101,12 @@ Each employee can have a separate package. Coverage values can either be a numbe
     }
 ```
 
-### Enroll the employees
-A company buys one policy, and its employees are the members on it, which is how the insurer issues it and how the policy document reads. Call the [Enroll employees API](/medical-api-reference/policies/enroll-employees) and you get that one policy back, with every employee inside `meta_data.insured` and the premium for all of them in `price`.
+### Add the employees
+The [Employees API](/medical-api-reference/employees/save-the-employees) holds the company's employee list: who is covered, their dependents, and the tier each has picked. It prices nothing. Send the whole list; each call replaces the one before, and you can read it back at any time.
 
-Enroll again before the policy is paid for and the same policy is updated: an employee already on it, matched by their id, is replaced, and anyone new is added. Once it is paid for and issued, the next enrollment starts a new policy.
-The API takes three fields. The company_id as referenced above, the insurance_provider the company selected when comparing packages, and an array called insured. The insured are the employees that the company wants to cover.
-Here is an example of a payload you would send
 ```
 {
-  "insurance_provider": "medgulf",
-  "insured": [
+  "employees": [
     {
         "name": "Abdullah Enizi",
         "nationality_iso": "SA",
@@ -135,25 +134,66 @@ Here is an example of a payload you would send
     {
         "name": "Samer Najjar",
         "nationality_iso": "JO",
-        "category": "standard",
+        "category": "executive",
         "iqama_id": "2345678901",
         "mobile_number": "0512345679",
         "date_of_birth": "1988-04-20",
         "dependents": []
     }
-  ],
-  "company_id": 1
+  ]
 }
 ```
 
-<Note>Notice in the above, there are two employees within the company. Abdullah is Saudi (`nationality_iso` is `SA`), so we supply his `nationality_id`. Samer is not Saudi, so we supply his `iqama_id` instead. The API rejects the request if a Saudi employee has no `nationality_id` or a non-Saudi employee has no `iqama_id`. Every identifier, for employees and dependents alike, must be exactly 10 digits, and every employee needs a `mobile_number`.</Note>
-The `category` and `insurance_provider` that we are supplying are what was returned from the [Categories API](/medical-api-reference/products/list-categories). All insured employees of a company are covered by the same provider, so the `insurance_provider` is supplied once at the top level, and every `category` has to be one of that provider's packages or the request is rejected.
+<Note>Abdullah is Saudi (`nationality_iso` is `SA`), so we supply his `nationality_id`. Samer is not Saudi, so we supply his `iqama_id` instead. The API rejects the request if a Saudi employee has no `nationality_id` or a non-Saudi employee has no `iqama_id`. Every identifier, for employees and dependents alike, must be exactly 10 digits, and every employee needs a `mobile_number`.</Note>
+
+Each employee's `category` is one of the four tiers. Employees can be on different tiers.
 
 #### Dependents
-An employee can bring family members onto the policy through the `dependents` array. Each dependent needs a `name`, a `relationship` to the employee (`spouse`, `child` or `parent`), a `nationality_iso`, a `date_of_birth`, and the same identifier rule as the employee: a 10-digit `nationality_id` for Saudis, a 10-digit `iqama_id` for everyone else. Dependents do not carry their own mobile number. Dependents are covered by the employee's provider and category; they cannot have a package of their own. Leave the array out, or send it empty, for an employee with no dependents.
+An employee can bring family members onto the policy through the `dependents` array. Each dependent needs a `name`, a `relationship` to the employee (`spouse`, `child` or `parent`), a `nationality_iso`, a `date_of_birth`, and the same identifier rule as the employee: a 10-digit `nationality_id` for Saudis, a 10-digit `iqama_id` for everyone else. Dependents do not carry their own mobile number. Dependents are covered under the employee's tier; they cannot have one of their own. Leave the array out, or send it empty, for an employee with no dependents.
 
 #### Dates of birth
 Send every `date_of_birth` as `YYYY-MM-DD`. Saudi nationals whose national id starts with `1` give the Hijri (Umm al-Qura) date printed on their id, as Abdullah and his family do above; everyone else gives a Gregorian date. Employees must be between 18 and 110 years old; dependents can be any age.
+
+### Get prices from every provider
+Call the [Quote request API](/medical-api-reference/quotes/get-prices-from-every-provider) with the `company_id` and you get one response with a quote from every insurance provider, each priced for the employees saved above at the tiers they picked. Every quote carries a `quote_price_id`; the response itself carries an `id`, the `quote_request_id`. Keep both for the next step.
+
+```
+{
+  "id": "a2bc93db-131e-4726-8a0a-0fed1da5ac0f",
+  "company_id": 1,
+  "employees": [ ... ],
+  "quotes": [
+    {
+      "quote_price_id": "3fb4e3bb-6c7e-4a8f-9d2a-1b3c5d7e9f01",
+      "insurance_provider": "medgulf",
+      "insurance_provider_name": "MedGulf",
+      "total_price": 1600,
+      "currency": "SAR",
+      "employees": [
+        { "name": "Abdullah Enizi", "identifier": "1012345678", "category": "basic", "dependents": 2, "price": 300 },
+        { "name": "Samer Najjar", "identifier": "2345678901", "category": "executive", "dependents": 0, "price": 1300 }
+      ]
+    },
+    { "quote_price_id": "...", "insurance_provider": "walaa", "total_price": 1700, ... },
+    ...
+  ]
+}
+```
+
+`total_price` is what the company pays for a year of cover with that provider, and the `employees` lines show where it comes from. A quote prices the employees as they stood when it was asked for; change the list and ask again.
+
+### Issue the policy
+A company buys one policy, and its employees are the members on it, which is how the insurer issues it and how the policy document reads. Call the [Issue policy API](/medical-api-reference/policies/issue-the-policy) with the `quote_request_id` and the `quote_price_id` of the quote the company chose, and you get that one policy back: the provider that priced it, the quoted total as `price`, and every employee inside `meta_data.insured`.
+
+```
+{
+  "quote_request_id": "a2bc93db-131e-4726-8a0a-0fed1da5ac0f",
+  "quote_price_id": "3fb4e3bb-6c7e-4a8f-9d2a-1b3c5d7e9f01",
+  "redirect_url": "https://www.example.com?yasmina_policy_id=policyID"
+}
+```
+
+A company has one policy waiting to be paid for at a time. Issue again before payment, from a different quote if you like, and it is replaced. Once it is paid for, the next issue starts a new policy.
 
 ### Health declaration forms
 Insurers require a past medical history from every employee before they will cover them. Yasmina publishes the questions and prints the form; the company collects the answers itself, on paper or inside your own platform.
@@ -216,7 +256,7 @@ Then get a link with the [Payment link API](/medical-api-reference/payment/payme
 
 ### Payment and Policy activation
 
-When you first enroll a company's employees, the Policy is not yet activated and the `status` is `0` (which means pending).
+When you first issue the policy, it is not yet activated and the `status` is `0` (which means pending).
 
 Also the `provider_policy` and `provider_policy_id` will both be `null`.
 

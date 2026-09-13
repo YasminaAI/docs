@@ -10,7 +10,7 @@ Every page of this documentation is published in an AI-readable format, so an AI
 assistant — Claude Code, Cursor, GitHub Copilot, or any tool that can fetch a URL — can
 read the [SME Medical Insurance guide](/multi-provider-integrations/sme-medical-insurance) and API
 reference directly and scaffold the integration for you: authentication, company records,
-package comparison, enrollment, health declarations, and payment.
+employees, quotes, policy issuance, health declarations, and payment.
 
 You stay in control of the code. The assistant writes the first draft against our guide
 and OpenAPI spec; you review it, test it in the [Sandbox environment](/environments), and
@@ -74,10 +74,9 @@ Then build a backend integration that:
 1. Authenticates with OAuth 2.0 client credentials and reuses the token until
    it expires.
 2. Creates a company record for the SME.
-3. Retrieves the available packages, compares them across insurance
-   providers, and presents them for selection.
-4. Enrolls the selected employees onto the company's policy with the chosen
-   provider and a package per employee.
+3. Saves the company's employees with a tier each, then requests prices
+   and presents every provider's quote for selection.
+4. Issues the company's policy from the chosen quote.
 5. Collects the health declarations, then shares the payment link with the
    customer and handles the redirect back.
 
