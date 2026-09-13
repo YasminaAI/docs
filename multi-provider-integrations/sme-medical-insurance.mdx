@@ -55,7 +55,17 @@ You can also visit the [List companies API](/medical-api-reference/company/list-
 
 ### List and compare available packages
 Yasmina works with multiple insurance providers. After creating a company record, you can list the packages available to the company from every provider and compare them, helping the company choose the most suitable option for its employees. Check out the [Categories API](/medical-api-reference/products/list-categories).
-Call it once per provider, passing `insurance_provider=medgulf` or `insurance_provider=bupa` (it defaults to `medgulf`). Each call gives you that provider's insurance categories.
+Call it once per provider, passing `insurance_provider` as one of the values below. Omit it and you get MedGulf, the default. Each call gives you that provider's insurance categories.
+
+| Insurance provider | `insurance_provider` |
+| ------------------ | -------------------- |
+| MedGulf (default)  | `medgulf`            |
+| Walaa              | `walaa`              |
+| Al-Rajhi Takaful   | `alrajhi`            |
+| Tawuniya           | `tawuniya`           |
+| Malath             | `malath`             |
+Alongside the categories, the response repeats the provider as `insurance_provider` and its display name as `insurance_provider_name`.
+
 1. The Insurance provider PDF
 	- Contains an overview picture of what is provided by the Insurance provider
 2. The translations

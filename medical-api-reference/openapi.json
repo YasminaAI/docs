@@ -235,7 +235,10 @@
                     "type": "string",
                     "enum": [
                       "medgulf",
-                      "bupa"
+                      "walaa",
+                      "alrajhi",
+                      "tawuniya",
+                      "malath"
                     ],
                     "description": "The insurance provider the company chose. Every employee in `insured` is covered by this provider, and each `category` has to be one of its packages (see List categories)."
                   },
@@ -314,7 +317,10 @@
               "type": "string",
               "enum": [
                 "medgulf",
-                "bupa"
+                "walaa",
+                "alrajhi",
+                "tawuniya",
+                "malath"
               ],
               "default": "medgulf"
             }
