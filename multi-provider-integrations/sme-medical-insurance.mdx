@@ -155,12 +155,13 @@ Insurers require a past medical history from every employee before they will cov
 
 2. **The printable form**: the [Download declaration form API](/medical-api-reference/medical-forms/download-the-declaration-form) returns the same declaration as a PDF. Pass a `company_id` and the file carries one page per employee you have already enrolled, with their name, id and package filled in, ready to print or email. Leave `company_id` out for a single blank form.
 
-3. **Filling them in for the employees**: a company admin can answer on their behalf with the [Fill medical forms API](/medical-api-reference/medical-forms/fill-medical-forms). It takes `all_employees`, the default answers for everyone, and `ids_or_emails`, the employees whose answers differ.
+3. **Filling them in for the employees**: a company admin can answer on their behalf with the [Fill medical forms API](/medical-api-reference/medical-forms/fill-medical-forms). It takes the `company_id`, `all_employees`, the default answers for everyone, and `ids_or_emails`, the employees whose answers differ. Name an employee by their `nationality_id` or `iqama_id`; one that matches nobody in the company is rejected. The answers are stored against each employee's policy, and the response tells you how many are now declared and how many are still missing.
 
 	For example, if nobody has had surgery except john.doe@example.com, declare `No` for `past_surgeries` under `all_employees` and override that one employee:
 
 	```
 	{
+	    "company_id": 1,
 	    "all_employees": {
 	        "allergies": "No",
 	        "current_medications": "No",
@@ -200,6 +201,8 @@ Insurers require a past medical history from every employee before they will cov
 	```
 
 ### Payment
+<Note>Every employee must have a health declaration on file before a company can pay. Ask for a payment link while any of them is missing one and the API answers `422`, naming the employees still to declare.</Note>
+
 Ask for the amount outstanding with the [Payment due API](/medical-api-reference/company/payment-due). It answers with the sum of the premiums of that company's policies that have not been issued yet, and every package's `price` is in the categories response, so you can show the bill before anyone pays.
 
 Then get a link with the [Payment link API](/medical-api-reference/company/payment-link) and share it in your platform. It opens Yasmina's secure card page, where the company pays for all of its employees in one go. The link is signed and expires after 15 minutes, so fetch it when the buyer is ready to pay rather than storing it. A company with nothing outstanding gets a `422` instead of a link.

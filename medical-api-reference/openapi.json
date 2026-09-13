@@ -355,9 +355,14 @@
               "schema": {
                 "type": "object",
                 "required": [
+                  "company_id",
                   "all_employees"
                 ],
                 "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "description": "The company whose employees are being declared for."
+                  },
                   "all_employees": {
                     "allOf": [
                       {
@@ -433,8 +438,29 @@
         },
         "tags": ["Medical Forms"],
         "responses": {
-          "204": {
-            "description": "Forms submitted successfully"
+          "200": {
+            "description": "The answers were stored",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "declared": {
+                      "type": "integer",
+                      "description": "How many employees now have a declaration."
+                    },
+                    "remaining": {
+                      "type": "integer",
+                      "description": "How many are still missing one."
+                    }
+                  },
+                  "example": {
+                    "declared": 2,
+                    "remaining": 0
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad request",
@@ -793,7 +819,7 @@
     },
     "/payment-link": {
       "get": {
-        "description": "A signed link to Yasmina's card payment page, covering every policy of this company that has not been issued yet. The link expires after 15 minutes, and a company that owes nothing gets a 422 instead.",
+        "description": "A signed link to Yasmina's card payment page, covering every policy of this company that has not been issued yet. Every employee has to have a health declaration on file first, so a company with any of them missing gets a 422 naming who. A company that owes nothing gets a 422 too. The link expires after 15 minutes.",
         "parameters": [
           {
             "name": "company_id",
