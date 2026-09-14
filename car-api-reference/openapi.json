@@ -1423,11 +1423,11 @@
                   "properties": {
                     "code": {
                       "type": "string",
-                      "example": "40000"
+                      "example": "40006"
                     },
                     "message": {
                       "type": "string",
-                      "example": "Mobile is registered with different ID number"
+                      "example": "This mobile number is already in use with another National ID"
                     }
                   }
                 }
@@ -1523,11 +1523,11 @@
                   "properties": {
                     "code": {
                       "type": "string",
-                      "example": "40000"
+                      "example": "40013"
                     },
                     "message": {
                       "type": "string",
-                      "example": "Mobile is registered with different ID number"
+                      "example": "The IBAN number is incorrect or does not belong to the customer"
                     }
                   }
                 }
