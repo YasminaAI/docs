@@ -259,7 +259,7 @@ Everything needed to take payment is on the policy object. [Read the policy](/me
 
 - `price`: what the company pays for a year of cover.
 - `pending_declarations`: the employees who still have to declare their medical history. The insurers will not cover anyone who has not, so while this list is not empty there is nothing to pay for.
-- `payment_link`: where the company pays, once `pending_declarations` is empty. It opens Yasmina's secure card page, where the company pays for all of its employees in one go. It is a fresh signed link on every read and expires after 15 minutes, so read the policy when the buyer is ready to pay rather than storing the link. It is null while anyone still has to declare, and again once the policy is issued.
+- `payment_link`: where the company pays, once `pending_declarations` is empty. It is a short link that opens Yasmina's secure card page, where the company pays for all of its employees in one go, so it can be sent in a message as it is. The same link comes back on every read; it is valid for 24 hours and is replaced with a new one as it nears expiry. It is null while anyone still has to declare, and again once the policy is issued.
 
 The policy returned by issuing and by filling the declarations carries the same fields, so in the simplest flow you issue, fill, and send the customer to the link on the response.
 
