@@ -315,7 +315,10 @@
           }
         },
         "responses": {
-          "201": { "description": "The company's policy, pending payment" },
+          "201": {
+            "description": "The company's policy, pending payment",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MedicalPolicy" } } }
+          },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "422": { "$ref": "#/components/responses/UnprocessableEntity" }
         }
@@ -396,158 +399,19 @@
         }
       }
     },
-    "/medical-forms/fill": {
-      "post": {
-        "summary": "Fill Medical forms",
-        "description": "This is if the HR wants to fill the Medical forms on behalf of the employees. The answers in `all_employees` apply to every employee; use `ids_or_emails` to override the answers for specific employees. Use the Get the Medical form questions API to see the question text for each key.",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "company_id",
-                  "all_employees"
-                ],
-                "properties": {
-                  "company_id": {
-                    "type": "integer",
-                    "description": "The company whose employees are being declared for."
-                  },
-                  "all_employees": {
-                    "allOf": [
-                      {
-                        "$ref": "#/components/schemas/MedicalFormAnswers"
-                      }
-                    ],
-                    "description": "Default answers applied to all employees of the company"
-                  },
-                  "ids_or_emails": {
-                    "type": "array",
-                    "description": "Per-employee overrides. Identify the employee by email, nationality id, or Iqama id.",
-                    "items": {
-                      "type": "object",
-                      "required": [
-                        "id_or_email",
-                        "answers"
-                      ],
-                      "properties": {
-                        "id_or_email": {
-                          "type": "string"
-                        },
-                        "answers": {
-                          "$ref": "#/components/schemas/MedicalFormAnswers"
-                        }
-                      }
-                    }
-                  }
-                }
-              },
-              "example": {
-                "all_employees": {
-                  "allergies": "No",
-                  "current_medications": "No",
-                  "hospitalizations": "No",
-                  "pre_existing_conditions": "No",
-                  "past_surgeries": "No",
-                  "surgery_complications": "No",
-                  "chest_pain_or_breathlessness": "No",
-                  "heart_procedures": "No",
-                  "smoking": "No",
-                  "alcohol_consumption": "No",
-                  "physical_activity": "No",
-                  "family_history": "No",
-                  "chronic_disease": [
-                    "None of the above"
-                  ]
-                },
-                "ids_or_emails": [
-                  {
-                    "id_or_email": "john.doe@example.com",
-                    "answers": {
-                      "allergies": "No",
-                      "current_medications": "No",
-                      "hospitalizations": "No",
-                      "pre_existing_conditions": "No",
-                      "past_surgeries": "Yes",
-                      "surgery_complications": "No",
-                      "chest_pain_or_breathlessness": "No",
-                      "heart_procedures": "No",
-                      "smoking": "No",
-                      "alcohol_consumption": "No",
-                      "physical_activity": "No",
-                      "family_history": "No",
-                      "chronic_disease": [
-                        "Liver Disease"
-                      ]
-                    }
-                  }
-                ]
-              }
-            }
-          }
-        },
-        "tags": ["Medical Forms"],
-        "responses": {
-          "200": {
-            "description": "The answers were stored",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "declared": {
-                      "type": "integer",
-                      "description": "How many employees now have a declaration."
-                    },
-                    "remaining": {
-                      "type": "integer",
-                      "description": "How many are still missing one."
-                    }
-                  },
-                  "example": {
-                    "declared": 2,
-                    "remaining": 0
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "example": {
-
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "422": {
-            "$ref": "#/components/responses/UnprocessableEntity"
-          }
-        }
-      }
-    },
     "/medical-forms/download": {
       "get": {
         "summary": "Download the declaration form",
-        "description": "The health declaration as a printable PDF, so a company can hand it to the employees who have to fill it in. Pass a `company_id` and the file carries one page per enrolled employee, with their name, id and package already filled in; leave it out for a single blank form.",
+        "description": "The health declaration as a printable PDF, so a company can hand it to the employees who have to fill it in. Pass a `policy_id` and the file carries one page per employee on that policy, with their name, id and package already filled in; leave it out for a single blank form.",
         "tags": [
           "Medical Forms"
         ],
         "parameters": [
           {
-            "name": "company_id",
+            "name": "policy_id",
             "in": "query",
             "required": false,
-            "description": "Produce a page per employee of this company.",
+            "description": "Produce a page per employee on this policy.",
             "schema": {
               "type": "integer"
             }
@@ -715,6 +579,69 @@
         }
       }
     },
+    "/policies/{policyId}": {
+      "get": {
+        "summary": "Read the policy",
+        "description": "One policy, with everything needed to take payment: its `price`, `pending_declarations` naming anyone who still has to declare, and `payment_link` once nobody does. The link is a fresh signed URL on every read, valid 15 minutes, and null while the policy cannot be paid for or once it is issued.",
+        "tags": ["Policies"],
+        "parameters": [
+          { "name": "policyId", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "The policy",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MedicalPolicy" } } }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/policies/{policyId}/declarations": {
+      "post": {
+        "summary": "Fill the declarations",
+        "description": "A company admin answers the health declaration on the employees' behalf. `all_employees` is the default set of answers; `ids_or_emails` overrides them for the employees whose history differs. The answers are stored on the members of the policy, and its `payment_link` appears once nobody is left in `pending_declarations`.",
+        "tags": ["Medical Forms"],
+        "parameters": [
+          { "name": "policyId", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["all_employees"],
+                "properties": {
+                  "all_employees": { "$ref": "#/components/schemas/DeclarationAnswers" },
+                  "ids_or_emails": {
+                    "type": "array",
+                    "description": "Employees whose answers differ from all_employees, named by nationality_id or iqama_id.",
+                    "items": {
+                      "type": "object",
+                      "required": ["id_or_email", "answers"],
+                      "properties": {
+                        "id_or_email": { "type": "string", "example": "1111111111" },
+                        "answers": { "$ref": "#/components/schemas/DeclarationAnswers" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The policy, with its declarations recorded",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MedicalPolicy" } } }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "422": { "$ref": "#/components/responses/UnprocessableEntity" }
+        }
+      }
+    },
     "/policies/{policyId}/deletion": {
       "post": {
         "summary": "Delete policy",
@@ -865,78 +792,6 @@
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "/payment-link": {
-      "get": {
-        "description": "A signed link to Yasmina's card payment page, covering every policy of this company that has not been issued yet. Every employee has to have a health declaration on file first, so a company with any of them missing gets a 422 naming who. A company that owes nothing gets a 422 too. The link expires after 15 minutes.",
-        "parameters": [
-          {
-            "name": "company_id",
-            "in": "query",
-            "required": true,
-            "description": "The company being paid for.",
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "summary": "Payment link",
-        "tags": ["Payment"],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "example":{
-                    "payment": "https://production.yasmina.ai/checkoutPage?hash=eyJpdiI6ImZZVU1pN2NsbGxUOEtjNGlkQzVJanc9PSIsInZhbHVlIjoiV2Z6S2ljczQ4b3JmREFnNkVPa1phL0xZSTFGZ2dQRXZhcFo1K0pSaEE2ND0iLCJtYWMiOiJjNGRmMWM3ODQyZGEyZTA2M2JlOWYzZTA3NTc2NDcyNzk3M2E2ZGVhOWE3YjNjODQxNWU1MjU3ODA3ZDc3MjMzIiwidGFnIjoiIn0="
-                  }
-                }
-              }
-            },
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/payment-due": {
-      "get": {
-        "description": "The amount this company still owes: the premiums of its policies that have not been issued yet.",
-        "parameters": [
-          {
-            "name": "company_id",
-            "in": "query",
-            "required": true,
-            "description": "The company being paid for.",
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "summary": "Payment due",
-        "tags": ["Payment"],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "payment": {
-                      "type": "integer",
-                      "example": 1500
-                    }
-                  },
-                  "example": {
-                    "payment": 1500
-                  }
-                }
-              }
-            },
-            "description": "Success"
           }
         }
       }
@@ -1154,6 +1009,59 @@
           "date_of_birth": {
             "type": "string",
             "description": "Format YYYY-MM-DD. Saudi nationals whose national id starts with 1 give the Hijri (Umm al-Qura) date printed on their id, for example 1409-09-14; everyone else gives a Gregorian date. A dependent can be any age up to 110."
+          }
+        }
+      },
+      "MedicalPolicy": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "status": { "type": "integer", "description": "0 pending payment, 1 active, 2 cancelled." },
+          "price": { "type": "number", "description": "The premium for everyone on the policy, for a year." },
+          "pending_declarations": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Employees who still have to declare their medical history. Empty once everyone has."
+          },
+          "payment_link": {
+            "type": "string",
+            "nullable": true,
+            "description": "Where the company pays. A fresh signed link on every read, valid 15 minutes. Null while anyone is in pending_declarations, and once the policy is issued."
+          },
+          "provider_policy_id": { "type": "string", "nullable": true, "description": "The insurer's policy number, once issued." },
+          "policy_url": { "type": "string", "nullable": true, "description": "The policy schedule, once issued." },
+          "redirect_url": { "type": "string", "nullable": true },
+          "meta_data": {
+            "type": "object",
+            "properties": {
+              "company_id": { "type": "integer" },
+              "insurance_provider": { "type": "string" },
+              "quote_request_id": { "type": "string", "format": "uuid" },
+              "quote_price_id": { "type": "string", "format": "uuid" },
+              "insured": { "type": "array", "items": { "$ref": "#/components/schemas/Insured" } }
+            }
+          }
+        }
+      },
+      "DeclarationAnswers": {
+        "type": "object",
+        "description": "Yes or No for each question, and the list of chronic diseases.",
+        "properties": {
+          "allergies": { "type": "string", "enum": ["Yes", "No"] },
+          "current_medications": { "type": "string", "enum": ["Yes", "No"] },
+          "hospitalizations": { "type": "string", "enum": ["Yes", "No"] },
+          "pre_existing_conditions": { "type": "string", "enum": ["Yes", "No"] },
+          "past_surgeries": { "type": "string", "enum": ["Yes", "No"] },
+          "surgery_complications": { "type": "string", "enum": ["Yes", "No"] },
+          "chest_pain_or_breathlessness": { "type": "string", "enum": ["Yes", "No"] },
+          "heart_procedures": { "type": "string", "enum": ["Yes", "No"] },
+          "smoking": { "type": "string", "enum": ["Yes", "No"] },
+          "alcohol_consumption": { "type": "string", "enum": ["Yes", "No"] },
+          "physical_activity": { "type": "string", "enum": ["Yes", "No"] },
+          "family_history": { "type": "string", "enum": ["Yes", "No"] },
+          "chronic_disease": {
+            "type": "array",
+            "items": { "type": "string", "enum": ["Diabetes", "Asthma", "Chronic Kidney Disease", "Liver Disease", "Cancer", "None of the above"] }
           }
         }
       },
