@@ -3,44 +3,32 @@ title: "Rate limiting"
 icon: "stopwatch"
 ---
 
-To ensure fair usage and system stability, Yasmina APIs are rate-limited. Below are the current limits per endpoint.
+Every API call is counted against your client, per minute, by what the call asks of the insurers:
 
-## Medical APIs
+| Kind of call            | Limit                | Which calls                                                                                                                    |
+|-------------------------|----------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| Reads                   | 120 requests/minute  | Every `GET`: policies, quote requests, employees, payment due, lookups.                                                        |
+| Writes                  | 60 requests/minute   | Every other call not listed below: creating companies, setting employees, requesting quotes, OTPs, uploading photos, embed sessions, filling medical forms. |
+| Issuing and unwinding   | 30 requests/minute   | Any non-`GET` call to an endpoint ending in `policies`, `cancellation`, `policy-cancellation`, `claims` or `deletion`: issuing a policy, cancelling it, claiming on it, deleting it. |
 
-| Endpoint                                         | Method | Limit                |
-|--------------------------------------------------|--------|-----------------------|
-| /medical/companies                               | GET    | 120 requests/minute   |
-| /medical/companies                               | POST   | 60 requets/minute                     |
-| /medical/companies/\{company\}/policy-cancellation | POST   | 30 requests/minute    |
-| /medical/companies/\{company\}/employees           | PUT    | 60 requets/minute                    |
-| /medical/request-policies                        | POST   | 30 requests/minute    |
-| /medical/policies/\{policy\}/claims                | POST   | 30 requets/minute                     |
-| /medical/policies/\{policy\}/claims/\{claim\}        | GET    | 120 requests/minute   |
-| /medical/policies/\{policy\}/declarations         | POST   | 60 requests/minute    |
-| /medical/medical-forms                           | GET    | 120 requests/minute   |
-| /medical/medical-forms/download                  | GET    | 120 requests/minute   |
-| /medical/policies/\{policy\}/deletion              | POST   | 30 requests/minute    |
-| /medical/policies                                | GET    | 120 requests/minute   |
-| /medical/products/categories                     | GET    | 120 requests/minute   |
+Each kind has its own bucket, so a burst of quote requests never slows your reads. The bucket belongs to your client id: it is shared across every product you use, and sandbox and production count separately.
 
-## Car APIs
+Calls the customer's browser makes from the Yasmina iframe (`/car-comp/embed/*`) are counted against the customer's IP address instead, so your customers never share one bucket.
 
-| Endpoint                                         | Method | Limit                |
-|--------------------------------------------------|--------|-----------------------|
-| /car/policies                                    | GET    | 120 requests/minute   |
-| /car/policies                                    | POST   | 30 requests/minute    |
-| /car/policies/\{carPolicy\}/cancellation           | POST   | 30 requests/minute    |
-| /car/policies/\{policy\}/claims                    | POST   | 30 requests/minute                     |
-| /car/policies/\{policy\}/claims/\{claim\}            | GET    | 120 requests/minute   |
+Two endpoints have a stricter, per-customer limit on top. `POST /car-comp/quote-otp` and `POST /car-comp/issue-otp` accept one request per phone number every three minutes, and answer `429` with code `42902` and the seconds left otherwise. The OTP already sent stays valid meanwhile.
 
-## OAuth
+`POST /oauth/token` is limited to 60 requests per minute per IP address. Cache the token: it is valid for the `expires_in` it comes with.
 
-| Endpoint         | Method | Limit               |
-|------------------|--------|----------------------|
-| /oauth/token     | POST   | 10 requests/minute   |
+## When you go over
 
-## Payment APIs
+The call is refused with `429`, the standard [error envelope](/api-resources/errors) with code `42901`, and the seconds to wait in both the body and the `Retry-After` header:
 
-| Endpoint                                         | Method | Limit                |
-|--------------------------------------------------|--------|-----------------------|
-| /payments                                    | GET    | 120 requests/minute   |
+```json
+{
+  "code": "42901",
+  "message": "Too many requests. Please wait 37 seconds and try again.",
+  "retry_after_seconds": 37
+}
+```
+
+Every counted response also carries `X-RateLimit-Limit` and `X-RateLimit-Remaining`, so you can slow down before you are refused. Retry after `retry_after_seconds`; retrying sooner only extends the wait.

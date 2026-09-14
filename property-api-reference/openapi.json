@@ -1631,7 +1631,7 @@
                   "properties": {
                     "code": {
                       "type": "string",
-                      "example": "40001"
+                      "example": "40019"
                     },
                     "message": {
                       "type": "string",

@@ -1,18 +1,106 @@
 ---
 title: "Errors"
+description: "Every error the API can return and what each one means."
 icon: "triangle-exclamation"
 ---
 
-Yasmina APIs follow standard HTTP status codes to indicate the success or failure of an API request. Below is a list of common error codes you may encounter and what they typically mean.
+Every error is a JSON body with the same shape, whatever `Accept` header you send. The HTTP status tells you the kind of problem, the `code` tells you the exact case, and the `message` is written to be shown to the customer.
 
-| Status Code | Meaning                        | Description                                                                 |
-|-------------|--------------------------------|-----------------------------------------------------------------------------|
-| 400         | Bad Request                    | The request was malformed or invalid. For example trying to cancel an already cancelled policy |
-| 401         | Unauthorized                   | The request lacks valid authentication credentials.                        |
-| 403         | Forbidden                      | You are authenticated but not allowed to access this resource or product. |
-| 404         | Not Found                      | The requested resource does not exist.                                     |
-| 405         | Method Not Allowed             | The HTTP method used is not supported for this endpoint.                   |
-| 422         | Unprocessable Entity           | The request was well-formed but failed validation (e.g., missing or invalid fields). |
-| 429         | Too many requests          | Read more in <a href="/api-resources/rate">Rate Limit Section</a> |
-| 500         | Internal Server Error          | Something went wrong on Yasmina’s side.                                    |
-| 502         | Bad Gateway                    | A third-party service (e.g., an insurance company) failed to respond properly. |
+## The error response
+
+```json
+{
+  "code": "40012",
+  "message": "OTP is invalid or expired."
+}
+```
+
+| Field                 | Present         | Description                                                                                                                                                                                                      |
+|-----------------------|-----------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `code`                | Always          | A string of five digits. The first three are the HTTP status, the last two tell apart the cases that share a status: `40012` is the twelfth kind of `400`. Branch on this, never on `message`.                    |
+| `message`             | Always          | What went wrong, in words a customer can read. Sent in English, or in Arabic when the request carries `Accept-Language: ar`. Messages an insurance provider wrote are passed on as received. Wording may change. |
+| `details`             | `42201` only    | Field validation errors: each key is the field, each value a list of messages for it.                                                                                                                             |
+| `retry_after_seconds` | `429` only      | How long to wait before trying again. The same value is in the `Retry-After` header.                                                                                                                             |
+
+A `2xx` response never carries a `code`, and `204` responses have no body at all.
+
+## Common Yasmina errors
+
+Any endpoint can answer with these.
+
+| Code    | Status | Message                                                            | When                                                                                                                                                                                                              |
+|---------|--------|--------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `40101` | 401    | Unauthenticated                                                    | No `Authorization` header, an expired or revoked token, or a token sent without the `Bearer` scheme. On `POST /oauth/token` the message is `Wrong credentials`: the client id or secret is wrong, or the secret was regenerated. On the iframe's `/car-comp/embed/*` routes the message is `This embed session is not valid any more.`: the session token is unknown or has expired. |
+| `40301` | 403    | Unauthorized                                                       | The token is valid but the product is not enabled on your account, or the account is not approved yet.                                                                                                             |
+| `40401` | 404    | Model not found                                                    | The record whose id is in the URL does not exist or belongs to another client. On the iframe's `/car-comp/embed/*` routes the message is `This embed session is not for that quote request.`.                       |
+| `40402` | 404    | The route … could not be found.                                    | No such endpoint.                                                                                                                                                                                                 |
+| `40501` | 405    | Method not allowed                                                 | The endpoint exists, but not for this HTTP method.                                                                                                                                                                |
+| `42201` | 422    | *the first failing field's message*                                | A field is missing, malformed, or fails a rule. `details` lists every failing field with its messages. The only 422 the API returns.                                                                              |
+| `40000` | 400    | *varies*                                                           | Rejected for a reason that has no code of its own yet.                                                                                                                                                            |
+| `42901` | 429    | Too many requests. Please wait 37 seconds and try again.           | Rate limited. `retry_after_seconds` says for how long; see [Rate limiting](/api-resources/rate).                                                                                                                  |
+| `50001` | 500    | We’re experiencing a temporary server issue. Please try again shortly. | Something failed on Yasmina's side, including an insurer that did not answer in time.                                                                                                                         |
+| `50401` | 504    | Gateway error                                                      | An insurer could not be reached.                                                                                                                                                                                  |
+
+### Policy cancellation
+
+`POST /clients/policies/cancellation` and every product's `POST …/policies/{id}/cancellation` share these.
+
+| Code    | Status | Message                                       | When                                                         |
+|---------|--------|-----------------------------------------------|--------------------------------------------------------------|
+| `40401` | 404    | Policy not found                              | No active policy matches the VIN or id, or it is not yours.  |
+| `40010` | 400    | Policy is already canceled                    | It was cancelled, or a cancellation is already pending.      |
+| `40017` | 400    | This policy can't be canceled at the moment   | The insurer has not issued the policy document yet.          |
+
+## Motor insurance (price comparison)
+
+| Endpoint                                              | Code    | Status | Message                                                                                                                | When                                                                                     |
+|-------------------------------------------------------|---------|--------|------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
+| `POST /car-comp/quote-otp`                            | `42902` | 429    | Verification code was requested recently, try again in 2:41.                                                           | One OTP per phone number every three minutes on this endpoint. `retry_after_seconds` says how long; the OTP already sent stays valid. |
+|                                                       | `40005` | 400    | The mobile number does not match the owner ID. Please review both details and try again.                               | The insurer's identity check found the phone registered to someone else.                 |
+|                                                       | `40006` | 400    | This mobile number is already in use with another National ID *(or)* another Iqama ID                                 | The phone is already tied to a different id at the insurer.                              |
+|                                                       | `40016` | 400    | *Request errors coming directly from insurance provider*                                                               | A refusal we have no wording of our own for, passed on in the provider's words.          |
+| `POST /car-comp/quote-requests`                       | `40001` | 400    | You need to request an OTP before getting Quotation                                                                    | No quote OTP was requested for this phone number.                                        |
+|                                                       | `40012` | 400    | OTP is invalid or expired.                                                                                             | The OTP the customer typed is wrong or too old.                                          |
+|                                                       | `40002` | 400    | We couldn't verify the car details with Yakeen. Please review the car information and try again.                       | The sequence or customs number does not match the national vehicle registry.             |
+|                                                       | `40003` | 400    | We couldn't verify the owner's details with Yakeen. Please review the owner ID and birthdate and try again.             | The owner id and birthdate do not match the national identity registry.                  |
+|                                                       | `40004` | 400    | Unable to verify the details with Yakeen. Please review the car information, owner ID, and birthdate, then try again.  | The registry check failed without saying which side.                                     |
+|                                                       | `40016` | 400    | *Request errors coming directly from insurance provider*                                                               | The provider declined to quote, or could not register a customs-number vehicle.          |
+| `POST /car-comp/quote-requests/{id}/attachments`      | `40009` | 400    | Quote price not found for the selected request.                                                                        | `quote_price_id` is not one of this quote request's prices.                              |
+|                                                       | `40014` | 400    | Vehicle photos can only be uploaded for a comprehensive quote.                                                         | The price belongs to a TPL quote.                                                        |
+|                                                       | `40015` | 400    | The vehicle photos could not be uploaded. Please try again. *(or the provider's own words)*                           | The insurer rejected an image, for example one it could not read.                        |
+| `POST /car-comp/issue-otp`                            | `42902` | 429    | Verification code was requested recently, try again in 2:41.                                                           | One OTP per phone number every three minutes on this endpoint.                           |
+|                                                       | `40007` | 400    | Quote request not found.                                                                                               | `quote_request_id` belongs to another client.                                            |
+|                                                       | `40013` | 400    | The IBAN number is incorrect or does not belong to the customer                                                        | The insurer could not match the IBAN to the owner.                                       |
+|                                                       | `40016` | 400    | *Request errors coming directly from insurance provider*                                                               | A refusal we have no wording of our own for, passed on in the provider's words.          |
+| `POST /car-comp/policies`                             | `40007` | 400    | Quote request not found.                                                                                               | `quote_request_id` belongs to another client.                                            |
+|                                                       | `40001` | 400    | You need to request an OTP before issuing the policy.                                                                  | No issue OTP was requested for this phone number.                                        |
+|                                                       | `40012` | 400    | OTP is invalid or expired.                                                                                             | The payment OTP the customer typed is wrong or too old.                                  |
+|                                                       | `40008` | 400    | Quote reference not found.                                                                                             | `quote_reference_id` is not one of this quote request's quotes.                          |
+|                                                       | `40009` | 400    | Quote price not found for the selected request.                                                                        | `quote_price_id` is not one of that quote's prices.                                      |
+|                                                       | `40011` | 400    | One or more selected benefits are invalid.                                                                             | A `benefits` entry is not offered on that quote.                                         |
+|                                                       | `40016` | 400    | *Request errors coming directly from insurance provider*                                                               | The provider could not create the payment link, for example because the quote expired.   |
+
+A failed or abandoned payment is never an API error: the customer pays on the insurer's hosted page, and the policy stays unissued until a payment succeeds. Read it back with `GET /car-comp/policies/{id}` or subscribe to the [webhooks](/webhooks/guide).
+
+## SME medical insurance (price comparison)
+
+| Endpoint                                      | Code    | Status | Message                                                             | When                                                            |
+|-----------------------------------------------|---------|--------|---------------------------------------------------------------------|-----------------------------------------------------------------|
+| `POST /medical/quote-requests`                | `40020` | 400    | Add the company's employees before asking for prices.               | The company has no employees yet.                               |
+| `POST /medical/policies`                      | `40009` | 400    | That quote_price_id does not belong to this quote request.          | The price comes from a different quote request.                 |
+| `POST /medical/policies/{id}/declarations`    | `40021` | 400    | This policy is already issued.                                      | The insurer has issued the policy; its declarations are final.  |
+|                                               | `40022` | 400    | No employee on this policy matches: 1234567890, hr@example.com.     | An `ids_or_emails` entry names nobody on the policy.            |
+
+Payment has no errors of its own: read the policy, and `pending_declarations` names who still has to declare while `payment_link` appears once nobody does. A failed or abandoned payment leaves the policy unissued (`status` 0, `provider_policy_id` null) until a payment succeeds; the [webhooks](/webhooks/guide) tell you when it is issued.
+
+## Property insurance
+
+| Endpoint                            | Code    | Status | Message                | When                                    |
+|-------------------------------------|---------|--------|------------------------|-----------------------------------------|
+| `GET /property/address-from-short`  | `40019` | 400    | Invalid short address  | No address matches the short address.   |
+
+## Travel insurance
+
+| Endpoint                                          | Code    | Status | Message                     | When                                                                  |
+|---------------------------------------------------|---------|--------|-----------------------------|-----------------------------------------------------------------------|
+| `POST /yasmina-schengen-travel/upload-documents`  | `40018` | 400    | Documents already uploaded  | The identity and passport documents for this quote were already sent. |

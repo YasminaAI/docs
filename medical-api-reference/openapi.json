@@ -678,24 +678,24 @@
           "204": {
             "description": "Deleted successfully"
           },
-          "400": {
-            "description": "Bad request",
+          "403": {
+            "description": "This client may not delete the policy",
             "content": {
               "application/json": {
                 "example": {
-                  "code": "40010",
-                  "message": "Policy is already canceled"
+                  "code": "40301",
+                  "message": "Unauthorized"
                 },
                 "schema": {
                   "type": "object",
                   "properties": {
                     "code": {
                       "type": "string",
-                      "example": "40010"
+                      "example": "40301"
                     },
                     "message": {
                       "type": "string",
-                      "example": "Policy is already canceled"
+                      "example": "Unauthorized"
                     }
                   }
                 }
