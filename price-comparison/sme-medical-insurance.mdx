@@ -23,7 +23,7 @@ Using our secure and reliable endpoints, you'll be able to request and manage po
 4. **Get Prices**: One request prices those employees with every insurance provider at once.
 5. **Issue the Policy**: Pick a quote and issue the company's policy from it.
 6. **Health Declarations**: Get the declaration questions, download a printable form, or fill them in on the employees' behalf.
-7. **Payment**: Receive a secure payment link to finalize the purchase, and get the policy document once it clears.
+7. **Payment**: Read the policy for its payment link, share it, and get the policy document once it clears.
 
 ## Authorization
 
@@ -208,15 +208,14 @@ Insurers require a past medical history from every employee before they will cov
 
 1. **The questions**: the [Medical form API](/medical-api-reference/medical-forms/get-the-medical-form-questions) returns every question, grouped the way the insurers ask them, so you can build your own screen for it.
 
-2. **The printable form**: the [Download declaration form API](/medical-api-reference/medical-forms/download-the-declaration-form) returns the same declaration as a PDF. Pass a `company_id` and the file carries one page per employee you have already enrolled, with their name, id and package filled in, ready to print or email. Leave `company_id` out for a single blank form.
+2. **The printable form**: the [Download declaration form API](/medical-api-reference/medical-forms/download-the-declaration-form) returns the same declaration as a PDF. Pass the `policy_id` and the file carries one page per employee on the policy, with their name, id and package filled in, ready to print or email. Leave `policy_id` out for a single blank form.
 
-3. **Filling them in for the employees**: a company admin can answer on their behalf with the [Fill medical forms API](/medical-api-reference/medical-forms/fill-medical-forms). It takes the `company_id`, `all_employees`, the default answers for everyone, and `ids_or_emails`, the employees whose answers differ. Name an employee by their `nationality_id` or `iqama_id`; one that matches nobody in the company is rejected. The answers are stored against each employee's policy, and the response tells you how many are now declared and how many are still missing.
+3. **Filling them in for the employees**: a company admin can answer on their behalf with the [Fill the declarations API](/medical-api-reference/medical-forms/fill-the-declarations), addressed to the policy. It takes `all_employees`, the default answers for everyone, and `ids_or_emails`, the employees whose answers differ. Name an employee by their `nationality_id` or `iqama_id`; one that is not on the policy is rejected. The answers are stored on the policy's members, and the policy comes back with `pending_declarations` telling you who is still missing.
 
 	For example, if nobody has had surgery except john.doe@example.com, declare `No` for `past_surgeries` under `all_employees` and override that one employee:
 
 	```
 	{
-	    "company_id": 1,
 	    "all_employees": {
 	        "allergies": "No",
 	        "current_medications": "No",
@@ -256,11 +255,13 @@ Insurers require a past medical history from every employee before they will cov
 	```
 
 ### Payment
-<Note>Every employee must have a health declaration on file before a company can pay. Ask for a payment link while any of them is missing one and the API answers `422`, naming the employees still to declare.</Note>
+Everything needed to take payment is on the policy object, as it is for motor. [Read the policy](/medical-api-reference/policies/read-the-policy) and you get:
 
-Ask for the amount outstanding with the [Payment due API](/medical-api-reference/payment/payment-due). It answers with the sum of the premiums of that company's policies that have not been issued yet, and every package's `price` is in the categories response, so you can show the bill before anyone pays.
+- `price`: what the company pays for a year of cover.
+- `pending_declarations`: the employees who still have to declare their medical history. The insurers will not cover anyone who has not, so while this list is not empty there is nothing to pay for.
+- `payment_link`: where the company pays, once `pending_declarations` is empty. It opens Yasmina's secure card page, where the company pays for all of its employees in one go. It is a fresh signed link on every read and expires after 15 minutes, so read the policy when the buyer is ready to pay rather than storing the link. It is null while anyone still has to declare, and again once the policy is issued.
 
-Then get a link with the [Payment link API](/medical-api-reference/payment/payment-link) and share it in your platform. It opens Yasmina's secure card page, where the company pays for all of its employees in one go. The link is signed and expires after 15 minutes, so fetch it when the buyer is ready to pay rather than storing it. A company with nothing outstanding gets a `422` instead of a link.
+The policy returned by issuing and by filling the declarations carries the same fields, so in the simplest flow you issue, fill, and send the customer to the link on the response.
 
 ### Payment and Policy activation
 
