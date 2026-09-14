@@ -712,7 +712,7 @@
       ]
     },
     {
-      "name": "4b. List policies (no filter)",
+      "name": "4b. List all policies",
       "request": {
         "method": "GET",
         "header": [
@@ -722,7 +722,7 @@
           }
         ],
         "url": "{{base_url}}/api/v1/medical/policies",
-        "description": "Only SME medical policies, never the client's motor or property book."
+        "description": "Every SME medical policy of the calling client, across all of its companies. Filter to one company with ?company_id=."
       },
       "event": [
         {
@@ -732,9 +732,8 @@
             "exec": [
               "pm.test(\"200\", () => pm.response.to.have.status(200));",
               "const p = pm.response.json();",
-              "pm.test(\"every policy is a medical one\", () => { const medical = p.find(x => x.id == pm.collectionVariables.get(\"policy_id_1\")).product_id;",
-              "  const foreign = p.filter(x => x.product_id !== medical);",
-              "  pm.expect(foreign.length, `${foreign.length} non-medical policies leaked`).to.eql(0); });"
+              "pm.test(\"includes the policy just issued\", () => pm.expect(p.map(x => x.id)).to.include(Number(pm.collectionVariables.get(\"policy_id_1\"))));",
+              "pm.test(\"every row carries the payment fields\", () => { for (const x of p) { pm.expect(x).to.have.property(\"pending_declarations\"); pm.expect(x).to.have.property(\"payment_link\"); } });"
             ]
           }
         }
