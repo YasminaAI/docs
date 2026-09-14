@@ -3,6 +3,10 @@ title: 'Changelog'
 icon: 'clock-rotate-left'
 ---
 
+<Update label="14th September 2026" tags={["Docs", "APIs"]}>
+	Rewrote the [Errors](/api-resources/errors) page: the error envelope, every error code with what to do about it, and the errors each step of the motor and SME medical journeys can return. Every API error is now JSON with a `code`, whatever the `Accept` header says. Business-rule rejections (`42203`, for example a payment link for a company with nothing left to pay) and rate limits (`42901`, with `retry_after_seconds`) used to come back as an HTML page, or as a bare `message` without a code. `POST /api/v1/car-comp/issue-otp` now answers `400` instead of `200` when the quote request belongs to another client. An unreachable insurer is reported as `504` / `50401`, not `502`.
+</Update>
+
 <Update label="30th August 2026" tags={["Docs", "APIs"]}>
 	Added the Guideline Texts API (`GET /api/v1/car-comp/guideline-texts`): the copy to show alongside motor quotes — the provider attribution with its Insurance Authority licence, the support routes, and the buyer FAQ — returned in English and Arabic together. Fetch it rather than hard-coding the wording, so changes reach you without an integration change.
 </Update>
