@@ -36,6 +36,9 @@
   "integrations": {
     "intercom": {
       "appId": "yu8wo042"
+    },
+    "amplitude": {
+      "apiKey": "3fd7f32ecb0ff851ba9ea3b6670cd855"
     }
   },
   "navigation": {
