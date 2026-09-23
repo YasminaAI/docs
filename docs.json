@@ -66,8 +66,7 @@
                 "expanded": true,
                 "pages": [
                   "single-provider-integrations/sme-medical-insurance",
-                  "single-provider-integrations/car",
-                  "single-provider-integrations/cartpl",
+                  "single-provider-integrations/motor-insurance",
                   "single-provider-integrations/property",
                   "single-provider-integrations/travel",
                   "single-provider-integrations/life",
@@ -254,6 +253,14 @@
     {
       "source": "/price-comparison/cartpl",
       "destination": "/price-comparison/motor-insurance"
+    },
+    {
+      "source": "/single-provider-integrations/car",
+      "destination": "/single-provider-integrations/motor-insurance"
+    },
+    {
+      "source": "/single-provider-integrations/cartpl",
+      "destination": "/single-provider-integrations/motor-insurance"
     }
   ]
 }
