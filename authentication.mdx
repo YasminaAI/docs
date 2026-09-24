@@ -16,4 +16,43 @@ In this page you can Generate a new client secret. Copy both the Client ID and C
 Now you can get a secure JWT token from the <a href="/auth-api-reference/oauth-20/generate-token" target="_blank">
 Generate Token API</a>
 
+```bash
+curl --request POST \
+  --url 'https://sandbox.yasmina.ai/oauth/token' \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "grant_type": "client_credentials",
+    "client_id": "your-client-id",
+    "client_secret": "your-client-secret"
+  }'
+```
+
+A successful call returns the token and how long it is valid, in seconds:
+
+```json
+{
+  "token_type": "Bearer",
+  "expires_in": 31536000,
+  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9..."
+}
+```
+
+Send it on every API call as `Authorization: Bearer <access_token>`.
+
+<Note>
+  The access token is valid for one year. Generate it once, store it on your
+  backend and reuse it until `expires_in` runs out — do not request a new token
+  for every API call. When it expires, or you receive a `401`, request a new one.
+</Note>
+
+Wrong credentials return `401` with the standard error shape:
+
+```json
+{
+  "code": "40101",
+  "message": "Wrong credentials"
+}
+```
+
 <Warning>When you generate a new client secret the old one will be invalid, so use the Generate button with care.</Warning>

@@ -74,16 +74,52 @@
           }
         },
         "responses": {
-          "401": {
-            "description": "Unauthorized",
+          "200": {
+            "description": "Token generated. The access token is valid for one year (`expires_in` is in seconds). Cache it and reuse it until it expires instead of requesting a new token per call.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "example": {
-                    "error": "invalid_client",
-                    "error_description": "Client authentication failed",
-                    "message": "Client authentication failed"
+                  "properties": {
+                    "token_type": {
+                      "type": "string",
+                      "example": "Bearer"
+                    },
+                    "expires_in": {
+                      "type": "integer",
+                      "description": "Seconds until the access token expires.",
+                      "example": 31536000
+                    },
+                    "access_token": {
+                      "type": "string",
+                      "description": "JWT to send as `Authorization: Bearer <access_token>` on every API call.",
+                      "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9..."
+                    }
+                  },
+                  "required": [
+                    "token_type",
+                    "expires_in",
+                    "access_token"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Wrong client ID or client secret. Generating a new client secret in API Management invalidates the previous one.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "40101"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Wrong credentials"
+                    }
                   }
                 }
               }
@@ -217,8 +253,7 @@
         "flows": {
           "clientCredentials": {
             "tokenUrl": "http://localhost:8000/oauth/token",
-            "scopes": {
-            }
+            "scopes": {}
           }
         }
       }
