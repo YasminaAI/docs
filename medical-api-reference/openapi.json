@@ -582,7 +582,7 @@
     "/policies/{policyId}": {
       "get": {
         "summary": "Read the policy",
-        "description": "One policy, with everything needed to take payment: its `price`, `pending_declarations` naming anyone who still has to declare, and `payment_link` once nobody does. The link is a fresh signed URL on every read, valid 15 minutes, and null while the policy cannot be paid for or once it is issued.",
+        "description": "One policy, with everything needed to take payment: its `price`, `pending_declarations` naming anyone who still has to declare, and `payment_link` once nobody does. The link is short, the same on every read, valid 24 hours, and null while the policy cannot be paid for or once it is issued.",
         "tags": ["Policies"],
         "parameters": [
           { "name": "policyId", "in": "path", "required": true, "schema": { "type": "integer" } }
@@ -1026,7 +1026,7 @@
           "payment_link": {
             "type": "string",
             "nullable": true,
-            "description": "Where the company pays. A fresh signed link on every read, valid 15 minutes. Null while anyone is in pending_declarations, and once the policy is issued."
+            "description": "Where the company pays: a short link to Yasmina's card page, fit to send in a message. The same link on every read, valid 24 hours and replaced as it nears expiry. Null while anyone is in pending_declarations, and once the policy is issued."
           },
           "provider_policy_id": { "type": "string", "nullable": true, "description": "The insurer's policy number, once issued." },
           "policy_url": { "type": "string", "nullable": true, "description": "The policy schedule, once issued." },
