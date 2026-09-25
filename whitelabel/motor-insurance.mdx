@@ -169,6 +169,24 @@ Look the policy up with [Show Policy](/car-api-reference/policies/show-policy) t
 
 ### iOS
 
+The quickest route is the [Yasmina iOS SDK](/sdks/ios#motor-insurance-webview). Its `YasminaWebView` product wraps the WebView, handles the vehicle photo step and the return to your app, and hands you the policy:
+
+```swift
+import YasminaWebView
+
+let controller = YasminaMotorInsuranceViewController(embedURL: embedURL)
+controller.onPolicyIssued = { policy in
+    // Issued but unpaid. Take the customer to policy.paymentLink.
+}
+present(UINavigationController(rootViewController: controller), animated: true)
+```
+
+<Warning>
+  The vehicle photo step needs attention in a plain `WKWebView`. Each photo must be **3 MB or smaller**, and a photo straight from an iPhone camera is usually 3–8 MB, so most customers are stopped there with a "photo too large" message and no way to shrink it. The SDK replaces WebKit's picker with a native one that downsizes every photo under the limit. If you build your own WebView instead, do the same, or your customers will not get past the photos.
+</Warning>
+
+Building your own WebView:
+
 ```swift
 import WebKit
 
