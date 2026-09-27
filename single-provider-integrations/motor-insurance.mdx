@@ -1,5 +1,5 @@
 ---
-title: 'Comprehensive Motor Insurance'
+title: 'Motor Insurance'
 description: "Seamless insurance for the cars you're selling and the drivers that are buying from you."
 icon: 'car'
 ---
@@ -10,7 +10,7 @@ icon: 'car'
 </div>
 
 ## Introduction
-This guide describes the Yasmina's **Comprehensive Motor Insurance APIs for Single Insurance Provider** (for Multiple Insurance Providers with Price comparison, [click here](/price-comparison/motor-insurance)) available on Yasmina’s platform. These APIs cover the core operations required for working with Comprehensive motor insurance, including issuing and managing policies, generating payment link, and handling claims.
+This guide describes the Yasmina's **Motor Insurance APIs for Single Insurance Provider**, covering both comprehensive and TPL cover (for Multiple Insurance Providers with Price comparison, [click here](/price-comparison/motor-insurance)) available on Yasmina’s platform. These APIs cover the core operations required for working with motor insurance, including issuing and managing policies, generating payment link, and handling claims.
 Our APIs use the RESTful standard and is structured to provide consistent inputs and outputs, making it quick and easy to integrate, test, and maintain within your systems.
 
 ## What you will learn
@@ -20,7 +20,7 @@ Our APIs use the RESTful standard and is structured to provide consistent inputs
 - Starting a claim
 
 ## Prerequisites
-1. **Account in Yasmina** - See the <a href="/introduction#onboarding" target="_blank">Onboarding section</a> for details. You need to add "Comprehensive Motor Insurance (Single Provider)" in the products field.
+1. **Account in Yasmina** - See the <a href="/introduction#onboarding" target="_blank">Onboarding section</a> for details. You need to add "Comprehensive Motor Insurance (Single Provider)", "TPL Motor Insurance (Single Provider)", or both in the products field, depending on the cover you offer.
 2. **Authenticated Token** - Follow the <a href="/authentication" target="_blank">Authentication guide</a> to generate one.
 3. **Backend server** - Required to securely call Yasmina APIs.
 
@@ -65,7 +65,7 @@ These are the fields that you need to provide:
 
 | Field                   | Example Value         | Description                                                                                                                                                              |
 | ----------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `otp`                   | `123456`              | The OTP received by the customer. Required for issuing a policy.                                                                                                         |
+| `otp`                   | `123456`              | The OTP received by the customer. Required for issuing a comprehensive policy.                                                                                           |
 | `owner_id`              | `2234567890`          | The owner’s national ID (starts with `1` for Saudi nationals) or Iqama ID (starts with `2` for residents). Must be exactly 10 digits.                                    |
 | `email`                 | `someone@example.com` | The owner’s email. Must be unique and belong to the one customer (Do not use the same email for multiple customers).                                                     |
 | `birthdate`             | `1988-04-20`          | Date of birth of the owner in `YYYY-MM-DD` format. For a Saudi national ID (starts with `1`) give a Hijri date; for an Iqama ID (starts with `2`) give a Gregorian date. |
@@ -79,7 +79,7 @@ These are the fields that you need to provide:
 
 The customer's Saudi IBAN is collected earlier in the flow: it is a required field of the <a href="/car-api-reference/otps/request-otp-for-issuing-policy" target="_blank">Issue OTP API</a>, not of this endpoint.
 
-Example of a request
+Example of a comprehensive request
 ```
 POST /api/v1/car-comp/policies HTTP/1.1
 Authorization: Bearer *****
@@ -94,6 +94,26 @@ Content-Length: 212
     "phone": "05XXXXXXXX",
     "birthdate": "1982-04-20",
     "custom_number": "1234567890",
+    "is_ownership_transfer": false,
+    "car_estimated_cost": 45000,
+    "car_model_year": 2024
+}
+```
+
+Example of a TPL request
+```
+POST /api/v1/car-comp/policies HTTP/1.1
+Authorization: Bearer *****
+Content-Type: application/json
+Accept: application/json
+Content-Length: 212
+
+{
+    "owner_id": 2234567890,
+    "email": "someone@example.com",
+    "phone": "05XXXXXXXX",
+    "birthdate": "1982-04-20",
+    "car_sequence_number": 52423810,
     "is_ownership_transfer": false,
     "car_estimated_cost": 45000,
     "car_model_year": 2024
@@ -191,4 +211,3 @@ You can also use the <a href="/car-api-reference/policies/list-policies" target=
 You can issue a claim using our APIs. When you issue a claim, we communicate it with the Insurance provider, and giving them details of the incident.
 
 Go to the <a href="/car-api-reference/claims/issue-claim" target="_blank">Issue Claim API</a> in order to start the claim process for your customer.
-
