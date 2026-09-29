@@ -642,6 +642,11 @@
                     "description": "WebView only, and required there. Where your app is reopened once the policy is issued, with `?yasmina_policy_id=` added. Must be one of the deep links registered in API Management. Prohibited for the web, which is handed the policy by postMessage instead.",
                     "example": "myapp://insurance/done"
                   },
+                  "redirect_url": {
+                    "type": "string",
+                    "description": "Optional. Where the customer gets redirected once a successful purchase is made. Include policyID in a query string and it is replaced with the policy's id. Must be on one of your iframe hosts, or one of your deep links for a WebView. Left out, the customer is redirected to the Yasmina confirmation page.",
+                    "example": "https://www.example.com?yasmina_policy_id=policyID"
+                  },
                   "locale": {
                     "type": "string",
                     "enum": [
@@ -752,6 +757,11 @@
                       "format": "date-time",
                       "nullable": true,
                       "description": "When the customer first opened it, if they have."
+                    },
+                    "redirect_url": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Where the customer is redirected after paying. Null when not supplied."
                     }
                   }
                 }

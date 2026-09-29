@@ -62,6 +62,10 @@ Everything [Request Quotes](/car-api-reference/quotes/request-quotes) takes, plu
   WebView only. Where your app is reopened once the policy is issued. Must be one of your registered deep links.
 </ParamField>
 
+<ParamField body="redirect_url" type="string">
+  Optional. Where the customer gets redirected once a successful purchase is made. Must be on one of your iframe hosts, or one of your deep links for a WebView. Left out, the customer is redirected to the Yasmina confirmation page.
+</ParamField>
+
 <ParamField body="locale" type="string">
   `ar` or `en`. Defaults to the customer's browser.
 </ParamField>
@@ -299,6 +303,26 @@ webView.addJavascriptInterface(
 The embed also sends `{ "type": "yasmina:ready" }` once it has loaded, which is useful for hiding your own loading state.
 
 The policy is issued but unpaid. Take the customer to `payment_link` to activate it. Your [webhooks](/webhooks/guide) fire on payment as they always do.
+
+## Redirect URL
+
+You can supply the session a `redirect_url`. This is used to redirect the customer to any page or deep link you need once they have paid. You can also include a query string with policyID and it will automatically replace it with the actual `id` of the policy object.
+
+Example for policy `id` 123
+
+```
+	{
+		...,
+		redirect_url: "https://www.example.com?yasmina_policy_id=policyID"
+	}
+```
+
+And the customer that purchased the policy will be redirected to
+https://www.example.com?yasmina_policy_id=123
+
+The URL has to be on one of the sites you registered under Iframe hosts, or one of your WebView deep links for a mobile app. Anything else is rejected when the session is created.
+
+If you do not supply one, the customer is redirected to the Yasmina confirmation page instead.
 
 ## Showing the quotes again
 
