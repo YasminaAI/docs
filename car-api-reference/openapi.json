@@ -1953,58 +1953,179 @@
       },
       "Policy": {
         "type": "object",
+        "description": "A motor policy. The same object is returned by Issue policy and Show policy, and is what the webhooks carry.",
         "properties": {
           "id": {
-            "type": "integer"
+            "type": "integer",
+            "description": "The Yasmina policy id. Quote it in support requests.",
+            "example": 1234
           },
-          "meta_data": {
-            "type": "object"
+          "status": {
+            "type": "integer",
+            "enum": [
+              0,
+              1,
+              2
+            ],
+            "description": "0 awaiting payment, 1 issued, 2 cancelled. It becomes 1 once payment has cleared and the insurer has issued the policy.",
+            "example": 1
           },
-          "start_date": {
-            "type": "string"
+          "price": {
+            "type": "number",
+            "description": "What the customer paid, in SAR, including VAT.",
+            "example": 6770.51
+          },
+          "product_id": {
+            "type": "integer",
+            "description": "Always 6 for comprehensive motor.",
+            "example": 6
           },
           "provider_policy_id": {
-            "type": "integer"
+            "type": "string",
+            "nullable": true,
+            "description": "The insurer's own policy number, set when the policy is issued. Treat it as free text: insurers use their own formats, and many are not numeric.",
+            "example": "P/219/5515/26/3854847/00"
           },
           "provider_policy": {
-            "type": "string"
+            "type": "string",
+            "nullable": true,
+            "description": "Storage key of the policy document. Use policy_url to download it.",
+            "example": "shahin-policies/00000000-0000-0000-0000-000000000000.pdf"
           },
-          "order_status": {
-            "type": "integer"
+          "policy_url": {
+            "type": "string",
+            "nullable": true,
+            "description": "Link to the policy document. Download the file rather than storing the link, and do not hardcode the host.",
+            "example": "https://<object-storage-host>/<bucket>/shahin-policies/00000000-0000-0000-0000-000000000000.pdf"
           },
-          "approval_status": {
-            "type": "integer"
+          "invoice_url": {
+            "type": "string",
+            "nullable": true,
+            "description": "Link to the invoice, on the same terms as policy_url.",
+            "example": "https://<object-storage-host>/<bucket>/shahin-policies/00000000-0000-0000-0000-000000000000_invoice.pdf"
           },
-          "end_date": {
-            "type": "string"
+          "payment_link": {
+            "type": "string",
+            "nullable": true,
+            "description": "Where the customer pays. Already used by the time the policy is issued.",
+            "example": "https://portal.yasmina.ai/short/XXXXX"
           },
-          "is_claimed": {
-            "type": "boolean"
+          "redirect_url": {
+            "type": "string",
+            "nullable": true,
+            "description": "Where the customer is sent after paying, if you supplied one.",
+            "example": "https://your-site.example/insurance-complete?order_id=12345"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date",
+            "description": "First day of cover.",
+            "example": "2026-10-02"
+          },
+          "expiration_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Last day of cover.",
+            "example": "2027-10-01"
           },
           "created_at": {
-            "type": "string"
+            "type": "string",
+            "format": "date-time",
+            "description": "When the policy was created, before payment.",
+            "example": "2026-10-01T08:24:11.000000Z"
+          },
+          "purchased_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When payment cleared. Null until the customer has paid.",
+            "example": "2026-10-01T08:26:58.000000Z"
           },
           "uploaded_at": {
             "type": "string",
             "format": "date-time",
             "nullable": true,
-            "description": "Timestamp when the provider policy document was attached. For issued motor policies this is the closest available issue/purchase timestamp."
+            "description": "When the policy document was attached. For issued policies this is the closest available issue timestamp.",
+            "example": "2026-10-01T08:27:12.000000Z"
           },
-          "updated_at": {
-            "type": "string"
-          },
-          "client_id": {
-            "type": "string"
-          },
-          "canceled_at": {
-            "type": "string",
-            "nullable": true
-          },
-          "invoice": {
-            "type": "string"
-          },
-          "cancellation_document": {
-            "type": "string"
+          "meta_data": {
+            "type": "object",
+            "description": "The details the policy was issued on.",
+            "properties": {
+              "insurance_type": {
+                "type": "string",
+                "description": "Comprehensive or TPL.",
+                "example": "Comprehensive"
+              },
+              "insurance_company": {
+                "type": "string",
+                "description": "The insurer behind the policy.",
+                "example": "Malath"
+              },
+              "quote_request_id": {
+                "type": "integer",
+                "description": "The quote request this policy came from. Use it to tie the policy back to your own record.",
+                "example": 999
+              },
+              "quote_reference_id": {
+                "type": "string",
+                "description": "The quote the customer chose.",
+                "example": "00000000-0000-0000-0000-000000000000"
+              },
+              "quote_price_id": {
+                "type": "string",
+                "description": "The priced option the customer chose.",
+                "example": "00000000-0000-0000-0000-000000000000"
+              },
+              "quote_expiry_date": {
+                "type": "string",
+                "format": "date-time",
+                "description": "When that price stopped being valid.",
+                "example": "2026-10-02T03:14:23+03:00"
+              },
+              "policy_start_date": {
+                "type": "string",
+                "format": "date",
+                "description": "First day of cover, as sent when the policy was issued.",
+                "example": "2026-10-02"
+              },
+              "new_owner_id": {
+                "type": "string",
+                "description": "National or Iqama id of the person insured.",
+                "example": "1xxxxxxxxx"
+              },
+              "previous_owner_id": {
+                "type": "string",
+                "nullable": true,
+                "description": "Set when the vehicle is being transferred.",
+                "example": "7xxxxxxxxx"
+              },
+              "car_sequence_number": {
+                "type": "integer",
+                "nullable": true,
+                "description": "The vehicle, when identified by sequence number.",
+                "example": 123456789
+              },
+              "custom_number": {
+                "type": "string",
+                "nullable": true,
+                "description": "The vehicle, when identified by customs card number.",
+                "example": null
+              },
+              "iban": {
+                "type": "string",
+                "description": "The customer's payout account. Refunds are transferred to it; it is never charged.",
+                "example": "SAxxxxxxxxxxxxxxxxxxxxxx"
+              },
+              "benefits": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "The optional add-ons the customer chose.",
+                "example": []
+              }
+            }
           }
         }
       },
