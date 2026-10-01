@@ -26,12 +26,38 @@ Each webhook can be configured with a callback **URL** where you will receive th
 
 ---
 
+### When each one is sent
+
+For a motor policy you can expect three calls:
+
+| When | Sent to | What the policy looks like |
+|------|---------|----------------------------|
+| The policy is created, before the customer pays | Status Update | `status: 0`, `payment_link` set, `purchased_at` null |
+| Payment clears and the insurer issues the policy | Status Update | `status: 1`, `provider_policy_id` and `purchased_at` set |
+| The policy document or invoice is attached | Document Update | `policy_url` and `invoice_url` set |
+
+The last two usually arrive seconds apart. If the insurer has not rendered the documents yet, the policy is still issued and the Document Update follows a few minutes later.
+
+There is no separate notification for payment. A successful payment is reported by `purchased_at` on the Status Update that carries `status: 1`.
+
+**Policy status**
+
+| Value | Meaning |
+|-------|---------|
+| `0` | Created, awaiting payment |
+| `1` | Issued |
+| `2` | Cancelled |
+
+---
+
 ### Webhook Security
 
 To ensure the authenticity of incoming requests, Yasmina includes a **Webhook Key** in the header of every webhook request.
 
-- **Header**: `x-webhook-key`
-- **How to get it**: You can generate and manage your Webhook Key by clicking Edit and the refresh icon in the Webook key field
+- **Header**: `x-webhook-url`
+- **How to get it**: You can generate and manage your Webhook Key by clicking Edit and the refresh icon in the Webhook key field
+
+The field is labelled *Webhook key* in API Management, and its value is the one sent in the `x-webhook-url` header.
 
 Make sure to validate this key in your endpoint handler to confirm that the request originated from Yasmina.
 
@@ -41,53 +67,77 @@ Make sure to validate this key in your endpoint handler to confirm that the requ
 
 Yasmina allows you to test your Webhook instantly. Simply Click on "Test call".
 
+The test call sends a real policy of yours, with the same headers and the same body as a live notification.
+
+---
+
+### Delivery and retries
+
+Reply with any `2xx` once you have accepted the notification.
+
+- A `4xx` is treated as a permanent rejection. We log it and do not try again.
+- A `5xx`, a timeout or a connection failure is retried up to four times, waiting one minute, then five minutes, then one hour.
+
+Handle a repeated delivery safely: retries send the same policy again, and a policy that changes twice produces two notifications.
+
 ---
 
 ### Payload Structure
 
-Webhook requests are sent as `POST` requests with a JSON body. The payload will be the same object that you acquire when you create a policy, for example:
+Webhook requests are sent as `POST` requests with a JSON body. The policy sits under a `policy` key:
 
 ```json
 {
-  "id": 641,
-  "user_id": 33,
-  "meta_data": {
-    "vin": "****MASKED_VIN****",
-    "new_owner_id": "****MASKED_ID****",
-    "current_car_owner": "****MASKED_ID****",
-    "car_sequence_number": "****MASKED_SEQ****"
-    "extra_fields": {}
-  },
-  "product_id": 1,
-  "client_id": "****MASKED_UUID****",
-  "canceled_at": null,
-  "provider_policy_id": "****MASKED_POLICY_ID****",
-  "provider_policy": null,
-  "cancellation_document": null,
-  "invoice": null,
-  "has_sent_cancellation_email": 0,
-  "created_at": "2025-08-05T08:29:39.000000Z",
-  "updated_at": "2025-08-05T08:29:39.000000Z",
-  "status": 0,
-  "transfer_date_at": null,
-  "cancellation_request_at": null,
-  "deleted_at": null,
-  "is_old_policy": 0,
-  "policy_url": "",
-  "invoice_url": "",
-  "client": {
-    "id": "****MASKED_UUID****",
-    "user_id": 33,
-    "name": "****MASKED_CLIENT_NAME****",
-    "provider": null,
-    "redirect": "",
-    "personal_access_client": false,
-    "password_client": false,
-    "revoked": false,
-    "created_at": "2025-07-23T11:13:22.000000Z",
-    "updated_at": "2025-07-23T11:19:55.000000Z",
-    "product_id": 1,
-    "is_policy_provider": 0,
-    "is_approved": 1
+  "policy": { ... }
+}
+```
+
+The object inside `policy` is exactly the one the matching API returns for that product — for motor, the response of [Show policy](/car-api-reference/policies/show-policy). You can use one parser for both, unwrapping `policy` on the webhook.
+
+A comprehensive motor policy that has been paid for and issued:
+
+```json
+{
+  "policy": {
+    "id": 1234,
+    "meta_data": {
+      "iban": "SAxxxxxxxxxxxxxxxxxxxxxx",
+      "source": "price-comparison",
+      "drivers": [],
+      "benefits": [],
+      "extra_data": null,
+      "new_owner_id": "1xxxxxxxxx",
+      "custom_number": null,
+      "insurance_type": "Comprehensive",
+      "quote_price_id": "00000000-0000-0000-0000-000000000000",
+      "quote_request_id": 999,
+      "insurance_company": "Malath",
+      "policy_start_date": "2026-10-02",
+      "previous_owner_id": "7xxxxxxxxx",
+      "quote_expiry_date": "2026-10-02T03:14:23+03:00",
+      "quote_reference_id": "00000000-0000-0000-0000-000000000000",
+      "car_sequence_number": 123456789
+    },
+    "product_id": 6,
+    "provider_policy_id": "600000000",
+    "provider_policy": "shahin-policies/00000000-0000-0000-0000-000000000000.pdf",
+    "start_date": "2026-10-02",
+    "expiration_date": "2027-10-01",
+    "created_at": "2026-10-01T08:24:11.000000Z",
+    "purchased_at": "2026-10-01T08:26:58.000000Z",
+    "uploaded_at": "2026-10-01T08:27:12.000000Z",
+    "status": 1,
+    "price": 6770.51,
+    "payment_link": "https://portal.yasmina.ai/short/XXXXX",
+    "redirect_url": "https://.../confirmation?yasmina_policy_id=1234&state=...",
+    "policy_url": "https://<object-storage-host>/<bucket>/shahin-policies/00000000-0000-0000-0000-000000000000.pdf",
+    "invoice_url": "https://<object-storage-host>/<bucket>/shahin-policies/00000000-0000-0000-0000-000000000000_invoice.pdf"
   }
 }
+```
+
+The fields that tell you the policy is live: `status: 1`, `provider_policy_id` (the insurer's own policy number), and `purchased_at`. Use `meta_data.quote_request_id` to tie the policy back to your own record.
+
+`provider_policy_id` is free text. Insurers use their own formats and many are not numeric, so store it as a string.
+
+`policy_url` and `invoice_url` are links to object storage. Download the file rather than keeping the link, and do not hardcode the host.
