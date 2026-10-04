@@ -261,8 +261,8 @@
     },
     "/companies/{companyId}/declarations": {
       "put": {
-        "summary": "Fill the company declarations",
-        "description": "A company admin answers the health declaration on the employees' behalf, before the company is priced. `all_employees` is the default set of answers; `ids_or_emails` overrides them for the employees whose history differs. Each call replaces the company's declarations. They are kept by employee id, apart from the employee list, so editing the list leaves them alone; every employee on the list has to have declared before the company can be priced.",
+        "summary": "Submit the declarations",
+        "description": "Every employee's own health declaration in one call, under one consent. Each entry names an employee by `employee_id` and carries their answers to the questions. `consent` must be `true`: by sending it, you confirm the employees have stated that their answers are true and complete and agreed to share them with the insurance provider. The declarations are kept by employee id, apart from the employee list, so editing the list leaves them alone; each call replaces them. Every employee on the list has to have declared before the company can be priced.",
         "tags": ["Medical Forms"],
         "parameters": [{ "name": "companyId", "in": "path", "required": true, "schema": { "type": "integer" } }],
         "requestBody": {
@@ -271,17 +271,25 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["all_employees"],
+                "required": ["consent", "employees"],
                 "properties": {
-                  "all_employees": { "$ref": "#/components/schemas/DeclarationAnswers" },
-                  "ids_or_emails": {
+                  "consent": {
+                    "type": "boolean",
+                    "enum": [true],
+                    "description": "Consent for the whole submission. Must be true."
+                  },
+                  "employees": {
                     "type": "array",
-                    "description": "Employees whose answers differ from all_employees, named by nationality_id, iqama_id or border_number.",
+                    "minItems": 1,
                     "items": {
                       "type": "object",
-                      "required": ["id_or_email", "answers"],
+                      "required": ["employee_id", "answers"],
                       "properties": {
-                        "id_or_email": { "type": "string", "example": "1111111111" },
+                        "employee_id": {
+                          "type": "string",
+                          "description": "The employee's nationality_id, iqama_id or border_number. Each employee once.",
+                          "example": "1111111111"
+                        },
                         "answers": { "$ref": "#/components/schemas/DeclarationAnswers" }
                       }
                     }
@@ -293,7 +301,7 @@
         },
         "responses": {
           "200": {
-            "description": "The company's declarations, keyed by employee id",
+            "description": "The company's declarations, keyed by employee id, and who is still to declare",
             "content": {
               "application/json": {
                 "schema": {
@@ -305,10 +313,15 @@
                         "type": "object",
                         "properties": {
                           "answers": { "$ref": "#/components/schemas/DeclarationAnswers" },
-                          "source": { "type": "string", "enum": ["all_employees", "employee"] },
+                          "consent": { "type": "boolean", "enum": [true] },
                           "filled_at": { "type": "string", "format": "date-time" }
                         }
                       }
+                    },
+                    "pending_declarations": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "description": "Employees who still have to declare. Empty once everyone has, and the company can be priced."
                     }
                   }
                 }
@@ -316,7 +329,7 @@
             }
           },
           "400": {
-            "description": "An `ids_or_emails` entry names nobody in the company. Nothing is stored.",
+            "description": "An employee_id is not in the company. Nothing is stored.",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/Error" },
@@ -1305,10 +1318,10 @@
           "health_declaration": {
             "type": "object",
             "readOnly": true,
-            "description": "The employee's answers, on the employees of a quote request and a policy. Set through Fill the company declarations; ignored when sent in.",
+            "description": "The employee's declaration, on the employees of a quote request and a policy. Set through Submit the declarations; ignored when sent in.",
             "properties": {
               "answers": { "$ref": "#/components/schemas/DeclarationAnswers" },
-              "source": { "type": "string", "enum": ["all_employees", "employee"] },
+              "consent": { "type": "boolean", "enum": [true] },
               "filled_at": { "type": "string", "format": "date-time" }
             }
           }
