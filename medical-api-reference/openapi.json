@@ -644,9 +644,9 @@
     },
     "/policies/{policyId}/deletion": {
       "post": {
-        "summary": "Delete policy",
+        "summary": "Cancel a policy",
         "tags": ["Policies"],
-        "description": "Delete a policy. Important if for example someone resigns",
+        "description": "Cancel a policy. Important if, for example, someone resigns",
         "parameters": [
           {
             "name": "policyId",
