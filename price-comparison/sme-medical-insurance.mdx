@@ -21,7 +21,7 @@ Using our secure and reliable endpoints, you'll be able to request and manage po
 2. **Create a Company**: Register the SME that will provide medical insurance for its employees.
 3. **Fetch the Employees**: Get the employees registered under the company's commercial registration.
 4. **Edit the Employees**: Change the list as needed, each employee with the tier they want.
-5. **Health Declarations**: Get the declaration questions, download a printable form, and fill them in on the employees' behalf.
+5. **Health Declarations**: Get the declaration questions, download a printable form, and submit every employee's answers under one consent.
 6. **Get Prices**: One request prices those employees with every insurance provider at once.
 7. **Issue the Policy**: Pick a quote and issue the company's policy from it.
 8. **Payment**: Read the policy for its payment link, share it, and get the policy document once it clears.
@@ -167,36 +167,23 @@ An employee can bring family members onto the policy through the `dependents` ar
 Send every `date_of_birth` as `YYYY-MM-DD`. Saudi nationals whose national id starts with `1` give the Hijri (Umm al-Qura) date printed on their id, as John and his family do above; everyone else gives a Gregorian date. Employees must be between 18 and 110 years old; dependents can be any age.
 
 ### Health declaration forms
-Insurers require a past medical history from every employee before they will price them, so every employee declares before you ask for prices. Yasmina publishes the questions and prints the form; the company collects the answers itself, on paper or inside your own platform.
+Insurers require a past medical history from every employee before they will price them, so every employee declares before you ask for prices. Yasmina publishes the questions and prints the form; each employee answers for themselves, on paper or inside your own platform.
 
 1. **The questions**: the [Medical form API](/medical-api-reference/medical-forms/get-the-medical-form-questions) returns every question, grouped the way the insurers ask them, so you can build your own screen for it.
 
 2. **The printable form**: the [Download declaration form API](/medical-api-reference/medical-forms/download-the-declaration-form) returns the same declaration as a PDF. Pass the `policy_id` and the file carries one page per employee on the policy, with their name, id and package filled in, ready to print or email. Leave `policy_id` out for a single blank form.
 
-3. **Filling them in for the employees**: a company admin can answer on their behalf with the [Fill the company declarations API](/medical-api-reference/medical-forms/fill-the-company-declarations), addressed to the company. It takes `all_employees`, the default answers for everyone, and `ids_or_emails`, the employees whose answers differ. Name an employee by their `nationality_id`, `iqama_id` or `border_number`; one that is not in the company is rejected. Each call replaces the company's declarations. They are kept by employee id, apart from the employee list, so editing the list leaves them alone; a new employee has no declaration until you send them again. Prices are refused (`40023`) until everyone on the list has declared.
+3. **Submitting the declarations**: send every employee's answers in one call with the [Submit the declarations API](/medical-api-reference/medical-forms/submit-the-declarations). Each entry names an employee by their `nationality_id`, `iqama_id` or `border_number` as `employee_id`, and carries that employee's own answers. One `consent` covers the whole submission and must be `true`, confirming the employees have stated that their answers are true and complete and agreed to share them with the insurance provider. Show that statement before submitting.
 
-	For example, if nobody has had surgery except john.doe@example.com, declare `No` for `past_surgeries` under `all_employees` and override that one employee:
+	The declarations are kept by employee id, apart from the employee list, so editing the list leaves them alone; each call replaces them, so send everyone each time. The response tells you who is still in `pending_declarations`, and prices are refused (`40023`) until everyone on the list has declared.
 
 	```
+	PUT /medical/companies/42/declarations
 	{
-	    "all_employees": {
-	        "allergies": "No",
-	        "current_medications": "No",
-	        "hospitalizations": "No",
-	        "pre_existing_conditions": "No",
-	        "past_surgeries": "No",
-	        "surgery_complications": "No",
-	        "chest_pain_or_breathlessness": "No",
-	        "heart_procedures": "No",
-	        "smoking": "No",
-	        "alcohol_consumption": "No",
-	        "physical_activity": "No",
-	        "family_history": "No",
-	        "chronic_disease": ["None of the above"]
-	    },
-	    "ids_or_emails": [
+	    "consent": true,
+	    "employees": [
 	        {
-	            "id_or_email": "john.doe@example.com",
+	            "employee_id": "1111111111",
 	            "answers": {
 	                "allergies": "No",
 	                "current_medications": "No",
@@ -212,6 +199,10 @@ Insurers require a past medical history from every employee before they will pri
 	                "family_history": "No",
 	                "chronic_disease": ["Liver Disease"]
 	            }
+	        },
+	        {
+	            "employee_id": "2222222222",
+	            "answers": { ... }
 	        }
 	    ]
 	}
