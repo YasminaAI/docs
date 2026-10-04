@@ -158,7 +158,7 @@
     {
       "name": "6. Fill the declarations",
       "request": {
-        "method": "POST",
+        "method": "PUT",
         "header": [
           {
             "key": "Accept",
@@ -170,7 +170,7 @@
           }
         ],
         "url": "{{base_url}}/api/v1/medical/companies/{{company_id}}/declarations",
-        "description": "Records the health declarations on the employees' behalf, before the company is priced: prices are refused until every employee has declared. all_employees is the default set of answers; ids_or_emails overrides them for any employee whose history differs, named by national id, Iqama or border number.",
+        "description": "Records the health declarations on the employees' behalf, before the company is priced: prices are refused until every employee has declared. all_employees is the default set of answers; ids_or_emails overrides them for any employee whose history differs, named by national id, Iqama or border number. Sending them again replaces them; editing the employee list leaves them alone.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"all_employees\": {\n    \"allergies\": \"No\",\n    \"current_medications\": \"No\",\n    \"hospitalizations\": \"No\",\n    \"pre_existing_conditions\": \"No\",\n    \"past_surgeries\": \"No\",\n    \"surgery_complications\": \"No\",\n    \"chest_pain_or_breathlessness\": \"No\",\n    \"heart_procedures\": \"No\",\n    \"smoking\": \"No\",\n    \"alcohol_consumption\": \"No\",\n    \"physical_activity\": \"No\",\n    \"family_history\": \"No\",\n    \"chronic_disease\": [\n      \"None of the above\"\n    ]\n  },\n  \"ids_or_emails\": [\n    {\n      \"id_or_email\": \"1111111111\",\n      \"answers\": {\n        \"allergies\": \"Yes\",\n        \"current_medications\": \"No\",\n        \"hospitalizations\": \"No\",\n        \"pre_existing_conditions\": \"No\",\n        \"past_surgeries\": \"No\",\n        \"surgery_complications\": \"No\",\n        \"chest_pain_or_breathlessness\": \"No\",\n        \"heart_procedures\": \"No\",\n        \"smoking\": \"No\",\n        \"alcohol_consumption\": \"No\",\n        \"physical_activity\": \"No\",\n        \"family_history\": \"No\",\n        \"chronic_disease\": [\n          \"None of the above\"\n        ]\n      }\n    }\n  ]\n}",

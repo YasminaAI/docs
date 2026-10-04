@@ -260,9 +260,9 @@
       }
     },
     "/companies/{companyId}/declarations": {
-      "post": {
+      "put": {
         "summary": "Fill the company declarations",
-        "description": "A company admin answers the health declaration on the employees' behalf, before the company is priced. `all_employees` is the default set of answers; `ids_or_emails` overrides them for the employees whose history differs. The answers are stored on the company's employees, and every employee has to have declared before the company can be priced.",
+        "description": "A company admin answers the health declaration on the employees' behalf, before the company is priced. `all_employees` is the default set of answers; `ids_or_emails` overrides them for the employees whose history differs. Each call replaces the company's declarations. They are kept by employee id, apart from the employee list, so editing the list leaves them alone; every employee on the list has to have declared before the company can be priced.",
         "tags": ["Medical Forms"],
         "parameters": [{ "name": "companyId", "in": "path", "required": true, "schema": { "type": "integer" } }],
         "requestBody": {
@@ -293,12 +293,24 @@
         },
         "responses": {
           "200": {
-            "description": "The employees, with their declarations recorded",
+            "description": "The company's declarations, keyed by employee id",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "employees": { "type": "array", "items": { "$ref": "#/components/schemas/Insured" } } }
+                  "properties": {
+                    "health_declarations": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "answers": { "$ref": "#/components/schemas/DeclarationAnswers" },
+                          "source": { "type": "string", "enum": ["all_employees", "employee"] },
+                          "filled_at": { "type": "string", "format": "date-time" }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -1293,7 +1305,7 @@
           "health_declaration": {
             "type": "object",
             "readOnly": true,
-            "description": "The employee's answers, set through Fill the declarations. Sent back on reads; ignored when sent in.",
+            "description": "The employee's answers, on the employees of a quote request and a policy. Set through Fill the company declarations; ignored when sent in.",
             "properties": {
               "answers": { "$ref": "#/components/schemas/DeclarationAnswers" },
               "source": { "type": "string", "enum": ["all_employees", "employee"] },
