@@ -91,7 +91,7 @@ A failed or abandoned payment is never an API error: the customer pays on the in
 | `POST /medical/policies`                      | `40009` | 400    | That quote_price_id does not belong to this quote request.          | The price comes from a different quote request.                 |
 | `POST /medical/policies/{id}/declarations`    | `40021` | 400    | This policy is already issued.                                      | The insurer has issued the policy; its declarations are final.  |
 |                                               | `40022` | 400    | No employee on this policy matches: 1234567890, hr@example.com.     | An `ids_or_emails` entry names nobody on the policy.            |
-| `PUT /medical/companies/{id}/declarations`    | `40022` | 400    | No employee of this company matches: 1234567890, hr@example.com.    | An `ids_or_emails` entry names nobody in the company.           |
+| `PUT /medical/companies/{id}/employees/{employee_id}/declaration` | `40022` | 400 | No employee of this company matches: 9999999999. | The employee id is not on the company's employee list. |
 
 Payment has no errors of its own: read the policy, and `pending_declarations` names who still has to declare while `payment_link` appears once nobody does. A failed or abandoned payment leaves the policy unissued (`status` 0, `provider_policy_id` null) until a payment succeeds; the [webhooks](/webhooks/guide) tell you when it is issued.
 

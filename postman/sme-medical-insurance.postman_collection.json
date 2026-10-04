@@ -146,7 +146,7 @@
         "description": "The full list of employees to cover, each with the tier they chose and any dependents. Sending the list replaces it, so this is how you edit the fetched list. Saudi employees give a national id; everyone else an Iqama, or a border number until their Iqama is issued. sponsor_id and is_married are optional. Birthdates are Hijri for Saudi ids starting with 1, Gregorian otherwise.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"employees\": [\n    {\n      \"name\": \"John Doe\",\n      \"nationality_iso\": \"SA\",\n      \"category\": \"basic\",\n      \"nationality_id\": \"1111111111\",\n      \"mobile_number\": \"0500000001\",\n      \"date_of_birth\": \"1409-09-14\",\n      \"dependents\": [\n        {\n          \"name\": \"Jane Doe\",\n          \"relationship\": \"spouse\",\n          \"nationality_iso\": \"SA\",\n          \"nationality_id\": \"1111111112\",\n          \"date_of_birth\": \"1411-01-05\"\n        }\n      ],\n      \"sponsor_id\": \"1000000001\",\n      \"is_married\": true\n    },\n    {\n      \"name\": \"Richard Roe\",\n      \"nationality_iso\": \"JO\",\n      \"category\": \"executive\",\n      \"iqama_id\": \"2222222222\",\n      \"mobile_number\": \"0500000002\",\n      \"date_of_birth\": \"1988-04-20\",\n      \"dependents\": []\n    },\n    {\n      \"name\": \"Employee4Firstname Employee4Lastname\",\n      \"nationality_iso\": \"EG\",\n      \"category\": \"standard\",\n      \"border_number\": \"3000000001\",\n      \"sponsor_id\": \"1000000001\",\n      \"is_married\": false,\n      \"mobile_number\": \"0500000004\",\n      \"date_of_birth\": \"1995-01-01\"\n    }\n  ]\n}",
+          "raw": "{\n  \"employees\": [\n    {\n      \"name\": \"John Doe\",\n      \"nationality_iso\": \"SA\",\n      \"category\": \"basic\",\n      \"nationality_id\": \"1111111111\",\n      \"mobile_number\": \"0500000001\",\n      \"date_of_birth\": \"1409-09-14\",\n      \"dependents\": [\n        {\n          \"name\": \"Jane Doe\",\n          \"relationship\": \"spouse\",\n          \"nationality_iso\": \"SA\",\n          \"nationality_id\": \"1111111112\",\n          \"date_of_birth\": \"1411-01-05\"\n        }\n      ],\n      \"sponsor_id\": \"1000000001\",\n      \"is_married\": true\n    },\n    {\n      \"name\": \"Richard Roe\",\n      \"nationality_iso\": \"JO\",\n      \"category\": \"executive\",\n      \"iqama_id\": \"2222222222\",\n      \"mobile_number\": \"0500000002\",\n      \"date_of_birth\": \"1988-04-20\",\n      \"dependents\": []\n    },\n    {\n      \"name\": \"Sam Smith\",\n      \"nationality_iso\": \"EG\",\n      \"category\": \"standard\",\n      \"border_number\": \"3000000001\",\n      \"sponsor_id\": \"1000000001\",\n      \"is_married\": false,\n      \"mobile_number\": \"0500000004\",\n      \"date_of_birth\": \"1995-01-01\"\n    }\n  ]\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -156,7 +156,7 @@
       }
     },
     {
-      "name": "6. Fill the declarations",
+      "name": "6. Declare John Doe's health",
       "request": {
         "method": "PUT",
         "header": [
@@ -169,11 +169,11 @@
             "value": "application/json"
           }
         ],
-        "url": "{{base_url}}/api/v1/medical/companies/{{company_id}}/declarations",
-        "description": "Records the health declarations on the employees' behalf, before the company is priced: prices are only given once every employee has declared. all_employees is the default set of answers; ids_or_emails overrides them for any employee whose history differs, named by national id, Iqama or border number. Sending them again replaces them; editing the employee list leaves them alone.",
+        "url": "{{base_url}}/api/v1/medical/companies/{{company_id}}/employees/1111111111/declaration",
+        "description": "John Doe's own health declaration, with their consent. consent must be true: the employee confirms the answers are true and complete and agrees to share them with the insurance provider. Prices are only given once every employee has declared; the response lists who is still pending.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"all_employees\": {\n    \"allergies\": \"No\",\n    \"current_medications\": \"No\",\n    \"hospitalizations\": \"No\",\n    \"pre_existing_conditions\": \"No\",\n    \"past_surgeries\": \"No\",\n    \"surgery_complications\": \"No\",\n    \"chest_pain_or_breathlessness\": \"No\",\n    \"heart_procedures\": \"No\",\n    \"smoking\": \"No\",\n    \"alcohol_consumption\": \"No\",\n    \"physical_activity\": \"No\",\n    \"family_history\": \"No\",\n    \"chronic_disease\": [\n      \"None of the above\"\n    ]\n  },\n  \"ids_or_emails\": [\n    {\n      \"id_or_email\": \"1111111111\",\n      \"answers\": {\n        \"allergies\": \"Yes\",\n        \"current_medications\": \"No\",\n        \"hospitalizations\": \"No\",\n        \"pre_existing_conditions\": \"No\",\n        \"past_surgeries\": \"No\",\n        \"surgery_complications\": \"No\",\n        \"chest_pain_or_breathlessness\": \"No\",\n        \"heart_procedures\": \"No\",\n        \"smoking\": \"No\",\n        \"alcohol_consumption\": \"No\",\n        \"physical_activity\": \"No\",\n        \"family_history\": \"No\",\n        \"chronic_disease\": [\n          \"None of the above\"\n        ]\n      }\n    }\n  ]\n}",
+          "raw": "{\n  \"consent\": true,\n  \"answers\": {\n    \"allergies\": \"No\",\n    \"current_medications\": \"No\",\n    \"hospitalizations\": \"No\",\n    \"pre_existing_conditions\": \"No\",\n    \"past_surgeries\": \"No\",\n    \"surgery_complications\": \"No\",\n    \"chest_pain_or_breathlessness\": \"No\",\n    \"heart_procedures\": \"No\",\n    \"smoking\": \"No\",\n    \"alcohol_consumption\": \"No\",\n    \"physical_activity\": \"No\",\n    \"family_history\": \"No\",\n    \"chronic_disease\": [\n      \"None of the above\"\n    ]\n  }\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -183,7 +183,61 @@
       }
     },
     {
-      "name": "7. Get prices from every provider",
+      "name": "7. Declare Richard Roe's health",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/v1/medical/companies/{{company_id}}/employees/2222222222/declaration",
+        "description": "Richard Roe's own health declaration, with their consent. consent must be true: the employee confirms the answers are true and complete and agrees to share them with the insurance provider. Prices are only given once every employee has declared; the response lists who is still pending.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"consent\": true,\n  \"answers\": {\n    \"allergies\": \"No\",\n    \"current_medications\": \"No\",\n    \"hospitalizations\": \"No\",\n    \"pre_existing_conditions\": \"No\",\n    \"past_surgeries\": \"No\",\n    \"surgery_complications\": \"No\",\n    \"chest_pain_or_breathlessness\": \"No\",\n    \"heart_procedures\": \"No\",\n    \"smoking\": \"No\",\n    \"alcohol_consumption\": \"No\",\n    \"physical_activity\": \"No\",\n    \"family_history\": \"No\",\n    \"chronic_disease\": [\n      \"None of the above\"\n    ]\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "8. Declare Sam Smith's health",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/v1/medical/companies/{{company_id}}/employees/3000000001/declaration",
+        "description": "Sam Smith's own health declaration, with their consent. consent must be true: the employee confirms the answers are true and complete and agrees to share them with the insurance provider. Prices are only given once every employee has declared; the response lists who is still pending.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"consent\": true,\n  \"answers\": {\n    \"allergies\": \"No\",\n    \"current_medications\": \"No\",\n    \"hospitalizations\": \"No\",\n    \"pre_existing_conditions\": \"No\",\n    \"past_surgeries\": \"No\",\n    \"surgery_complications\": \"No\",\n    \"chest_pain_or_breathlessness\": \"No\",\n    \"heart_procedures\": \"No\",\n    \"smoking\": \"No\",\n    \"alcohol_consumption\": \"No\",\n    \"physical_activity\": \"No\",\n    \"family_history\": \"No\",\n    \"chronic_disease\": [\n      \"None of the above\"\n    ]\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "9. Get prices from every provider",
       "request": {
         "method": "POST",
         "header": [
@@ -221,7 +275,7 @@
       ]
     },
     {
-      "name": "8. Issue the policy",
+      "name": "10. Issue the policy",
       "request": {
         "method": "POST",
         "header": [
@@ -259,7 +313,7 @@
       ]
     },
     {
-      "name": "9. Read the policy for the payment link",
+      "name": "11. Read the policy for the payment link",
       "request": {
         "method": "GET",
         "header": [
@@ -273,7 +327,7 @@
       }
     },
     {
-      "name": "10. Download the declaration form",
+      "name": "12. Download the declaration form",
       "request": {
         "method": "GET",
         "header": [
@@ -287,7 +341,7 @@
       }
     },
     {
-      "name": "11. List the company's policies",
+      "name": "13. List the company's policies",
       "request": {
         "method": "GET",
         "header": [
@@ -301,7 +355,7 @@
       }
     },
     {
-      "name": "12. List your companies",
+      "name": "14. List your companies",
       "request": {
         "method": "GET",
         "header": [
