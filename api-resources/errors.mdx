@@ -87,9 +87,11 @@ A failed or abandoned payment is never an API error: the customer pays on the in
 | Endpoint                                      | Code    | Status | Message                                                             | When                                                            |
 |-----------------------------------------------|---------|--------|---------------------------------------------------------------------|-----------------------------------------------------------------|
 | `POST /medical/quote-requests`                | `40020` | 400    | Add the company's employees before asking for prices.               | The company has no employees yet.                               |
+|                                               | `40023` | 400    | Every employee has to declare … Still to declare: Mary Major.       | Someone in the company has not declared their medical history.  |
 | `POST /medical/policies`                      | `40009` | 400    | That quote_price_id does not belong to this quote request.          | The price comes from a different quote request.                 |
 | `POST /medical/policies/{id}/declarations`    | `40021` | 400    | This policy is already issued.                                      | The insurer has issued the policy; its declarations are final.  |
 |                                               | `40022` | 400    | No employee on this policy matches: 1234567890, hr@example.com.     | An `ids_or_emails` entry names nobody on the policy.            |
+| `POST /medical/companies/{id}/declarations`   | `40022` | 400    | No employee of this company matches: 1234567890, hr@example.com.    | An `ids_or_emails` entry names nobody in the company.           |
 
 Payment has no errors of its own: read the policy, and `pending_declarations` names who still has to declare while `payment_link` appears once nobody does. A failed or abandoned payment leaves the policy unissued (`status` 0, `provider_policy_id` null) until a payment succeeds; the [webhooks](/webhooks/guide) tell you when it is issued.
 

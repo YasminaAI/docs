@@ -19,11 +19,12 @@ Using our secure and reliable endpoints, you'll be able to request and manage po
 ### Basic Journey
 1. **Authorize**: Get an access token to authenticate all API requests.
 2. **Create a Company**: Register the SME that will provide medical insurance for its employees.
-3. **Add the Employees**: Save the company's employees, each with the tier they want.
-4. **Get Prices**: One request prices those employees with every insurance provider at once.
-5. **Issue the Policy**: Pick a quote and issue the company's policy from it.
-6. **Health Declarations**: Get the declaration questions, download a printable form, or fill them in on the employees' behalf.
-7. **Payment**: Read the policy for its payment link, share it, and get the policy document once it clears.
+3. **Fetch the Employees**: Get the employees registered under the company's commercial registration.
+4. **Edit the Employees**: Change the list as needed, each employee with the tier they want.
+5. **Health Declarations**: Get the declaration questions, download a printable form, and fill them in on the employees' behalf.
+6. **Get Prices**: One request prices those employees with every insurance provider at once.
+7. **Issue the Policy**: Pick a quote and issue the company's policy from it.
+8. **Payment**: Read the policy for its payment link, share it, and get the policy document once it clears.
 
 ## Authorization
 
@@ -107,7 +108,10 @@ Coverage values can either be a number (the amount), or a boolean (whether it's 
     }
 ```
 
-### Add the employees
+### Fetch the employees
+The [Fetch employees API](/medical-api-reference/employees/fetch-the-employees) fills the company's employee list with the employees registered under its commercial registration number, each on the `basic` tier. It replaces the list, so fetch first and edit afterwards.
+
+### Edit the employees
 The [Employees API](/medical-api-reference/employees/save-the-employees) holds the company's employee list: who is covered, their dependents, and the tier each has picked. It prices nothing. Send the whole list; each call replaces the one before, and you can read it back at any time.
 
 ```
@@ -154,63 +158,22 @@ The [Employees API](/medical-api-reference/employees/save-the-employees) holds t
 
 Each employee's `category` is one of the four tiers. Employees can be on different tiers.
 
+Employees can also carry `sponsor_id` (10 digits) and `is_married` (`true` or `false`), both optional. A non-Saudi whose iqama has not been issued yet sends a 10-digit `border_number` in place of `iqama_id`.
+
 #### Dependents
 An employee can bring family members onto the policy through the `dependents` array. Each dependent needs a `name`, a `relationship` to the employee (`spouse`, `child` or `parent`), a `nationality_iso`, a `date_of_birth`, and the same identifier rule as the employee: a 10-digit `nationality_id` for Saudis, a 10-digit `iqama_id` for everyone else. Dependents do not carry their own mobile number. Dependents are covered under the employee's tier; they cannot have one of their own. Leave the array out, or send it empty, for an employee with no dependents.
 
 #### Dates of birth
 Send every `date_of_birth` as `YYYY-MM-DD`. Saudi nationals whose national id starts with `1` give the Hijri (Umm al-Qura) date printed on their id, as John and his family do above; everyone else gives a Gregorian date. Employees must be between 18 and 110 years old; dependents can be any age.
 
-### Get prices from every provider
-Call the [Quote request API](/medical-api-reference/quotes/get-prices-from-every-provider) with the `company_id` and you get one response with a quote from every insurance provider, each priced for the employees saved above at the tiers they picked. Every quote carries a `quote_price_id`; the response itself carries an `id`, the `quote_request_id`. Keep both for the next step.
-
-```
-{
-  "id": "a2bc93db-131e-4726-8a0a-0fed1da5ac0f",
-  "company_id": 1,
-  "employees": [ ... ],
-  "quotes": [
-    {
-      "quote_price_id": "3fb4e3bb-6c7e-4a8f-9d2a-1b3c5d7e9f01",
-      "insurance_provider": "medgulf",
-      "insurance_provider_name": "MedGulf",
-      "total_price": 1600,
-      "currency": "SAR",
-      "employees": [
-        { "name": "John Doe", "identifier": "1111111111", "category": "basic", "dependents": 2, "price": 300 },
-        { "name": "Richard Roe", "identifier": "2222222222", "category": "executive", "dependents": 0, "price": 1300 }
-      ]
-    },
-    { "quote_price_id": "...", "insurance_provider": "walaa", "total_price": 1700, ... },
-    ...
-  ]
-}
-```
-
-`total_price` is what the company pays for a year of cover with that provider, and the `employees` lines show where it comes from. A quote prices the employees as they stood when it was asked for; change the list and ask again.
-
-## Policies
-
-### Issue the policy
-A company buys one policy, and its employees are the members on it, which is how the insurer issues it and how the policy document reads. Call the [Issue policy API](/medical-api-reference/policies/issue-the-policy) with the `quote_request_id` and the `quote_price_id` of the quote the company chose, and you get that one policy back: the provider that priced it, the quoted total as `price`, and every employee inside `meta_data.insured`.
-
-```
-{
-  "quote_request_id": "a2bc93db-131e-4726-8a0a-0fed1da5ac0f",
-  "quote_price_id": "3fb4e3bb-6c7e-4a8f-9d2a-1b3c5d7e9f01",
-  "redirect_url": "https://www.example.com?yasmina_policy_id=policyID"
-}
-```
-
-A company has one policy waiting to be paid for at a time. Issue again before payment, from a different quote if you like, and it is replaced. Once it is paid for, the next issue starts a new policy.
-
 ### Health declaration forms
-Insurers require a past medical history from every employee before they will cover them. Yasmina publishes the questions and prints the form; the company collects the answers itself, on paper or inside your own platform.
+Insurers require a past medical history from every employee before they will price them, so every employee declares before you ask for prices. Yasmina publishes the questions and prints the form; the company collects the answers itself, on paper or inside your own platform.
 
 1. **The questions**: the [Medical form API](/medical-api-reference/medical-forms/get-the-medical-form-questions) returns every question, grouped the way the insurers ask them, so you can build your own screen for it.
 
 2. **The printable form**: the [Download declaration form API](/medical-api-reference/medical-forms/download-the-declaration-form) returns the same declaration as a PDF. Pass the `policy_id` and the file carries one page per employee on the policy, with their name, id and package filled in, ready to print or email. Leave `policy_id` out for a single blank form.
 
-3. **Filling them in for the employees**: a company admin can answer on their behalf with the [Fill the declarations API](/medical-api-reference/medical-forms/fill-the-declarations), addressed to the policy. It takes `all_employees`, the default answers for everyone, and `ids_or_emails`, the employees whose answers differ. Name an employee by their `nationality_id` or `iqama_id`; one that is not on the policy is rejected. The answers are stored on the policy's members, and the policy comes back with `pending_declarations` telling you who is still missing.
+3. **Filling them in for the employees**: a company admin can answer on their behalf with the [Fill the company declarations API](/medical-api-reference/medical-forms/fill-the-company-declarations), addressed to the company. It takes `all_employees`, the default answers for everyone, and `ids_or_emails`, the employees whose answers differ. Name an employee by their `nationality_id`, `iqama_id` or `border_number`; one that is not in the company is rejected. The answers are stored on the company's employees, and an employee keeps them when you edit the list. Prices are refused (`40023`) until everyone has declared.
 
 	For example, if nobody has had surgery except john.doe@example.com, declare `No` for `past_surgeries` under `all_employees` and override that one employee:
 
@@ -254,11 +217,64 @@ Insurers require a past medical history from every employee before they will cov
 	}
 	```
 
+### Get prices from every provider
+Call the [Quote request API](/medical-api-reference/quotes/get-prices-from-every-provider) with the `company_id` and you get one response with a quote from every insurance provider, each priced for the employees saved above at the tiers they picked. Every quote carries a `quote_price_id`; the response itself carries an `id`, the `quote_request_id`. Keep both for the next step.
+
+```
+{
+  "id": "a2bc93db-131e-4726-8a0a-0fed1da5ac0f",
+  "company_id": 1,
+  "employees": [ ... ],
+  "quotes": [
+    {
+      "quote_price_id": "3fb4e3bb-6c7e-4a8f-9d2a-1b3c5d7e9f01",
+      "insurance_provider": "medgulf",
+      "insurance_provider_name": "MedGulf",
+      "total_price": 1600,
+      "price_per_employee": 800,
+      "currency": "SAR",
+      "employees": [
+        { "name": "John Doe", "identifier": "1111111111", "category": "basic", "dependents": 2, "price": 300 },
+        { "name": "Richard Roe", "identifier": "2222222222", "category": "executive", "dependents": 0, "price": 1300 }
+      ],
+      "packages": {
+        "basic": {
+          "name": "Basic",
+          "price": 300,
+          "benefits": { "maximum_annual_benefit_limit_per_person": 500000, "general_coverage": { ... }, ... },
+          "network": { "name": "Network C", "hospitals": 120, "provider_list_url": null }
+        },
+        "executive": { ... }
+      }
+    },
+    { "quote_price_id": "...", "insurance_provider": "walaa", "total_price": 1700, ... },
+    ...
+  ]
+}
+```
+
+`total_price` is what the company pays for a year of cover with that provider, `price_per_employee` is that total divided by the number of employees, and the `employees` lines show where it comes from. `packages` has one entry per tier the employees picked, with its `benefits` (the coverage values from the Categories API) and its hospital `network`. A quote prices the employees as they stood when it was asked for; change the list and ask again.
+
+## Policies
+
+### Issue the policy
+A company buys one policy, and its employees are the members on it, which is how the insurer issues it and how the policy document reads. Call the [Issue policy API](/medical-api-reference/policies/issue-the-policy) with the `quote_request_id` and the `quote_price_id` of the quote the company chose, and you get that one policy back: the provider that priced it, the quoted total as `price`, and every employee inside `meta_data.insured`.
+
+```
+{
+  "quote_request_id": "a2bc93db-131e-4726-8a0a-0fed1da5ac0f",
+  "quote_price_id": "3fb4e3bb-6c7e-4a8f-9d2a-1b3c5d7e9f01",
+  "redirect_url": "https://www.example.com?yasmina_policy_id=policyID"
+}
+```
+
+A company has one policy waiting to be paid for at a time. Issue again before payment, from a different quote if you like, and it is replaced. Once it is paid for, the next issue starts a new policy.
+
 ### Payment
 Everything needed to take payment is on the policy object. [Read the policy](/medical-api-reference/policies/read-the-policy) and you get:
 
 - `price`: what the company pays for a year of cover.
-- `pending_declarations`: the employees who still have to declare their medical history. The insurers will not cover anyone who has not, so while this list is not empty there is nothing to pay for.
+- `pending_declarations`: the employees who still have to declare their medical history. Everyone declared before the prices, so it is empty.
 - `payment_link`: where the company pays, once `pending_declarations` is empty. It opens Yasmina's secure card page, where the company pays for all of its employees in one go. It is a fresh signed link on every read and expires after 15 minutes, so read the policy when the buyer is ready to pay rather than storing the link. It is null while anyone still has to declare, and again once the policy is issued.
 
 The policy returned by issuing and by filling the declarations carries the same fields, so in the simplest flow you issue, fill, and send the customer to the link on the response.

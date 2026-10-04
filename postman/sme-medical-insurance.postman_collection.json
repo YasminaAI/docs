@@ -3,7 +3,7 @@
     "_postman_id": "c9d2f1a4-2222-4b3c-8d4e-000000000002",
     "name": "Yasmina SME Medical Insurance (Sandbox)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": "The SME Medical Insurance journey on the sandbox, in order: register a company, browse packages, save its employees, get a price from every provider, issue the policy from the chosen quote, collect the health declarations, and take payment through the link on the policy.\n\nBefore you start, set client_id and client_secret in the collection variables to your sandbox credentials from the portal. Run the requests top to bottom; each one saves what the next needs. Sandbox allows 10 requests a minute, so leave a few seconds between them or set a 7000 ms delay in the Collection Runner."
+    "description": "The SME Medical Insurance journey on the sandbox, in order: register a company, browse packages, fetch its employees from its CR and edit them, collect the health declarations, get a price from every provider, issue the policy from the chosen quote, and take payment through the link on the policy.\n\nBefore you start, set client_id and client_secret in the collection variables to your sandbox credentials from the portal. Run the requests top to bottom; each one saves what the next needs. Sandbox allows 10 requests a minute, so leave a few seconds between them or set a 7000 ms delay in the Collection Runner."
   },
   "auth": {
     "type": "bearer",
@@ -115,7 +115,21 @@
       }
     },
     {
-      "name": "4. Save the company's employees",
+      "name": "4. Fetch the employees from the CR",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/v1/medical/companies/{{company_id}}/employees/fetch",
+        "description": "Fills the company's employee list with the employees registered under its commercial registration number, each on the basic tier. Fetching replaces the list; the next request edits it."
+      }
+    },
+    {
+      "name": "5. Save the company's employees",
       "request": {
         "method": "PUT",
         "header": [
@@ -129,7 +143,7 @@
           }
         ],
         "url": "{{base_url}}/api/v1/medical/companies/{{company_id}}/employees",
-        "description": "The full list of employees to cover, each with the tier they chose and any dependents. Saudi employees give a national id, everyone else an Iqama; identifiers are 10 digits. Birthdates are Hijri for Saudi ids starting with 1, Gregorian otherwise. Sending the list again replaces it.",
+        "description": "The full list of employees to cover, each with the tier they chose and any dependents. Saudi employees give a national id, everyone else an Iqama; identifiers are 10 digits. Birthdates are Hijri for Saudi ids starting with 1, Gregorian otherwise. Sending the list replaces it, so this is how you edit the fetched list. sponsor_id, is_married, and border_number (in place of an Iqama) are optional.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"employees\": [\n    {\n      \"name\": \"John Doe\",\n      \"nationality_iso\": \"SA\",\n      \"category\": \"basic\",\n      \"nationality_id\": \"1111111111\",\n      \"mobile_number\": \"0500000001\",\n      \"date_of_birth\": \"1409-09-14\",\n      \"dependents\": [\n        {\n          \"name\": \"Jane Doe\",\n          \"relationship\": \"spouse\",\n          \"nationality_iso\": \"SA\",\n          \"nationality_id\": \"1111111112\",\n          \"date_of_birth\": \"1411-01-05\"\n        }\n      ]\n    },\n    {\n      \"name\": \"Richard Roe\",\n      \"nationality_iso\": \"JO\",\n      \"category\": \"executive\",\n      \"iqama_id\": \"2222222222\",\n      \"mobile_number\": \"0500000002\",\n      \"date_of_birth\": \"1988-04-20\",\n      \"dependents\": []\n    }\n  ]\n}",
@@ -142,7 +156,34 @@
       }
     },
     {
-      "name": "5. Get prices from every provider",
+      "name": "6. Fill the declarations",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/v1/medical/companies/{{company_id}}/declarations",
+        "description": "Records the health declarations on the employees' behalf, before the company is priced: prices are refused until every employee has declared. all_employees is the default set of answers; ids_or_emails overrides them for any employee whose history differs, named by national id, Iqama or border number.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"all_employees\": {\n    \"allergies\": \"No\",\n    \"current_medications\": \"No\",\n    \"hospitalizations\": \"No\",\n    \"pre_existing_conditions\": \"No\",\n    \"past_surgeries\": \"No\",\n    \"surgery_complications\": \"No\",\n    \"chest_pain_or_breathlessness\": \"No\",\n    \"heart_procedures\": \"No\",\n    \"smoking\": \"No\",\n    \"alcohol_consumption\": \"No\",\n    \"physical_activity\": \"No\",\n    \"family_history\": \"No\",\n    \"chronic_disease\": [\n      \"None of the above\"\n    ]\n  },\n  \"ids_or_emails\": [\n    {\n      \"id_or_email\": \"1111111111\",\n      \"answers\": {\n        \"allergies\": \"Yes\",\n        \"current_medications\": \"No\",\n        \"hospitalizations\": \"No\",\n        \"pre_existing_conditions\": \"No\",\n        \"past_surgeries\": \"No\",\n        \"surgery_complications\": \"No\",\n        \"chest_pain_or_breathlessness\": \"No\",\n        \"heart_procedures\": \"No\",\n        \"smoking\": \"No\",\n        \"alcohol_consumption\": \"No\",\n        \"physical_activity\": \"No\",\n        \"family_history\": \"No\",\n        \"chronic_disease\": [\n          \"None of the above\"\n        ]\n      }\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "7. Get prices from every provider",
       "request": {
         "method": "POST",
         "header": [
@@ -156,7 +197,7 @@
           }
         ],
         "url": "{{base_url}}/api/v1/medical/quote-requests",
-        "description": "One response with a quote from each insurance provider, priced for the employees you saved at the tiers they chose. Each quote has a quote_price_id; the response id is the quote_request_id. Both are saved so the next request can issue from the first quote. Pick whichever quote the company prefers.",
+        "description": "One response with a quote from each insurance provider, priced for the employees you saved at the tiers they chose, with the price per employee and each tier's benefits and hospital network. Each quote has a quote_price_id; the response id is the quote_request_id. Both are saved so the next request can issue from the first quote. Pick whichever quote the company prefers.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"company_id\": \"{{company_id}}\"\n}",
@@ -180,7 +221,7 @@
       ]
     },
     {
-      "name": "6. Issue the policy",
+      "name": "8. Issue the policy",
       "request": {
         "method": "POST",
         "header": [
@@ -218,7 +259,7 @@
       ]
     },
     {
-      "name": "7. Read the policy",
+      "name": "9. Read the policy for the payment link",
       "request": {
         "method": "GET",
         "header": [
@@ -228,11 +269,11 @@
           }
         ],
         "url": "{{base_url}}/api/v1/medical/policies/{{policy_id}}",
-        "description": "The policy with everything needed to take payment: its price, pending_declarations naming the employees who still have to declare their medical history, and payment_link once nobody does. At this point the link is null because no one has declared yet."
+        "description": "Everyone declared before the prices, so payment_link is already on the policy: a short link to Yasmina's secure card page where the company pays for all of its employees in one go. Share it with the customer. It is valid for 24 hours and the same link is returned on every read."
       }
     },
     {
-      "name": "8. Download the declaration form",
+      "name": "10. Download the declaration form",
       "request": {
         "method": "GET",
         "header": [
@@ -243,47 +284,6 @@
         ],
         "url": "{{base_url}}/api/v1/medical/medical-forms/download?policy_id={{policy_id}}",
         "description": "A printable PDF of the health declaration, one page per employee on the policy with their details filled in, for the company to hand out. Use Send and Download in Postman to save the file."
-      }
-    },
-    {
-      "name": "9. Fill the declarations",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Accept",
-            "value": "application/json"
-          },
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "url": "{{base_url}}/api/v1/medical/policies/{{policy_id}}/declarations",
-        "description": "Records the health declarations on the employees' behalf. all_employees is the default set of answers; ids_or_emails overrides them for any employee whose history differs, named by national id or Iqama. The policy comes back with the declarations recorded and, once everyone is covered, its payment_link.",
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"all_employees\": {\n    \"allergies\": \"No\",\n    \"current_medications\": \"No\",\n    \"hospitalizations\": \"No\",\n    \"pre_existing_conditions\": \"No\",\n    \"past_surgeries\": \"No\",\n    \"surgery_complications\": \"No\",\n    \"chest_pain_or_breathlessness\": \"No\",\n    \"heart_procedures\": \"No\",\n    \"smoking\": \"No\",\n    \"alcohol_consumption\": \"No\",\n    \"physical_activity\": \"No\",\n    \"family_history\": \"No\",\n    \"chronic_disease\": [\n      \"None of the above\"\n    ]\n  },\n  \"ids_or_emails\": [\n    {\n      \"id_or_email\": \"1111111111\",\n      \"answers\": {\n        \"allergies\": \"Yes\",\n        \"current_medications\": \"No\",\n        \"hospitalizations\": \"No\",\n        \"pre_existing_conditions\": \"No\",\n        \"past_surgeries\": \"No\",\n        \"surgery_complications\": \"No\",\n        \"chest_pain_or_breathlessness\": \"No\",\n        \"heart_procedures\": \"No\",\n        \"smoking\": \"No\",\n        \"alcohol_consumption\": \"No\",\n        \"physical_activity\": \"No\",\n        \"family_history\": \"No\",\n        \"chronic_disease\": [\n          \"None of the above\"\n        ]\n      }\n    }\n  ]\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        }
-      }
-    },
-    {
-      "name": "10. Read the policy for the payment link",
-      "request": {
-        "method": "GET",
-        "header": [
-          {
-            "key": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "url": "{{base_url}}/api/v1/medical/policies/{{policy_id}}",
-        "description": "Now that everyone has declared, payment_link is a short link to Yasmina's secure card page where the company pays for all of its employees in one go. Share it with the customer. It is valid for 24 hours and the same link is returned on every read."
       }
     },
     {
