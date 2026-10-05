@@ -175,13 +175,21 @@ When providing drivers, each driver object must include the following fields:
 | Field                | Example Value | Is Required | Description                                                                                                                          |
 | -------------------- | ------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | `owner_id`           | `2234567890`  | Yes         | Driver's national ID (starts with `1` for Saudi nationals) or Iqama ID (starts with `2` for residents). Must be exactly 10 digits.   |
-| `birthdate`          | `1988-04-20`  | Yes         | Driver's date of birth in `YYYY-MM-DD` format.                                                                                       |
+| `birthdate`          | `1410-06-18`  | Yes         | Driver's date of birth in `YYYY-MM-DD` format. The calendar follows this driver's own ID: a national ID (starts with `1`) takes a Hijri date, an Iqama ID (starts with `2`) takes a Gregorian date. |
 | `driving_percentage` | `50`          | Yes         | Percentage of driving for this driver. Valid values: `25`, `50`, `75`, or `100`. The sum of all drivers' percentages must equal 100. |
 
 <Note>
   When drivers are provided, the vehicle owner must be included among the
   drivers.
 </Note>
+
+<Warning>
+  Each driver's `birthdate` follows that driver's own ID, not the owner's. In
+  the example below the owner holds an Iqama and gives a Gregorian date, while
+  the second driver holds a Saudi national ID and gives the Hijri date printed
+  on it. A Gregorian year such as `1997` sent for a national ID is rejected as a
+  date in the future.
+</Warning>
 
 Example request
 
@@ -213,7 +221,7 @@ Content-Length: 226
         },
         {
             "owner_id": "1234567891",
-            "birthdate": "1990-06-15",
+            "birthdate": "1410-11-22",
             "driving_percentage": 50
         }
     ]
@@ -229,7 +237,7 @@ single provider quote:
   "owner_id": "1234567890",
   "email": "someone@example.com",
   "phone": "0555555555",
-  "birthdate": "1990-01-01",
+  "birthdate": "1410-06-04",
   "car_sequence_number": 1111111111,
   "is_ownership_transfer": true,
   "current_car_owner_id": "1000000000",
@@ -239,7 +247,7 @@ single provider quote:
   "drivers": [
     {
       "owner_id": "1234567890",
-      "birthdate": "1990-01-01",
+      "birthdate": "1410-06-04",
       "driving_percentage": 50
     },
     {
