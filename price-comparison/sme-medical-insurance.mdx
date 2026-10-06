@@ -19,7 +19,7 @@ Using our secure and reliable endpoints, you'll be able to request and manage po
 ### Basic Journey
 1. **Authorize**: Get an access token to authenticate all API requests.
 2. **Create a Company**: Register the SME that will provide medical insurance for its employees.
-3. **Fetch the Employees**: Get the employees registered under the company's commercial registration.
+3. **Fetch the Employees**: Get the employees registered under the company.
 4. **Edit the Employees**: Change the list as needed, each employee with the tier they want.
 5. **Health Declarations**: Get the declaration questions, download a printable form, and submit every employee's answers under one consent.
 6. **Get Prices**: One request prices those employees with every insurance provider at once.
@@ -44,7 +44,7 @@ Authorization: Bearer \{access_token\}
 
 After acquiring an access_token, you can begin using the APIs. Before you produce policies for a company, you must create a company record. After creating the company record, you can request to issue policies to the employees of that company.
 
-The <a href="/medical-api-reference/company/create-company" target="_blank">The Create Company API</a>, will require a few fields that define details of the company such as Email, Phone, the company's unified national number, a 10-digit sponsor number, and a 10-digit commercial registration number that starts with 7.
+The <a href="/medical-api-reference/company/create-company" target="_blank">The Create Company API</a>, will require a few fields that define details of the company such as Email, Phone, the company's unified national number and a 10-digit sponsor number.
 
 It will return a response with a unique identifier (id). Here is an example of the response from the POST companies API.
 ```
@@ -55,7 +55,6 @@ It will return a response with a unique identifier (id). Here is an example of t
   "unified_national_number": "7000000001",
   "email_address": "example@example.com",
   "phone_number": "+966512345678",
-  "commercial_registration_number": "7000000002",
   "client_id": "a1b2c3d4-5678-90ab-cdef-1234567890ab",
   "updated_at": "2025-08-01T14:22:30.000000Z",
   "created_at": "2025-08-01T14:22:30.000000Z",
@@ -109,7 +108,7 @@ Coverage values can either be a number (the amount), or a boolean (whether it's 
 ```
 
 ### Fetch the employees
-The [Fetch employees API](/medical-api-reference/employees/fetch-the-employees) fills the company's employee list with the employees registered under its commercial registration number, each on the `basic` tier. It replaces the list, so fetch first and edit afterwards.
+The [Fetch employees API](/medical-api-reference/employees/fetch-the-employees) fills the company's employee list with the employees registered under the company, each on the `basic` tier. It replaces the list, so fetch first and edit afterwards.
 
 ### Edit the employees
 The [Employees API](/medical-api-reference/employees/save-the-employees) holds the company's employee list: who is covered, their dependents, and the tier each has picked. It prices nothing. Send the whole list; each call replaces the one before, and you can read it back at any time.
