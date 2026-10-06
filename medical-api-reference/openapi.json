@@ -476,6 +476,95 @@
       }
 
     },
+    "/products/networks": {
+      "get": {
+        "tags": ["Products"],
+        "summary": "List a network's facilities",
+        "description": "The hospitals, clinics, pharmacies and other facilities one tier of one provider gives access to, each with its `status` in that tier: `included` for direct access, `referral` when a referral is needed first. Filter by `city` to show one city at a time, or by `search` to match a facility's English or Arabic name. This is the `provider_list_url` the Categories and Quote APIs return with every tier.",
+        "parameters": [
+          {
+            "name": "insurance_provider",
+            "in": "query",
+            "required": false,
+            "description": "Whose network. Defaults to `medgulf`.",
+            "schema": {
+              "type": "string",
+              "enum": ["medgulf", "walaa", "alrajhi", "tawuniya", "malath"],
+              "default": "medgulf"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": true,
+            "description": "Which tier's network.",
+            "schema": {
+              "type": "string",
+              "enum": ["basic", "standard", "premium", "executive"]
+            }
+          },
+          {
+            "name": "city",
+            "in": "query",
+            "required": false,
+            "description": "Only facilities in this city, as spelled in `cities`.",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "description": "Only facilities whose name contains this text.",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "insurance_provider": { "type": "string", "example": "tawuniya" },
+                    "category": { "type": "string", "example": "basic" },
+                    "network": { "$ref": "#/components/schemas/Network" },
+                    "cities": {
+                      "type": "array",
+                      "description": "Every city with a facility in this tier, for a city filter.",
+                      "items": { "type": "string" },
+                      "example": ["Abha", "Dammam", "Jeddah", "Riyadh"]
+                    },
+                    "providers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "code": { "type": "string", "nullable": true, "description": "The provider's own code for the facility.", "example": "560806" },
+                          "name": { "type": "string", "example": "ALMAHALLA PULSE MEDICAL CENTER - ABHA" },
+                          "name_ar": { "type": "string", "nullable": true, "example": "مجمع نبض المحالة الطبي العام - ابها" },
+                          "type": { "type": "string", "enum": ["hospital", "pharmacy", "clinic", "optical", "other"] },
+                          "region": { "type": "string", "nullable": true, "example": "South" },
+                          "city": { "type": "string", "nullable": true, "example": "Abha" },
+                          "phone": { "type": "string", "nullable": true, "example": "172740805" },
+                          "status": { "type": "string", "enum": ["included", "referral"] }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "description": "No `category`, or a value that is not one of the four tiers."
+          }
+        }
+      }
+    },
     "/products/categories": {
       "get": {
         "tags": ["Products"],
@@ -970,6 +1059,31 @@
       }
     },
     "schemas": {
+      "Network": {
+        "type": "object",
+        "description": "The network of facilities a tier gives access to.",
+        "properties": {
+          "name": { "type": "string", "nullable": true, "description": "The provider's own name for this tier's network.", "example": "Network 3" },
+          "total": { "type": "integer", "description": "How many facilities are in it, included or by referral.", "example": 907 },
+          "facilities": {
+            "type": "object",
+            "description": "The facilities by type.",
+            "properties": {
+              "hospital": { "type": "integer", "example": 137 },
+              "pharmacy": { "type": "integer", "example": 7 },
+              "clinic": { "type": "integer", "example": 591 },
+              "optical": { "type": "integer", "example": 39 },
+              "other": { "type": "integer", "example": 133 }
+            }
+          },
+          "provider_list_url": {
+            "type": "string",
+            "nullable": true,
+            "description": "The Networks API call that lists the facilities, or null when we hold no list for this provider yet.",
+            "example": "https://api.yasmina.ai/api/v1/medical/products/networks?insurance_provider=tawuniya&category=basic"
+          }
+        }
+      },
       "MedicalFormAnswers": {
         "type": "object",
         "required": [
@@ -1236,21 +1350,7 @@
                         "additionalProperties": true
                       },
                       "network": {
-                        "type": "object",
-                        "description": "The hospital network the tier gives access to.",
-                        "properties": {
-                          "name": { "type": "string", "example": "Network C" },
-                          "hospitals": {
-                            "type": "integer",
-                            "description": "How many hospitals are in the network.",
-                            "example": 120
-                          },
-                          "provider_list_url": {
-                            "type": "string",
-                            "nullable": true,
-                            "description": "Where the provider publishes its hospital list, when it does."
-                          }
-                        }
+                        "$ref": "#/components/schemas/Network"
                       }
                     }
                   }

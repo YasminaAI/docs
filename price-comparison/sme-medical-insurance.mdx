@@ -233,7 +233,12 @@ Call the [Quote request API](/medical-api-reference/quotes/get-prices-from-every
           "name": "Basic",
           "price": 300,
           "benefits": { "maximum_annual_benefit_limit_per_person": 500000, "general_coverage": { ... }, ... },
-          "network": { "name": "Network C", "hospitals": 120, "provider_list_url": null }
+          "network": {
+            "name": "MG6",
+            "total": 1132,
+            "facilities": { "hospital": 230, "pharmacy": 4, "clinic": 611, "optical": 24, "other": 263 },
+            "provider_list_url": "https://api.yasmina.ai/api/v1/medical/products/networks?insurance_provider=medgulf&category=basic"
+          }
         },
         "executive": { ... }
       }
@@ -244,7 +249,9 @@ Call the [Quote request API](/medical-api-reference/quotes/get-prices-from-every
 }
 ```
 
-`total_price` is what the company pays for a year of cover with that provider, `price_per_employee` is that total divided by the number of employees, and the `employees` lines show where it comes from. `packages` has one entry per tier the employees picked, with its `benefits` (the coverage values from the Categories API) and its hospital `network`. A quote prices the employees as they stood when it was asked for; change the list and ask again.
+`total_price` is what the company pays for a year of cover with that provider, `price_per_employee` is that total divided by the number of employees, and the `employees` lines show where it comes from. `packages` has one entry per tier the employees picked, with its `benefits` (the coverage values from the Categories API) and its `network`. A quote prices the employees as they stood when it was asked for; change the list and ask again.
+
+Benefits and networks differ by tier, not just by provider: a higher tier reaches more facilities and buys a better room, a higher copayment cap and higher pregnancy and vision limits. Show them side by side so the company can see what each tier adds. The `network` gives the facility counts by type for a comparison table; its `provider_list_url` is the [Networks API](/medical-api-reference/products/list-a-networks-facilities) call that lists every facility in that tier with its `status`, `included` or `referral`, and the `cities` to filter by.
 
 ## Policies
 
