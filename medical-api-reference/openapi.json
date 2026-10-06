@@ -59,12 +59,6 @@
                   "phone_number": {
                     "type": "string",
                     "description": "Phone number"
-                  },
-                  "commercial_registration_number": {
-                    "type": "string",
-                    "description": "The commercial registration number of the company (exactly 10 digits, starting with 7)",
-                    "pattern": "^7[0-9]{9}$",
-                    "example": "7000000002"
                   }
                 },
                 "required": [
@@ -73,8 +67,7 @@
                   "sponsor_number",
                   "unified_national_number",
                   "email_address",
-                  "phone_number",
-                  "commercial_registration_number"
+                  "phone_number"
                 ]
               }
             }
@@ -115,8 +108,8 @@
                         "email_address": [
                           "The email address must be a valid email address."
                         ],
-                        "commercial_registration_number": [
-                          "The commercial registration number field cannot be empty."
+                        "sponsor_number": [
+                          "The sponsor number field cannot be empty."
                         ]
                       }
                     }
@@ -239,7 +232,7 @@
     "/companies/{companyId}/employees/fetch": {
       "post": {
         "summary": "Fetch the employees",
-        "description": "Fills the company's employee list with the employees registered under its commercial registration number, so you start from the company's current headcount instead of typing it in. It replaces the list; edit it afterwards with Save the employees. Every fetched employee starts on the `basic` tier with no dependents.",
+        "description": "Fills the company's employee list with the employees registered under the company, so you start from the company's current headcount instead of typing it in. It replaces the list; edit it afterwards with Save the employees. Every fetched employee starts on the `basic` tier with no dependents.",
         "tags": ["Employees"],
         "parameters": [{ "name": "companyId", "in": "path", "required": true, "schema": { "type": "integer" } }],
         "responses": {
@@ -1506,9 +1499,6 @@
           "phone_number": {
             "type": "string"
           },
-          "commercial_registration_number": {
-            "type": "string"
-          },
           "client_id": {
             "type": "string"
           },
@@ -1529,7 +1519,6 @@
           "unified_national_number": "7000000001",
           "email_address": "example@example.com",
           "phone_number": "+966512345678",
-          "commercial_registration_number": "7000000002",
           "client_id": "a1b2c3d4-5678-90ab-cdef-1234567890ab",
           "updated_at": "2025-08-01T14:22:30.000000Z",
           "created_at": "2025-08-01T14:22:30.000000Z",

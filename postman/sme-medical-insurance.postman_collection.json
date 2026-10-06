@@ -77,10 +77,10 @@
           }
         ],
         "url": "{{base_url}}/api/v1/medical/companies",
-        "description": "Registers the SME that is buying cover for its employees. The sponsor number is 10 digits; the commercial registration number is 10 digits starting with 7. The company id is saved for the requests that follow.",
+        "description": "Registers the SME that is buying cover for its employees. The sponsor number is 10 digits. The company id is saved for the requests that follow.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"name\": \"Example Company\",\n  \"name_ar\": \"شركة مثال\",\n  \"sponsor_number\": \"1000000001\",\n  \"unified_national_number\": \"7000000001\",\n  \"email_address\": \"admin@example.com\",\n  \"phone_number\": \"+966500000000\",\n  \"commercial_registration_number\": \"7000000002\"\n}",
+          "raw": "{\n  \"name\": \"Example Company\",\n  \"name_ar\": \"شركة مثال\",\n  \"sponsor_number\": \"1000000001\",\n  \"unified_national_number\": \"7000000001\",\n  \"email_address\": \"admin@example.com\",\n  \"phone_number\": \"+966500000000\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -125,7 +125,7 @@
           }
         ],
         "url": "{{base_url}}/api/v1/medical/companies/{{company_id}}/employees/fetch",
-        "description": "Fills the company's employee list with the employees registered under its commercial registration number, each on the basic tier. Fetching replaces the list; the next request edits it."
+        "description": "Fills the company's employee list with the employees registered under the company, each on the basic tier. Fetching replaces the list; the next request edits it."
       }
     },
     {

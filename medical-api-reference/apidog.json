@@ -58,10 +58,6 @@
                   "phone_number": {
                     "type": "string",
                     "description": "Phone number"
-                  },
-                  "commercial_registration_number": {
-                    "type": "string",
-                    "description": "The registration number of the company"
                   }
                 },
                 "required": [
@@ -69,8 +65,7 @@
                   "name_ar",
                   "sponsor_number",
                   "email_address",
-                  "phone_number",
-                  "commercial_registration_number"
+                  "phone_number"
                 ]
               },
               "example": {
@@ -78,8 +73,7 @@
                 "name_ar": "ياسمينا",
                 "sponsor_number": "123",
                 "email_address": "masoud@yasmina.ai",
-                "phone_number": "0797531543",
-                "commercial_registration_number": "456"
+                "phone_number": "0797531543"
               }
             }
           }
@@ -101,7 +95,6 @@
                       "sponsor_number": "123",
                       "email_address": "masoud@yasmina.ai",
                       "phone_number": "0797531543",
-                      "commercial_registration_number": "456",
                       "client_id": "9c5b2b00-abcd-496c-a60b-8892fb63f0c3",
                       "updated_at": "2024-07-15T20:36:12.000000Z",
                       "created_at": "2024-07-15T20:36:12.000000Z",
@@ -214,7 +207,6 @@
                         "sponsor_number": "123",
                         "email_address": "masoud@yasmina.ai",
                         "phone_number": "0797531543",
-                        "commercial_registration_number": "456",
                         "client_id": "9c5b2b00-abcd-496c-a60b-8892fb63f0c3",
                         "updated_at": "2024-07-15T20:36:12.000000Z",
                         "created_at": "2024-07-15T20:36:12.000000Z",
@@ -298,9 +290,6 @@
                     "type": "string"
                   },
                   "company_name": {
-                    "type": "string"
-                  },
-                  "commercial_registration_number": {
                     "type": "string"
                   },
                   "category": {
@@ -387,7 +376,6 @@
                   "company_id",
                   "name",
                   "company_name",
-                  "commercial_registration_number",
                   "category",
                   "phone",
                   "employees"
@@ -397,7 +385,6 @@
                 "company_id": 11,
                 "name": "Ghassan Barghouti",
                 "company_name": "Syarah",
-                "commercial_registration_number": "123",
                 "category": "basic",
                 "phone": "00962797531543",
                 "employees": [
@@ -2761,9 +2748,6 @@
           "phone_number": {
             "type": "string"
           },
-          "commercial_registration_number": {
-            "type": "string"
-          },
           "client_id": {
             "type": "string"
           },
@@ -2783,7 +2767,6 @@
           "sponsor_number",
           "email_address",
           "phone_number",
-          "commercial_registration_number",
           "client_id",
           "updated_at",
           "created_at",
