@@ -339,7 +339,7 @@
                   "birthdate": {
                     "type": "string",
                     "format": "date",
-                    "description": "Birthdate in YYYY-MM-DD format"
+                    "description": "The owner's birthdate in YYYY-MM-DD format. For a Saudi national ID (starts with 1) give the Hijri (Umm al-Qura) date printed on the ID, for example 1409-09-14; for an Iqama ID (starts with 2) give a Gregorian date. The owner must be between 18 and 110 years old."
                   },
                   "car_sequence_number": {
                     "type": "string",
@@ -411,7 +411,7 @@
                         "birthdate": {
                           "type": "string",
                           "format": "date",
-                          "description": "Driver's birthdate in YYYY-MM-DD format."
+                          "description": "Driver's birthdate in YYYY-MM-DD format. The calendar follows this driver's own ID, not the owner's: for a national ID (starts with 1) give the Hijri (Umm al-Qura) date printed on the ID, for example 1410-06-18; for an Iqama ID (starts with 2) give a Gregorian date. A Gregorian year sent for a Saudi ID is rejected as a date in the future."
                         },
                         "driving_percentage": {
                           "type": "integer",
@@ -428,7 +428,7 @@
                     "example": [
                       {
                         "owner_id": "1234567890",
-                        "birthdate": "1990-01-15",
+                        "birthdate": "1410-06-18",
                         "driving_percentage": 50
                       },
                       {
@@ -525,7 +525,7 @@
                   "birthdate": {
                     "type": "string",
                     "format": "date",
-                    "description": "Birthdate in YYYY-MM-DD format"
+                    "description": "The owner's birthdate in YYYY-MM-DD format. For a Saudi national ID (starts with 1) give the Hijri (Umm al-Qura) date printed on the ID, for example 1409-09-14; for an Iqama ID (starts with 2) give a Gregorian date. The owner must be between 18 and 110 years old."
                   },
                   "car_sequence_number": {
                     "type": "string",
@@ -597,7 +597,7 @@
                         "birthdate": {
                           "type": "string",
                           "format": "date",
-                          "description": "Driver's birthdate in YYYY-MM-DD format."
+                          "description": "Driver's birthdate in YYYY-MM-DD format. The calendar follows this driver's own ID, not the owner's: for a national ID (starts with 1) give the Hijri (Umm al-Qura) date printed on the ID, for example 1410-06-18; for an Iqama ID (starts with 2) give a Gregorian date. A Gregorian year sent for a Saudi ID is rejected as a date in the future."
                         },
                         "driving_percentage": {
                           "type": "integer",
@@ -614,7 +614,7 @@
                     "example": [
                       {
                         "owner_id": "1234567890",
-                        "birthdate": "1990-01-15",
+                        "birthdate": "1410-06-18",
                         "driving_percentage": 50
                       },
                       {
@@ -1765,7 +1765,7 @@
                 "birthdate": {
                   "type": "string",
                   "format": "date",
-                  "description": "Driver's birthdate in YYYY-MM-DD format"
+                  "description": "Driver's birthdate in YYYY-MM-DD format, echoed from the request. Hijri for a national ID (starts with 1), Gregorian for an Iqama ID (starts with 2)."
                 },
                 "driving_percentage": {
                   "type": "integer",
