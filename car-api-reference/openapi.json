@@ -901,37 +901,68 @@
         }
       }
     },
-    "/guideline-texts": {
+    "/branding-guidelines": {
       "get": {
         "tags": [
           "Quotes"
         ],
-        "summary": "Guideline texts",
-        "description": "Returns the copy you are expected to show alongside motor quotes — the provider attribution and its Insurance Authority licence, the Shahin support routes, and the buyer FAQ. English and Arabic are returned together, so a bilingual page needs a single request and does not have to hold the strings itself. Fetch it rather than hard-coding the wording: changes reach you without an integration change.",
+        "summary": "Branding guidelines",
+        "description": "Returns everything a quotes screen needs to carry the required branding: the logos to display, and the wording in English and Arabic. Both languages come back together, so a bilingual page needs a single request and does not have to hold the strings itself. The response also carries the recommended texts for the vehicle photo upload and the IBAN field, and a buyer FAQ. Fetch it rather than hard-coding any of it: the provider behind the quotes and the wording can change, and a change reaches you without an integration change. See the [Branding guidelines](/price-comparison/motor-insurance#branding-guidelines) in the guide.",
         "responses": {
           "200": {
-            "description": "The guideline texts, keyed by locale",
+            "description": "The logos, and the texts keyed by locale",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "example": {
+                    "logos": {
+                      "provider": "https://production.yasmina.ai/images/branding/provider-logo.png",
+                      "authority_on_light": "https://production.yasmina.ai/images/branding/insurance-authority-logo-dark.svg",
+                      "authority_on_dark": "https://production.yasmina.ai/images/branding/insurance-authority-logo-white.svg"
+                    },
                     "en": {
-                      "provider": {
+                      "attribution": {
                         "pre": "Quotes are provided through",
-                        "brand": "Shahin",
-                        "brand_url": "https://www.shahin.com.sa/en/",
+                        "provider": "<provider name>",
                         "supervision": "Under supervision of the Insurance Authority, license",
-                        "license": "و س ط/No. 20158/82"
+                        "license": "<license number>",
+                        "text": "Quotes are provided through <provider name> · Under supervision of the Insurance Authority, license <license number>"
                       },
                       "support": {
                         "lead": "Support and assistance through",
-                        "whatsapp_label": "Customer service via WhatsApp",
-                        "whatsapp_url": "https://wa.me/966537007368",
-                        "terms_label": "Terms & conditions",
-                        "terms_url": "https://www.shahin.com.sa/en/terms-and-conditions",
-                        "tollfree_label": "Toll-free",
-                        "tollfree_number": "8002440399"
+                        "provider": "<provider name>",
+                        "text": "Support and assistance through <provider name>",
+                        "whatsapp": {
+                          "label": "Customer service via WhatsApp",
+                          "url": "https://wa.me/<number>"
+                        },
+                        "terms": {
+                          "label": "Terms & conditions",
+                          "url": "https://<provider website>/en/terms-and-conditions"
+                        },
+                        "tollfree": {
+                          "label": "Toll-free",
+                          "number": "<number>",
+                          "url": "tel:<number>"
+                        }
+                      },
+                      "authority": {
+                        "label": "Authorized by",
+                        "logo_alt": "Insurance Authority"
+                      },
+                      "photos": {
+                        "title": "Photos of your car",
+                        "why": "Five quick shots documenting the car's condition before cover starts. They protect you and speed up any future claim.",
+                        "vin_hint": "The chassis number: inside the driver's door frame or at the base of the windshield.",
+                        "requirements": "Clear daylight photos, JPG or PNG, up to 3 MB each. Make sure the chassis number is readable in the VIN shot.",
+                        "declaration": "I confirm the uploaded images are genuine images of the insured vehicle, taken recently and not altered in any way. I understand that if the contrary is established, the policy will be cancelled and claims made on the vehicle will be affected."
+                      },
+                      "iban": {
+                        "title": "Your IBAN",
+                        "why": "Claim settlements and refunds are transferred to this account. It is never charged.",
+                        "label": "Saudi IBAN",
+                        "help": "Starts with SA followed by 22 characters. Find it in your banking app."
                       },
                       "faq": [
                         {
@@ -941,12 +972,47 @@
                       ]
                     },
                     "ar": {
-                      "provider": {
+                      "attribution": {
                         "pre": "هذه العروض مقدَّمة عبر",
-                        "brand": "شاهين"
+                        "provider": "<اسم المزود>",
+                        "supervision": "خاضع لإشراف ورقابة هيئة التأمين ترخيص",
+                        "license": "<رقم الترخيص>",
+                        "text": "هذه العروض مقدَّمة عبر <اسم المزود> · خاضع لإشراف ورقابة هيئة التأمين ترخيص <رقم الترخيص>"
                       },
                       "support": {
-                        "lead": "للدعم والمساعدة عبر"
+                        "lead": "للدعم والمساعدة عبر",
+                        "provider": "<اسم المزود>",
+                        "text": "للدعم والمساعدة عبر <اسم المزود>",
+                        "whatsapp": {
+                          "label": "خدمة العملاء عبر واتساب",
+                          "url": "https://wa.me/<number>"
+                        },
+                        "terms": {
+                          "label": "الشروط والأحكام",
+                          "url": "https://<provider website>/ar/terms-and-conditions"
+                        },
+                        "tollfree": {
+                          "label": "الرقم المجاني",
+                          "number": "<number>",
+                          "url": "tel:<number>"
+                        }
+                      },
+                      "authority": {
+                        "label": "مصرح من قبل",
+                        "logo_alt": "هيئة التأمين"
+                      },
+                      "photos": {
+                        "title": "صور سيارتك",
+                        "why": "خمس صور سريعة توثّق حالة السيارة قبل بدء التغطية. تحفظ حقك وتُسرّع أي مطالبة مستقبلية.",
+                        "vin_hint": "رقم الهيكل (VIN): داخل إطار باب السائق أو أسفل الزجاج الأمامي.",
+                        "requirements": "صور واضحة في ضوء النهار بصيغة JPG أو PNG، بحجم لا يتجاوز 3 ميجابايت للصورة، وتأكد من ظهور رقم الهيكل بوضوح في صورته.",
+                        "declaration": "أقر بأن الصور المرفوعة هي الصور الحقيقية للمركبة المؤمن عليها، والتي تم أخذها مؤخراً ولم يتم التعديل عليها بأي شكل من الأشكال. وأقر بمعرفتي بأنه في حال ثبوت عكس ذلك فإن هذا سيؤدي إلى إلغاء وثيقة التأمين وسيؤثر على المطالبات المرفوعة على المركبة."
+                      },
+                      "iban": {
+                        "title": "رقم الآيبان الخاص بك",
+                        "why": "تُحوَّل تعويضات المطالبات والمبالغ المستردة إلى هذا الحساب، ولن يُخصم منه أي مبلغ.",
+                        "label": "رقم الآيبان",
+                        "help": "يبدأ بـ SA ويتبعه 22 خانة. تجده في تطبيق البنك."
                       },
                       "faq": [
                         {
@@ -959,9 +1025,6 @@
                 }
               }
             }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
           }
         }
       }
@@ -1990,19 +2053,19 @@
             "type": "string",
             "nullable": true,
             "description": "Storage key of the policy document. Use policy_url to download it.",
-            "example": "shahin-policies/00000000-0000-0000-0000-000000000000.pdf"
+            "example": "policies/00000000-0000-0000-0000-000000000000.pdf"
           },
           "policy_url": {
             "type": "string",
             "nullable": true,
             "description": "Link to the policy document. Download the file rather than storing the link, and do not hardcode the host.",
-            "example": "https://<object-storage-host>/<bucket>/shahin-policies/00000000-0000-0000-0000-000000000000.pdf"
+            "example": "https://<object-storage-host>/<bucket>/policies/00000000-0000-0000-0000-000000000000.pdf"
           },
           "invoice_url": {
             "type": "string",
             "nullable": true,
             "description": "Link to the invoice, on the same terms as policy_url.",
-            "example": "https://<object-storage-host>/<bucket>/shahin-policies/00000000-0000-0000-0000-000000000000_invoice.pdf"
+            "example": "https://<object-storage-host>/<bucket>/policies/00000000-0000-0000-0000-000000000000_invoice.pdf"
           },
           "payment_link": {
             "type": "string",
