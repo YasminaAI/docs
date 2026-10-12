@@ -951,12 +951,11 @@ Motor quotes in the price comparison flow are provided through a licensed insura
 | 2   | **Provider support channels** | WhatsApp, terms and conditions, and the toll-free number                          |
 | 3   | **Insurance Authority mark**  | The official Insurance Authority logo beside the words "Authorized by"            |
 
-<Warning>
-  Do not hard-code any of it. The provider behind the quotes can change, and
-  so can the wording. Fetch the logos and the sentences from the
-  [Branding Guidelines API](#branding-guidelines-api) and display what it
-  returns.
-</Warning>
+### How to get them
+
+Everything in the three elements comes from one call. When your quotes screen loads, call the [Branding Guidelines API](#branding-guidelines-api) with your bearer token and display what it returns: the URLs of the provider's logo and the Insurance Authority logo, and every sentence, complete and ready to show. Send `Accept-Language: ar` to get the Arabic sentences, or nothing for English, so an Arabic page is the same call with a different header.
+
+Do not copy the provider's name, logo or license number from this page or from a screenshot. The provider behind the quotes can change, and so can the wording. The API is where a change reaches you, without an integration change on your side.
 
 <Note>
   With the [Iframe and WebView](/whitelabel/motor-insurance), the quotes screen
@@ -966,7 +965,10 @@ Motor quotes in the price comparison flow are provided through a licensed insura
 
 ### Branding Guidelines API
 
-`GET /api/v1/car-comp/branding-guidelines` returns three logo URLs and, under `en` and `ar`, the sentences to display as they are. Both languages come back together, so a bilingual page needs a single request. Call it with your bearer token, like the other motor APIs, when your quotes screen loads.
+`GET /api/v1/car-comp/branding-guidelines` returns three logo URLs and the sentences to display, in the language of the `Accept-Language` header: `ar` for Arabic, anything else or no header for English.
+
+<Tabs>
+  <Tab title="English">
 
 ```bash cURL
 curl --location 'https://production.yasmina.ai/api/v1/car-comp/branding-guidelines' \
@@ -979,54 +981,71 @@ curl --location 'https://production.yasmina.ai/api/v1/car-comp/branding-guidelin
   "provider_logo": "https://production.yasmina.ai/images/branding/provider-logo.png",
   "authority_logo_dark": "https://production.yasmina.ai/images/branding/insurance-authority-logo-dark.svg",
   "authority_logo_white": "https://production.yasmina.ai/images/branding/insurance-authority-logo-white.svg",
-  "en": {
-    "attribution": "Quotes are provided through Provider name · Under supervision of the Insurance Authority, license و س ط/No. 00000/00",
-    "support": "Support and assistance through Provider name",
-    "whatsapp": "Customer service via WhatsApp",
-    "whatsapp_url": "https://wa.me/966500000000",
-    "terms": "Terms & conditions",
-    "terms_url": "https://www.provider.example/en/terms-and-conditions",
-    "tollfree": "Toll-free 8000000000",
-    "tollfree_url": "tel:8000000000",
-    "authorized_by": "Authorized by",
-    "photos_intro": "Five quick shots documenting the car's condition before cover starts. They protect you and speed up any future claim.",
-    "photos_vin_hint": "The chassis number: inside the driver's door frame or at the base of the windshield.",
-    "photos_requirements": "Clear daylight photos, JPG or PNG, up to 3 MB each. Make sure the chassis number is readable in the VIN shot.",
-    "photos_declaration": "I confirm the uploaded images are genuine images of the insured vehicle, taken recently and not altered in any way. I understand that if the contrary is established, the policy will be cancelled and claims made on the vehicle will be affected.",
-    "iban_intro": "Claim settlements and refunds are transferred to this account. It is never charged.",
-    "iban_hint": "Starts with SA followed by 22 characters. Find it in your banking app.",
-    "faq": [
-      {
-        "question": "What is the difference between TPL and Comprehensive insurance?",
-        "answer": "TPL covers damage you cause to others, while Comprehensive also covers damage to your own vehicle, subject to the policy terms."
-      }
-    ]
-  },
-  "ar": {
-    "attribution": "هذه العروض مقدَّمة عبر اسم المزود · خاضع لإشراف ورقابة هيئة التأمين ترخيص و س ط/00000/00",
-    "support": "للدعم والمساعدة عبر اسم المزود",
-    "whatsapp": "خدمة العملاء عبر واتساب",
-    "whatsapp_url": "https://wa.me/966500000000",
-    "terms": "الشروط والأحكام",
-    "terms_url": "https://www.provider.example/ar/terms-and-conditions",
-    "tollfree": "الرقم المجاني 8000000000",
-    "tollfree_url": "tel:8000000000",
-    "authorized_by": "مصرح من قبل",
-    "photos_intro": "خمس صور سريعة توثّق حالة السيارة قبل بدء التغطية. تحفظ حقك وتُسرّع أي مطالبة مستقبلية.",
-    "photos_vin_hint": "رقم الهيكل (VIN): داخل إطار باب السائق أو أسفل الزجاج الأمامي.",
-    "photos_requirements": "صور واضحة في ضوء النهار بصيغة JPG أو PNG، بحجم لا يتجاوز 3 ميجابايت للصورة، وتأكد من ظهور رقم الهيكل بوضوح في صورته.",
-    "photos_declaration": "أقر بأن الصور المرفوعة هي الصور الحقيقية للمركبة المؤمن عليها، والتي تم أخذها مؤخراً ولم يتم التعديل عليها بأي شكل من الأشكال. وأقر بمعرفتي بأنه في حال ثبوت عكس ذلك فإن هذا سيؤدي إلى إلغاء وثيقة التأمين وسيؤثر على المطالبات المرفوعة على المركبة.",
-    "iban_intro": "تُحوَّل تعويضات المطالبات والمبالغ المستردة إلى هذا الحساب، ولن يُخصم منه أي مبلغ.",
-    "iban_hint": "يبدأ بـ SA ويتبعه 22 خانة. تجده في تطبيق البنك.",
-    "faq": [
-      {
-        "question": "ما الفرق بين التأمين ضد الغير والتأمين الشامل؟",
-        "answer": "يغطي التأمين ضد الغير الأضرار التي تتسبب بها للآخرين، بينما يغطي التأمين الشامل كذلك الأضرار التي تلحق بمركبتك، وفقاً لشروط الوثيقة."
-      }
-    ]
-  }
+  "attribution": "Quotes are provided through Provider name · Under supervision of the Insurance Authority, license و س ط/No. 00000/00",
+  "support": "Support and assistance through Provider name",
+  "whatsapp": "Customer service via WhatsApp",
+  "whatsapp_url": "https://wa.me/966500000000",
+  "terms": "Terms & conditions",
+  "terms_url": "https://www.provider.example/en/terms-and-conditions",
+  "tollfree": "Toll-free 8000000000",
+  "tollfree_url": "tel:8000000000",
+  "authorized_by": "Authorized by",
+  "photos_intro": "Five quick shots documenting the car's condition before cover starts. They protect you and speed up any future claim.",
+  "photos_vin_hint": "The chassis number: inside the driver's door frame or at the base of the windshield.",
+  "photos_requirements": "Clear daylight photos, JPG or PNG, up to 3 MB each. Make sure the chassis number is readable in the VIN shot.",
+  "photos_declaration": "I confirm the uploaded images are genuine images of the insured vehicle, taken recently and not altered in any way. I understand that if the contrary is established, the policy will be cancelled and claims made on the vehicle will be affected.",
+  "iban_intro": "Claim settlements and refunds are transferred to this account. It is never charged.",
+  "iban_hint": "Starts with SA followed by 22 characters. Find it in your banking app.",
+  "faq": [
+    {
+      "question": "What is the difference between TPL and Comprehensive insurance?",
+      "answer": "TPL covers damage you cause to others, while Comprehensive also covers damage to your own vehicle, subject to the policy terms."
+    }
+  ]
 }
 ```
+
+  </Tab>
+  <Tab title="العربية">
+
+```bash cURL
+curl --location 'https://production.yasmina.ai/api/v1/car-comp/branding-guidelines' \
+  --header 'Accept: application/json' \
+  --header 'Accept-Language: ar' \
+  --header 'Authorization: Bearer <your-token>'
+```
+
+```json Response
+{
+  "provider_logo": "https://production.yasmina.ai/images/branding/provider-logo.png",
+  "authority_logo_dark": "https://production.yasmina.ai/images/branding/insurance-authority-logo-dark.svg",
+  "authority_logo_white": "https://production.yasmina.ai/images/branding/insurance-authority-logo-white.svg",
+  "attribution": "هذه العروض مقدَّمة عبر اسم المزود · خاضع لإشراف ورقابة هيئة التأمين ترخيص و س ط/00000/00",
+  "support": "للدعم والمساعدة عبر اسم المزود",
+  "whatsapp": "خدمة العملاء عبر واتساب",
+  "whatsapp_url": "https://wa.me/966500000000",
+  "terms": "الشروط والأحكام",
+  "terms_url": "https://www.provider.example/ar/terms-and-conditions",
+  "tollfree": "الرقم المجاني 8000000000",
+  "tollfree_url": "tel:8000000000",
+  "authorized_by": "مصرح من قبل",
+  "photos_intro": "خمس صور سريعة توثّق حالة السيارة قبل بدء التغطية. تحفظ حقك وتُسرّع أي مطالبة مستقبلية.",
+  "photos_vin_hint": "رقم الهيكل (VIN): داخل إطار باب السائق أو أسفل الزجاج الأمامي.",
+  "photos_requirements": "صور واضحة في ضوء النهار بصيغة JPG أو PNG، بحجم لا يتجاوز 3 ميجابايت للصورة، وتأكد من ظهور رقم الهيكل بوضوح في صورته.",
+  "photos_declaration": "أقر بأن الصور المرفوعة هي الصور الحقيقية للمركبة المؤمن عليها، والتي تم أخذها مؤخراً ولم يتم التعديل عليها بأي شكل من الأشكال. وأقر بمعرفتي بأنه في حال ثبوت عكس ذلك فإن هذا سيؤدي إلى إلغاء وثيقة التأمين وسيؤثر على المطالبات المرفوعة على المركبة.",
+  "iban_intro": "تُحوَّل تعويضات المطالبات والمبالغ المستردة إلى هذا الحساب، ولن يُخصم منه أي مبلغ.",
+  "iban_hint": "يبدأ بـ SA ويتبعه 22 خانة. تجده في تطبيق البنك.",
+  "faq": [
+    {
+      "question": "ما الفرق بين التأمين ضد الغير والتأمين الشامل؟",
+      "answer": "يغطي التأمين ضد الغير الأضرار التي تتسبب بها للآخرين، بينما يغطي التأمين الشامل كذلك الأضرار التي تلحق بمركبتك، وفقاً لشروط الوثيقة."
+    }
+  ]
+}
+```
+
+  </Tab>
+</Tabs>
 
 | Field                                        | Where it goes                                                                                       |
 | -------------------------------------------- | --------------------------------------------------------------------------------------------------- |
@@ -1036,7 +1055,7 @@ curl --location 'https://production.yasmina.ai/api/v1/car-comp/branding-guidelin
 | `photos_*`, `iban_*`                         | The texts recommended in [UI best practices](#ui-best-practices).                                   |
 | `faq`                                        | Eight question-and-answer pairs about motor insurance, if you want an FAQ on the screen. One is shown above. |
 
-The sentences are complete, in the language of the key, and the license number inside `attribution` is already wrapped in a Unicode isolate so it reads correctly in both directions. Nothing needs assembling or translating.
+The sentences are complete, and the license number inside `attribution` is already wrapped in a Unicode isolate so it reads correctly in both directions. Nothing needs assembling or translating.
 
 ### 1. Provider attribution
 
@@ -1102,7 +1121,7 @@ Display `authorized_by` beside the Insurance Authority logo: `authority_logo_whi
 
 ### Starter markup
 
-The markup below produces the three elements from the examples. The `{{ … }}` placeholders are the fields of the Branding Guidelines API, taken from `en` or `ar` to match the page. It uses logical CSS properties, so setting `dir="rtl"` on the page is all the Arabic version needs.
+The markup below produces the three elements from the examples. The `{{ … }}` placeholders are the fields of the Branding Guidelines API, requested in the language of the page. It uses logical CSS properties, so setting `dir="rtl"` on the page is all the Arabic version needs.
 
 <AccordionGroup>
   <Accordion title="Provider attribution" icon="code">

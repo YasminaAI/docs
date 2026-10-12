@@ -907,19 +907,37 @@
           "Quotes"
         ],
         "summary": "Branding guidelines",
-        "description": "Returns everything a quotes screen needs to carry the required branding: three logo URLs and, under `en` and `ar`, the sentences to display as they are (the provider attribution with its Insurance Authority license, the support channels with their links, the \"Authorized by\" label, the recommended texts for the vehicle photo upload and the IBAN field, and a buyer FAQ). Both languages come back together, so a bilingual page needs a single request. Fetch it rather than hard-coding any of it: the provider behind the quotes and the wording can change, and a change reaches you without an integration change. See the [Branding guidelines](/price-comparison/motor-insurance#branding-guidelines) in the guide.",
+        "description": "Returns everything a quotes screen needs to carry the required branding: three logo URLs and the sentences to display as they are (the provider attribution with its Insurance Authority license, the support channels with their links, the \"Authorized by\" label, the recommended texts for the vehicle photo upload and the IBAN field, and a buyer FAQ). The sentences come in the language of the `Accept-Language` header: `ar` for Arabic, otherwise English. Fetch it rather than hard-coding any of it: the provider behind the quotes and the wording can change, and a change reaches you without an integration change. See the [Branding guidelines](/price-comparison/motor-insurance#branding-guidelines) in the guide.",
+        "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "Set to ar to receive the Arabic sentences. Omit it for English.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ar"
+              ],
+              "example": "ar"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "The logo URLs, and the sentences keyed by locale",
+            "description": "The logo URLs and the sentences, in the requested language",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "example": {
-                    "provider_logo": "https://production.yasmina.ai/images/branding/provider-logo.png",
-                    "authority_logo_dark": "https://production.yasmina.ai/images/branding/insurance-authority-logo-dark.svg",
-                    "authority_logo_white": "https://production.yasmina.ai/images/branding/insurance-authority-logo-white.svg",
-                    "en": {
+                  "type": "object"
+                },
+                "examples": {
+                  "English": {
+                    "summary": "No Accept-Language header",
+                    "value": {
+                      "provider_logo": "https://production.yasmina.ai/images/branding/provider-logo.png",
+                      "authority_logo_dark": "https://production.yasmina.ai/images/branding/insurance-authority-logo-dark.svg",
+                      "authority_logo_white": "https://production.yasmina.ai/images/branding/insurance-authority-logo-white.svg",
                       "attribution": "Quotes are provided through Provider name · Under supervision of the Insurance Authority, license و س ط/No. 00000/00",
                       "support": "Support and assistance through Provider name",
                       "whatsapp": "Customer service via WhatsApp",
@@ -941,8 +959,14 @@
                           "answer": "TPL covers damage you cause to others, while Comprehensive also covers damage to your own vehicle, subject to the policy terms."
                         }
                       ]
-                    },
-                    "ar": {
+                    }
+                  },
+                  "Arabic": {
+                    "summary": "Accept-Language: ar",
+                    "value": {
+                      "provider_logo": "https://production.yasmina.ai/images/branding/provider-logo.png",
+                      "authority_logo_dark": "https://production.yasmina.ai/images/branding/insurance-authority-logo-dark.svg",
+                      "authority_logo_white": "https://production.yasmina.ai/images/branding/insurance-authority-logo-white.svg",
                       "attribution": "هذه العروض مقدَّمة عبر اسم المزود · خاضع لإشراف ورقابة هيئة التأمين ترخيص و س ط/00000/00",
                       "support": "للدعم والمساعدة عبر اسم المزود",
                       "whatsapp": "خدمة العملاء عبر واتساب",
