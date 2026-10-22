@@ -96,7 +96,7 @@
                   },
                   "car_sequence_number": {
                     "type": "string",
-                    "description": "Car sequence number (8-9 digits, must be unique)"
+                    "description": "Car sequence number (5-10 digits, must be unique)"
                   },
                   "current_car_owner": {
                     "description": "The current owner's national ID (starts with 1 for Saudi nationals) or Iqama ID (starts with 2 for residents). Must be exactly 10 digits.",
@@ -160,7 +160,7 @@
                       "email": ["The email must be a valid email address."],
                       "vin": ["The vin must be 17 characters."],
                       "car_sequence_number": [
-                        "The car sequence number must be between 8 and 9 digits."
+                        "The car sequence number must be between 5 and 10 digits."
                       ],
                       "new_owner_id": ["The new owner id must be 10 digits."],
                       "current_car_owner": [
