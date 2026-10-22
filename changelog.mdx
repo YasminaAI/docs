@@ -3,6 +3,10 @@ title: 'Changelog'
 icon: 'clock-rotate-left'
 ---
 
+<Update label="22nd October 2026" tags={["APIs"]}>
+	**Car sequence numbers of 5 to 10 digits are accepted.** `car_sequence_number` on the Request Quotes API, the Issue Policy API and the TPL Motor Insurance API used to be rejected outside 8 or 9 digits, which turned away valid registrations at both ends. Every endpoint now accepts 5 to 10 digits; the guides and API references say so.
+</Update>
+
 <Update label="5th October 2026" tags={["Docs"]}>
 	**Driver birthdates follow the driver's own ID.** The `drivers[]` entries on the Request Quotes API and the Embed Session API take a Hijri (Umm al-Qura) `birthdate` for a Saudi national ID (starts with `1`) and a Gregorian one for an Iqama ID (starts with `2`), the same rule the owner's `birthdate` already followed. The backend has always validated it this way; a Gregorian year sent for a national ID is rejected as a date in the future. The Motor Insurance guide and the API reference now say so, and the example requests, which showed a Gregorian date on a national ID, are corrected.
 </Update>
