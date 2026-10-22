@@ -344,7 +344,7 @@
                   "car_sequence_number": {
                     "type": "string",
                     "pattern": "^\\d{8,9}$",
-                    "description": "Car sequence number must be 8 or 9 digits"
+                    "description": "Car sequence number must be 5 to 10 digits"
                   },
                   "custom_number": {
                     "type": "string",
@@ -530,7 +530,7 @@
                   "car_sequence_number": {
                     "type": "string",
                     "pattern": "^\\d{8,9}$",
-                    "description": "Car sequence number must be 8 or 9 digits"
+                    "description": "Car sequence number must be 5 to 10 digits"
                   },
                   "custom_number": {
                     "type": "string",
@@ -1343,7 +1343,7 @@
                         "The vin must be 17 characters."
                       ],
                       "car_sequence_number": [
-                        "The car sequence number must be 9 digits."
+                        "The car sequence number must be between 5 and 10 digits."
                       ],
                       "new_owner_id": [
                         "The new owner id must be 10 digits."
@@ -1717,7 +1717,7 @@
           },
           "car_sequence_number": {
             "type": "integer",
-            "description": "The car sequence number from 9 digits"
+            "description": "The car sequence number, 5 to 10 digits"
           },
           "custom_number": {
             "type": "string",
