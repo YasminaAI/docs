@@ -39,3 +39,224 @@
   background-color: rgba(30, 58, 138, 0.25);
   color: #93c5fd;
 }
+/* ── Branding guidelines: logo download card ── */
+.brand-asset {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1rem 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+}
+
+.dark .brand-asset__preview--dark {
+  border-color: #374151;
+}
+
+.brand-asset__preview {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.5rem;
+  height: 4.5rem;
+  flex: none;
+  padding: 0.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.6rem;
+  background-color: #fff;
+}
+
+.brand-asset__preview--dark {
+  border-color: #0a0a0a;
+  background-color: #0a0a0a;
+}
+
+.brand-asset__preview img {
+  max-width: 100%;
+  max-height: 100%;
+  margin: 0;
+  object-fit: contain;
+}
+
+.brand-asset__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.brand-asset__name {
+  font-weight: 600;
+}
+
+.brand-asset__meta {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+a.brand-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex: none;
+  padding: 0.5rem 0.95rem;
+  border: 0;
+  border-radius: 0.55rem;
+  background-color: #16a34a;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+a.brand-download:hover {
+  background-color: #15803d;
+}
+
+a.brand-download::before {
+  content: "";
+  width: 1rem;
+  height: 1rem;
+  background-color: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5M4 19h16'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5M4 19h16'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* ── Click-to-copy wording ── */
+.copy-kit {
+  display: grid;
+  gap: 0.5rem;
+  margin: 1rem 0 1.5rem;
+}
+
+.copy-kit__row {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.copy-kit__row--head {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.copy-kit__label {
+  align-self: center;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.copy-text {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.55rem;
+  background-color: #fff;
+  color: #111827;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  text-align: start;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.copy-text--wide {
+  grid-column: 2 / -1;
+}
+
+.copy-text--code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.78rem;
+}
+
+.copy-text__text {
+  min-width: 0;
+}
+
+.copy-text bdi {
+  white-space: nowrap;
+}
+
+.copy-text:hover {
+  border-color: #16a34a;
+}
+
+.copy-text::after {
+  content: "Copy";
+  flex: none;
+  font-family: Inter, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.copy-text[data-state="copied"] {
+  border-color: #16a34a;
+  background-color: #f0fdf4;
+}
+
+.copy-text[data-state="copied"]::after {
+  content: "Copied";
+  color: #15803d;
+}
+
+.copy-text[data-state="error"]::after {
+  content: "Copy failed";
+  color: #b91c1c;
+}
+
+.dark .brand-asset,
+.dark .copy-text {
+  border-color: #374151;
+}
+
+.dark .copy-text {
+  background-color: rgba(255, 255, 255, 0.04);
+  color: #e5e7eb;
+}
+
+.dark .copy-text:hover,
+.dark .copy-text[data-state="copied"] {
+  border-color: #07c983;
+}
+
+.dark .copy-text[data-state="copied"] {
+  background-color: rgba(7, 201, 131, 0.12);
+}
+
+.dark .copy-text[data-state="copied"]::after {
+  color: #07c983;
+}
+
+.dark .copy-kit__label,
+.dark .copy-kit__row--head,
+.dark .brand-asset__meta,
+.dark .copy-text::after {
+  color: #9ca3af;
+}
+
+@media (max-width: 640px) {
+  .copy-kit__row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .copy-kit__row--head {
+    display: none;
+  }
+
+  .copy-text--wide {
+    grid-column: auto;
+  }
+
+  .brand-asset {
+    flex-wrap: wrap;
+  }
+}
