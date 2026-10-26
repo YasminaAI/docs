@@ -83,7 +83,7 @@ Each response carries the provider as `insurance_provider` and its display name 
 2. The translations
 	- The translations includes **keys** that map to the instructional text in Arabic and English that were provided by the insurance provider.
 3. The categories
-	- One entry per tier, with the coverage values and the yearly `price` per person
+	- One entry per tier, with the coverage values. There is no price here: a package is priced on the [quote request](#get-prices-from-every-provider) below, for the company's own employees.
 
 Coverage values can either be a number (the amount), or a boolean (whether it's covered or not), or a text (the type of coverage).
 
@@ -97,7 +97,6 @@ Coverage values can either be a number (the amount), or a boolean (whether it's 
             "name": "Basic",
             "category": "basic",
             "insurance_provider": "medgulf",
-            "price": 300,
             "maximum_annual_benefit_limit_per_person": 500000,
             "geography": "Saudi Arabia",
             "general_coverage": {

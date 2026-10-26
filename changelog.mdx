@@ -3,6 +3,10 @@ title: 'Changelog'
 icon: 'clock-rotate-left'
 ---
 
+<Update label="26th October 2026" tags={["APIs", "Docs"]}>
+	**SME medical packages no longer carry a price.** The [Categories API](/medical-api-reference/products/list-categories) describes what each insurance provider covers in each tier; the `price` field that used to sit on every category is gone. A package is priced on the [Quote request API](/medical-api-reference/quotes/get-prices-from-every-provider), for the company's own employees, once they are saved and have declared. The [SME Medical Insurance guide](/price-comparison/sme-medical-insurance#prices) now says so.
+</Update>
+
 <Update label="22nd October 2026" tags={["APIs"]}>
 	**Car sequence numbers of 5 to 10 digits are accepted.** `car_sequence_number` on the Request Quotes API, the Issue Policy API and the TPL Motor Insurance API used to be rejected outside 8 or 9 digits, which turned away valid registrations at both ends. Every endpoint now accepts 5 to 10 digits; the guides and API references say so.
 </Update>
