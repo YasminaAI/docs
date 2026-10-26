@@ -562,7 +562,7 @@
       "get": {
         "tags": ["Products"],
         "summary": "List categories",
-        "description": "Each category carries a `price`, the yearly premium per person, which is what the payment flow charges. The medical insurance packages one insurance provider offers. Call it once per provider to compare them. Each item in `categories` carries the `category` and `insurance_provider` values to send when issuing policies.",
+        "description": "The medical insurance packages one insurance provider offers. Call it once per provider to compare them. Each item in `categories` carries the coverage values and the `category` and `insurance_provider` values to send when issuing policies. There is no price here: a package is priced on the Quote request API, for the company's own employees, once they are saved and have declared.",
         "parameters": [
           {
             "name": "insurance_provider",
