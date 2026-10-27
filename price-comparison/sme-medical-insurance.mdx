@@ -63,10 +63,10 @@ It will return a response with a unique identifier (id). Here is an example of t
 ```
 You can also visit the [List companies API](/medical-api-reference/company/list-companies) to show all companies you've created
 
-## Prices
+## Packages
 
 ### Compare the packages
-Every insurance provider sells the same four tiers, so an employee's choice can be priced by all of them: `basic`, `standard`, `premium` and `executive`. What each provider puts inside a tier, and what it charges for it, is its own. The [Categories API](/medical-api-reference/products/list-categories) shows one provider's tiers at a time; call it once per provider, passing `insurance_provider` as one of the values below, or omit it for MedGulf.
+Every insurance provider sells the same four tiers, so an employee's choice can be priced by all of them: `basic`, `standard`, `premium` and `executive`. What each provider puts inside a tier is its own; what it charges for it only appears on the [quote request](#get-prices-from-every-provider), for the company's own employees. The [Categories API](/medical-api-reference/products/list-categories) shows one provider's tiers at a time; call it once per provider, passing `insurance_provider` as one of the values below, or omit it for MedGulf.
 
 | Insurance provider | `insurance_provider` |
 | ------------------ | -------------------- |
@@ -105,6 +105,8 @@ Coverage values can either be a number (the amount), or a boolean (whether it's 
         ...
     }
 ```
+
+## Employees
 
 ### Fetch the employees
 The [Fetch employees API](/medical-api-reference/employees/fetch-the-employees) fills the company's employee list with the employees registered under the company, each on the `basic` tier. It replaces the list, so fetch first and edit afterwards.
@@ -205,6 +207,8 @@ Insurers require a past medical history from every employee before they will pri
 	    ]
 	}
 	```
+
+## Prices
 
 ### Get prices from every provider
 Call the [Quote request API](/medical-api-reference/quotes/get-prices-from-every-provider) with the `company_id` and you get one response with a quote from every insurance provider, each priced for the employees saved above at the tiers they picked. Every quote carries a `quote_price_id`; the response itself carries an `id`, the `quote_request_id`. Keep both for the next step.
