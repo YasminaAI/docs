@@ -1170,7 +1170,8 @@
             "description": "Where the company pays. A fresh signed link on every read, valid 15 minutes. Null while anyone is in pending_declarations, and once the policy is issued."
           },
           "provider_policy_id": { "type": "string", "nullable": true, "description": "The insurer's policy number, once issued." },
-          "policy_url": { "type": "string", "nullable": true, "description": "The policy schedule, once issued." },
+          "policy_url": { "type": "string", "nullable": true, "description": "The policy schedule listing every member, once the company has paid. Null before that." },
+          "invoice_url": { "type": "string", "nullable": true, "description": "The invoice for the premium the company paid, one line per package tier, once the company has paid. Null before that. On sandbox the document is watermarked SANDBOX and is not a tax invoice." },
           "redirect_url": { "type": "string", "nullable": true },
           "meta_data": {
             "type": "object",

@@ -283,9 +283,14 @@ The policy returned by issuing and by filling the declarations carries the same 
 
 When you first issue the policy, it is not yet activated and the `status` is `0` (which means pending).
 
-Also the `provider_policy` and `provider_policy_id` will both be `null`.
+Also `provider_policy_id`, `policy_url` and `invoice_url` will all be `null`.
 
-In order for the policy to be activated, the customer needs to make the purchase from the payment link. Once the customer successfully pays. The policy will be activated and the `status` becomes `1`, and the policy schedule listing every member becomes available through the [List policies API](/medical-api-reference/policies/list-policies).
+In order for the policy to be activated, the customer needs to make the purchase from the payment link. Once the customer successfully pays, the policy is activated and the `status` becomes `1`. [Read the policy](/medical-api-reference/policies/read-the-policy) or [list policies](/medical-api-reference/policies/list-policies) and you get two documents:
+
+- `policy_url`: the policy schedule, listing every member and their package.
+- `invoice_url`: the invoice for the premium the company paid, one line per package tier, carrying the policy number.
+
+On sandbox the invoice is watermarked SANDBOX and says that the premiums are placeholder figures: it is not a tax invoice. Production invoices carry no such marks.
 
 <Note>Although the payment page is provided by Yasmina, it does not display the Yasmina logo or have any mention of Yasmina. <br /><br />Yasmina does not receive credit card information, instead the payment page sends card information directly to the payment vendor.</Note>
 
