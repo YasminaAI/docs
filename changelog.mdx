@@ -3,6 +3,10 @@ title: 'Changelog'
 icon: 'clock-rotate-left'
 ---
 
+<Update label="2nd November 2026" tags={["APIs", "Docs"]}>
+	**Saudi IBANs with letters are accepted.** The `iban` field on the Issue OTP API (`POST /api/v1/car-comp/issue-otp`) and the property Issue Policy API (`POST /api/v1/property/policies`) was documented as `SA` followed by 22 digits. The Saudi format allows letters in the 18-character account part (for example `SA82 5500 0000 0B11 9300 0133`), and both endpoints accept them. Both also verify the IBAN checksum, so a mistyped number is rejected with a `422` before it reaches the insurance provider. The [Motor Insurance](/price-comparison/motor-insurance#issue-policy-otp) and [Property](/price-comparison/property) guides and the API references say so.
+</Update>
+
 <Update label="28th October 2026" tags={["APIs", "Docs"]}>
 	**SME medical policies come with an invoice of their own.** Once a company has paid, the policy object carries two documents: `policy_url`, the schedule listing every member, and `invoice_url`, a new invoice billing the company one line per package tier for the premium it paid. The two used to point at the same file. On sandbox the invoice is watermarked SANDBOX and says the premiums are placeholder figures; it is not a tax invoice. The [Read the policy](/medical-api-reference/policies/read-the-policy) and [List policies](/medical-api-reference/policies/list-policies) references and the [SME Medical Insurance guide](/price-comparison/sme-medical-insurance#payment-and-policy-activation) describe both fields.
 </Update>
