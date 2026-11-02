@@ -27,7 +27,7 @@ Add every site you will embed from. `https://example.com` and `https://www.examp
 
 <Steps>
   <Step title="Send the verification code">
-    Call the [Quote OTP API](/car-api-reference/otps/request-otp-for-quote-verification) with the customer's ID, email and phone. This one is yours because it happens before the embed exists.
+    Call the [Quote OTP API](/car-api-reference/otps/request-otp-for-quote-verification) with the customer's ID, email and phone (for a company, the authorized person's ID). This one is yours because it happens before the embed exists.
   </Step>
   <Step title="Open a session">
     Call [Create Embed Session](/car-api-reference/embed-sessions/create-embed-session) with the same payload you would send to [Request Quotes](/car-api-reference/quotes/request-quotes), plus where the session will run. We fetch the quotes and hand back a URL.
@@ -127,6 +127,48 @@ curl -X POST 'https://sandbox.yasmina.ai/api/v1/car-comp/embed-sessions' \
 </Warning>
 
 `quote_request_id` is yours to keep for your own records. You never have to send it back.
+
+### Company buyer (SME Motor)
+
+A company buys with its Commercial Registration. The session takes the same fields as for a person, with three differences:
+
+<ParamField body="owner_id" type="string" required>
+  The company's Commercial Registration number, 10 digits starting with `7`.
+</ParamField>
+
+<ParamField body="authorized_person_id" type="string" required>
+  The national ID or Iqama of the person authorized to act for the company. They receive the OTPs and sign. `birthdate` is theirs, in the calendar their ID calls for: Hijri for a Saudi ID, Gregorian for an Iqama.
+</ParamField>
+
+<ParamField body="drivers" type="array" required>
+  At least one driver, each with `owner_id`, `birthdate` and `driving_percentage`, adding up to 100. A company cannot drive, and the authorized person is not assumed to drive: list exactly who does. A session without drivers is refused with a `drivers` validation error.
+</ParamField>
+
+```bash Company buyer
+curl -X POST 'https://sandbox.yasmina.ai/api/v1/car-comp/embed-sessions' \
+  --header 'Authorization: Bearer <token>' \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "otp": "1234",
+    "owner_id": "7001234567",
+    "authorized_person_id": "1012345678",
+    "email": "fleet@example.com",
+    "phone": "0500000000",
+    "birthdate": "1409-09-14",
+    "car_sequence_number": "123456789",
+    "car_estimated_cost": 45000,
+    "car_model_year": 2024,
+    "is_ownership_transfer": false,
+    "drivers": [
+      { "owner_id": "2345678901", "birthdate": "1990-03-15", "driving_percentage": 100 }
+    ],
+    "platform": "web",
+    "parent_origin": "https://www.example.com"
+  }'
+```
+
+The embed then runs exactly as for a person: quotes, add-ons, documents, the issue OTP and the policy.
 
 ## On a website
 

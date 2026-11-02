@@ -323,8 +323,14 @@
                   },
                   "owner_id": {
                     "type": "string",
+                    "pattern": "^(1|2|7)\\d{9}$",
+                    "description": "The buyer's ID, 10 digits. For a person: a national ID (starts with 1 for Saudi nationals) or an Iqama ID (starts with 2 for residents). For a company (SME Motor): its Commercial Registration number (starts with 7), together with authorized_person_id and drivers."
+                  },
+                  "authorized_person_id": {
+                    "type": "string",
                     "pattern": "^(1|2)\\d{9}$",
-                    "description": "The owner's national ID (starts with 1 for Saudi nationals) or Iqama ID (starts with 2 for residents). Must be exactly 10 digits."
+                    "example": "1012345678",
+                    "description": "Company buyer only (owner_id starts with 7), and required then: the national ID or Iqama ID of the person authorized to act for the company, who verifies by OTP and signs. Not accepted for an individual buyer."
                   },
                   "email": {
                     "type": "string",
@@ -339,7 +345,7 @@
                   "birthdate": {
                     "type": "string",
                     "format": "date",
-                    "description": "The owner's birthdate in YYYY-MM-DD format. For a Saudi national ID (starts with 1) give the Hijri (Umm al-Qura) date printed on the ID, for example 1409-09-14; for an Iqama ID (starts with 2) give a Gregorian date. The owner must be between 18 and 110 years old."
+                    "description": "The birthdate in YYYY-MM-DD format of the owner, or of the authorized person for a company buyer. For a Saudi national ID (starts with 1) give the Hijri (Umm al-Qura) date printed on the ID, for example 1409-09-14; for an Iqama ID (starts with 2) give a Gregorian date. The person must be between 18 and 110 years old."
                   },
                   "car_sequence_number": {
                     "type": "string",
@@ -394,7 +400,7 @@
                   },
                   "drivers": {
                     "type": "array",
-                    "description": "List of drivers for the vehicle. When provided, the sum of all driving_percentage values must equal 100, and the owner must be included among the drivers.",
+                    "description": "List of drivers for the vehicle, up to four. Optional for an individual buyer: when provided, the owner must be among the drivers with at least 25%; when omitted, the owner is the sole driver at 100%. Required for a company buyer (owner_id starts with 7), with at least one driver: a company cannot drive, and its authorized person is not assumed to drive, so list exactly who does. In both cases the driving_percentage values must add up to 100.",
                     "items": {
                       "type": "object",
                       "required": [
@@ -472,6 +478,30 @@
                   "birthdate",
                   "car_estimated_cost"
                 ]
+              },
+              "examples": {
+                "company": {
+                  "summary": "Company buyer (SME Motor)",
+                  "value": {
+                    "otp": "1234",
+                    "owner_id": "7001234567",
+                    "authorized_person_id": "1012345678",
+                    "email": "fleet@example.com",
+                    "phone": "0500000000",
+                    "birthdate": "1409-09-14",
+                    "car_sequence_number": "123456789",
+                    "is_ownership_transfer": false,
+                    "car_estimated_cost": 45000,
+                    "car_model_year": 2024,
+                    "drivers": [
+                      {
+                        "owner_id": "2345678901",
+                        "birthdate": "1990-03-15",
+                        "driving_percentage": 100
+                      }
+                    ]
+                  }
+                }
               }
             }
           }
@@ -509,8 +539,14 @@
                   },
                   "owner_id": {
                     "type": "string",
+                    "pattern": "^(1|2|7)\\d{9}$",
+                    "description": "The buyer's ID, 10 digits. For a person: a national ID (starts with 1 for Saudi nationals) or an Iqama ID (starts with 2 for residents). For a company (SME Motor): its Commercial Registration number (starts with 7), together with authorized_person_id and drivers."
+                  },
+                  "authorized_person_id": {
+                    "type": "string",
                     "pattern": "^(1|2)\\d{9}$",
-                    "description": "The owner's national ID (starts with 1 for Saudi nationals) or Iqama ID (starts with 2 for residents). Must be exactly 10 digits."
+                    "example": "1012345678",
+                    "description": "Company buyer only (owner_id starts with 7), and required then: the national ID or Iqama ID of the person authorized to act for the company, who verifies by OTP and signs. Not accepted for an individual buyer."
                   },
                   "email": {
                     "type": "string",
@@ -525,7 +561,7 @@
                   "birthdate": {
                     "type": "string",
                     "format": "date",
-                    "description": "The owner's birthdate in YYYY-MM-DD format. For a Saudi national ID (starts with 1) give the Hijri (Umm al-Qura) date printed on the ID, for example 1409-09-14; for an Iqama ID (starts with 2) give a Gregorian date. The owner must be between 18 and 110 years old."
+                    "description": "The birthdate in YYYY-MM-DD format of the owner, or of the authorized person for a company buyer. For a Saudi national ID (starts with 1) give the Hijri (Umm al-Qura) date printed on the ID, for example 1409-09-14; for an Iqama ID (starts with 2) give a Gregorian date. The person must be between 18 and 110 years old."
                   },
                   "car_sequence_number": {
                     "type": "string",
@@ -580,7 +616,7 @@
                   },
                   "drivers": {
                     "type": "array",
-                    "description": "List of drivers for the vehicle. When provided, the sum of all driving_percentage values must equal 100, and the owner must be included among the drivers.",
+                    "description": "List of drivers for the vehicle, up to four. Optional for an individual buyer: when provided, the owner must be among the drivers with at least 25%; when omitted, the owner is the sole driver at 100%. Required for a company buyer (owner_id starts with 7), with at least one driver: a company cannot drive, and its authorized person is not assumed to drive, so list exactly who does. In both cases the driving_percentage values must add up to 100.",
                     "items": {
                       "type": "object",
                       "required": [
@@ -654,6 +690,32 @@
                       "en"
                     ],
                     "description": "The language the embed opens in. Defaults to the customer's browser."
+                  }
+                }
+              },
+              "examples": {
+                "company": {
+                  "summary": "Company buyer (SME Motor)",
+                  "value": {
+                    "otp": "1234",
+                    "owner_id": "7001234567",
+                    "authorized_person_id": "1012345678",
+                    "email": "fleet@example.com",
+                    "phone": "0500000000",
+                    "birthdate": "1409-09-14",
+                    "car_sequence_number": "123456789",
+                    "is_ownership_transfer": false,
+                    "car_estimated_cost": 45000,
+                    "car_model_year": 2024,
+                    "drivers": [
+                      {
+                        "owner_id": "2345678901",
+                        "birthdate": "1990-03-15",
+                        "driving_percentage": 100
+                      }
+                    ],
+                    "platform": "web",
+                    "parent_origin": "https://www.example.com"
                   }
                 }
               }
@@ -1390,7 +1452,7 @@
                     "type": "string",
                     "pattern": "^(1|2)\\d{9}$",
                     "example": "1012345678",
-                    "description": "National ID or Iqama ID of the car owner (10 digits)"
+                    "description": "National ID or Iqama ID of the car owner (10 digits). For a company buyer, the authorized person's ID: they receive and enter the code."
                   }
                 },
                 "required": [
