@@ -3,6 +3,10 @@ title: 'Changelog'
 icon: 'clock-rotate-left'
 ---
 
+<Update label="4th November 2026" tags={["Docs", "APIs"]}>
+	**IBANs are checked, not just measured.** The `iban` on the Motor Insurance Issue OTP API and on the Property Issue Policy API must be a real Saudi IBAN: `SA` followed by 22 characters whose check digits are correct (ISO 7064 mod-97). The account number may contain letters, as some Saudi banks' do. Property used to accept any `SA` followed by 22 digits, so a made-up test IBAN such as `SA1234567890123456789012` that went through before is now rejected with `42201`; motor has validated this way since September. The new [Saudi IBAN](/api-resources/iban) page explains the format and the check, with JavaScript and Python functions to validate the field before you call the API, and valid IBANs to test with on sandbox. The guides and API references no longer say "22 digits".
+</Update>
+
 <Update label="28th October 2026" tags={["APIs", "Docs"]}>
 	**SME medical policies come with an invoice of their own.** Once a company has paid, the policy object carries two documents: `policy_url`, the schedule listing every member, and `invoice_url`, a new invoice billing the company one line per package tier for the premium it paid. The two used to point at the same file. On sandbox the invoice is watermarked SANDBOX and says the premiums are placeholder figures; it is not a tax invoice. The [Read the policy](/medical-api-reference/policies/read-the-policy) and [List policies](/medical-api-reference/policies/list-policies) references and the [SME Medical Insurance guide](/price-comparison/sme-medical-insurance#payment-and-policy-activation) describe both fields.
 </Update>

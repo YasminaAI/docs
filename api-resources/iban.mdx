@@ -1,0 +1,104 @@
+---
+title: "Saudi IBAN"
+description: "How the customer's IBAN is validated, and how to check it before you send it."
+icon: "building-columns"
+---
+
+The Motor Insurance [Issue OTP API](/car-api-reference/otps/request-otp-for-issuing-policy) and the Property Issue Policy API (see the [Property guide](/price-comparison/property)) both take the customer's Saudi IBAN in an `iban` field. Insurance providers use it to transfer claim settlements and refunds to the customer; the account is never charged.
+
+An IBAN is accepted only if it has the Saudi format **and** its check digits are correct. An IBAN that has the right length but was made up, or has a mistyped character, is rejected with `422` / `42201`:
+
+```json
+{
+  "code": "42201",
+  "message": "The iban must be a valid Saudi IBAN: SA followed by 22 characters.",
+  "details": {
+    "iban": ["The iban must be a valid Saudi IBAN: SA followed by 22 characters."]
+  }
+}
+```
+
+## Format
+
+A Saudi IBAN is always 24 characters:
+
+| Characters | Example (`SA0380000000608010167519`) | Content                                                     |
+|------------|--------------------------------------|-------------------------------------------------------------|
+| 1–2        | `SA`                                 | The country code.                                           |
+| 3–4        | `03`                                 | The check digits, computed from the other 22 characters.    |
+| 5–6        | `80`                                 | The bank code: two digits.                                  |
+| 7–24       | `000000608010167519`                 | The account number: 18 characters, digits **or letters**.   |
+
+Most Saudi IBANs are all digits after `SA`, but some banks use letters in the account number, for example `SA82 5500 0000 0B11 9300 0133`. Both are valid.
+
+Spaces are ignored and lowercase letters are read as uppercase, so `sa03 8000 0000 6080 1016 7519` is accepted and stored as `SA0380000000608010167519`.
+
+## The check digits (mod-97)
+
+The two check digits let anyone verify an IBAN without asking the bank. They are chosen so that the following calculation always leaves a remainder of **1**:
+
+1. Move the first four characters to the end.
+2. Replace each letter with a number: `A` = 10, `B` = 11, … `Z` = 35. Digits stay as they are.
+3. Read the result as one long number and divide it by 97. The remainder must be 1.
+
+This is the ISO 7064 mod-97 check used by IBANs in every country. It catches every single mistyped character and almost every pair of swapped neighbouring characters.
+
+**Example with digits only:** `SA0380000000608010167519`
+
+| Step                       | Result                                |
+|----------------------------|---------------------------------------|
+| Move `SA03` to the end     | `80000000608010167519SA03`            |
+| `S` → `28`, `A` → `10`     | `80000000608010167519281003`          |
+| Remainder after dividing by 97 | `1`: valid                        |
+
+**Example with a letter in the account number:** `SA82550000000B1193000133`
+
+| Step                                | Result                                |
+|-------------------------------------|---------------------------------------|
+| Move `SA82` to the end              | `550000000B1193000133SA82`            |
+| `B` → `11`, `S` → `28`, `A` → `10`  | `550000000111193000133281082`         |
+| Remainder after dividing by 97      | `1`: valid                            |
+
+**Example of a made-up IBAN:** `SA1234567890123456789012` has the right format, but the remainder is not 1, so it is rejected.
+
+## Checking an IBAN before you send it
+
+Validating the IBAN in your own form lets the customer correct a typo before you call the API. The number in step 3 is too large for normal integer types, so these functions either use arbitrary-precision integers (Python) or reduce the remainder digit by digit (JavaScript).
+
+<CodeGroup>
+
+```javascript JavaScript
+function isValidSaudiIban(input) {
+  const iban = input.replace(/\s+/g, "").toUpperCase();
+  if (!/^SA\d{4}[A-Z0-9]{18}$/.test(iban)) return false;
+
+  const rearranged = iban.slice(4) + iban.slice(0, 4);
+  let remainder = 0;
+  for (const char of rearranged) {
+    const value = /[A-Z]/.test(char) ? String(char.charCodeAt(0) - 55) : char;
+    for (const digit of value) remainder = (remainder * 10 + Number(digit)) % 97;
+  }
+  return remainder === 1;
+}
+```
+
+```python Python
+import re
+
+def is_valid_saudi_iban(value: str) -> bool:
+    iban = re.sub(r"\s+", "", value).upper()
+    if not re.fullmatch(r"SA\d{4}[A-Z0-9]{18}", iban):
+        return False
+
+    rearranged = iban[4:] + iban[:4]
+    # int(c, 36) maps 0-9 to themselves and A-Z to 10-35.
+    return int("".join(str(int(c, 36)) for c in rearranged)) % 97 == 1
+```
+
+</CodeGroup>
+
+## Testing on sandbox
+
+Sandbox validates IBANs exactly like production, so random test values are rejected. Use a valid IBAN such as `SA0380000000608010167519` or `SA82550000000B1193000133`.
+
+Passing the check means the IBAN is well-formed, not that the account exists or belongs to the customer. On motor insurance, the insurance provider may still refuse an IBAN that does not belong to the vehicle owner, with `40013` (see [Errors](/api-resources/errors)).
