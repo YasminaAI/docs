@@ -4,7 +4,7 @@ icon: 'clock-rotate-left'
 ---
 
 <Update label="4th November 2026" tags={["Docs", "APIs"]}>
-	**IBANs are checked, not just measured.** The `iban` on the Motor Insurance Issue OTP API and on the Property Issue Policy API must be a real Saudi IBAN: `SA` followed by 22 characters whose check digits are correct (ISO 7064 mod-97). The account number may contain letters, as some Saudi banks' do. Property used to accept any `SA` followed by 22 digits, so a made-up test IBAN such as `SA1234567890123456789012` that went through before is now rejected with `42201`; motor has validated this way since September. The new [Saudi IBAN](/api-resources/iban) page explains the format and the check, with JavaScript and Python functions to validate the field before you call the API, and valid IBANs to test with on sandbox. The guides and API references no longer say "22 digits".
+	**IBANs must be valid Saudi IBANs.** The `iban` on the Motor Insurance Issue OTP API and the Property Issue Policy API is `SA` followed by 22 alphanumeric characters, and it must be a valid Saudi IBAN: made-up values such as `SA1234567890123456789012` are rejected with `42201`, on sandbox too.
 </Update>
 
 <Update label="28th October 2026" tags={["APIs", "Docs"]}>

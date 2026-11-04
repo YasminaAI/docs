@@ -1315,7 +1315,7 @@
                   "iban": {
                     "type": "string",
                     "pattern": "^SA\\d{4}[A-Z0-9]{18}$",
-                    "description": "The customer's Saudi IBAN: SA, two check digits, a two-digit bank code and an 18-character account number (digits or letters). The check digits must be correct (ISO 7064 mod-97); see the Saudi IBAN page under API resources. Spaces are ignored. Insurance providers use it to transfer claim settlements and refunds directly to the customer; the account is never charged.",
+                    "description": "The customer's Saudi IBAN: SA followed by 22 alphanumeric characters, no spaces. It must be a valid Saudi IBAN (correct check digits), so made-up values are rejected. Insurance providers use it to transfer claim settlements and refunds directly to the customer; the account is never charged.",
                     "example": "SA0380000000608010167519"
                   },
                   "start_date": {

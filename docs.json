@@ -93,7 +93,6 @@
             "pages": [
               "api-resources/data",
               "api-resources/errors",
-              "api-resources/iban",
               "api-resources/rate"
             ]
           },

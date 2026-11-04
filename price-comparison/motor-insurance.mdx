@@ -725,7 +725,7 @@ customer from that same response.
 | `owner_id`           | `2234567890`                           | The owner’s national ID (starts with `1` for Saudi nationals) or Iqama ID (starts with `2` for residents). Must be exactly 10 digits.                                                                                                            |
 | `email`              | `someone@example.com`                  | The owner’s email. It must belong to this customer. Do not reuse the same email address for different customers.                                                                                                                                 |
 | `phone`              | `0512345678`                           | Saudi mobile number. Must start with `05` and be exactly 10 digits.                                                                                                                                                                              |
-| `iban`               | `SA0380000000608010167519`             | The customer's Saudi IBAN: `SA` followed by 22 characters with correct check digits (see [Saudi IBAN](/api-resources/iban)). It is sent to the insurance provider with the payment OTP request and used to transfer claim settlements and refunds to the customer; the account is never charged. Required. |
+| `iban`               | `SA0380000000608010167519`             | The customer's Saudi IBAN: `SA` followed by 22 alphanumeric characters, no spaces. It must be a valid Saudi IBAN (correct check digits), so made-up values are rejected. It is sent to the insurance provider with the payment OTP request and used to transfer claim settlements and refunds to the customer; the account is never charged. Required. |
 
 Example request:
 
