@@ -1501,8 +1501,8 @@
                   },
                   "iban": {
                     "type": "string",
-                    "pattern": "^SA\\d{22}$",
-                    "description": "The customer's Saudi IBAN (SA followed by 22 digits, no spaces). It is sent to the insurance provider with the payment OTP request and used to transfer claim settlements and refunds to the customer; the account is never charged.",
+                    "pattern": "^SA\\d{4}[A-Z0-9]{18}$",
+                    "description": "The customer's Saudi IBAN: SA followed by 22 alphanumeric characters, no spaces. It must be a valid Saudi IBAN (correct check digits), so made-up values are rejected. It is sent to the insurance provider with the payment OTP request and used to transfer claim settlements and refunds to the customer; the account is never charged.",
                     "example": "SA0380000000608010167519"
                   }
                 },

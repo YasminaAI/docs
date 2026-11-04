@@ -95,7 +95,7 @@ All requests must conform to these validation rules.
 | `address.unit_number` | string | required, max:20 | Unit/flat number. |
 | `property_cost` | numeric | nullable, required_without: `contents_cost` | Estimated value of the building/property. Required if `contents_cost` is not provided. |
 | `contents_cost` | numeric | nullable, required_without: `property_cost` | Estimated value of the home contents. Required if `property_cost` is not provided. |
-| `iban` | string | required, regex: `/^SA\d{22}$/` | The customer's Saudi IBAN (`SA` followed by 22 digits, no spaces). Insurance providers use it to transfer claim settlements and refunds directly to the customer; the account is never charged. |
+| `iban` | string | required, valid Saudi IBAN | The customer's Saudi IBAN: `SA` followed by 22 alphanumeric characters, no spaces. It must be a valid Saudi IBAN (correct check digits), so made-up values are rejected. Insurance providers use it to transfer claim settlements and refunds directly to the customer; the account is never charged. |
 | `start_date` | date | required, after: today | Desired policy start date in `YYYY-MM-DD` format. Must be tomorrow or later. |
 | `has_agreed_to_terms_and_conditions` | boolean | accepted (`true`, `1`, `yes`) | Must explicitly confirm acceptance of terms and conditions. |
 
