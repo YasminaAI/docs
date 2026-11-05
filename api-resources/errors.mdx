@@ -88,6 +88,8 @@ A failed or abandoned payment is never an API error: the customer pays on the in
 |-----------------------------------------------|---------|--------|---------------------------------------------------------------------|-----------------------------------------------------------------|
 | `POST /medical/quote-requests`                | `40020` | 400    | Add the company's employees before asking for prices.               | The company has no employees yet.                               |
 |                                               | `40023` | 400    | Every employee has to declare … Still to declare: Mary Major.       | Someone in the company has not declared their medical history.  |
+|                                               | `40024` | 400    | SME medical covers up to 250 employees per company; this list has 251. | The company has more than 250 employees.                     |
+| `PUT /medical/companies/{id}/employees`       | `40024` | 400    | SME medical covers up to 250 employees per company; this list has 251. | The list has more than 250 employees. Dependents do not count. |
 | `POST /medical/policies`                      | `40009` | 400    | That quote_price_id does not belong to this quote request.          | The price comes from a different quote request.                 |
 | `POST /medical/policies/{id}/declarations`    | `40021` | 400    | This policy is already issued.                                      | The insurer has issued the policy; its declarations are final.  |
 |                                               | `40022` | 400    | No employee on this policy matches: 1234567890, hr@example.com.     | An `ids_or_emails` entry names nobody on the policy.            |

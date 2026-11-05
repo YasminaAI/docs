@@ -215,6 +215,7 @@
                   "employees": {
                     "type": "array",
                     "minItems": 1,
+                    "maxItems": 250,
                     "items": { "$ref": "#/components/schemas/Insured" }
                   }
                 }
@@ -224,6 +225,15 @@
         },
         "responses": {
           "200": { "description": "The saved list" },
+          "400": {
+            "description": "`40024` when the list has more than 250 employees. Dependents do not count.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" },
+                "example": { "code": "40024", "message": "SME medical covers up to 250 employees per company; this list has 251." }
+              }
+            }
+          },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "422": { "$ref": "#/components/responses/UnprocessableEntity" }
         }
@@ -365,7 +375,7 @@
             }
           },
           "400": {
-            "description": "The company cannot be priced yet: `40020` when it has no employees, `40023` while anyone still has to declare.",
+            "description": "The company cannot be priced yet: `40020` when it has no employees, `40023` while anyone still has to declare, `40024` when it has more than 250 employees.",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/Error" },
