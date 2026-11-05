@@ -294,7 +294,7 @@
         },
         "responses": {
           "200": {
-            "description": "The company's declarations, keyed by the id of every employee and dependent on the list, and who is still to declare",
+            "description": "The company's declarations, keyed by the id of every employee and dependent on the list",
             "content": {
               "application/json": {
                 "schema": {
@@ -314,11 +314,6 @@
                           "filled_at": { "type": "string", "format": "date-time" }
                         }
                       }
-                    },
-                    "pending_declarations": {
-                      "type": "array",
-                      "items": { "type": "string" },
-                      "description": "Employees who still have to declare. Empty once everyone has, and the company can be priced."
                     }
                   }
                 }

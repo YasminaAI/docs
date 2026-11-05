@@ -177,7 +177,7 @@ Insurers require a past medical history from every employee before they will pri
 
 	Add an entry only for someone with something to declare. It names them by their own id as `employee_id`: an employee's `nationality_id`, `iqama_id` or `border_number`, or a dependent's `nationality_id` or `iqama_id`. It carries their answers. Everyone else is declared by the consent alone, so `{"consent": true}` is enough when nobody has anything to declare.
 
-	The declarations are kept by id, apart from the employee list, so editing the list leaves them alone; each call replaces them, so send every entry each time. Someone added to the list afterwards is not covered: they appear in `pending_declarations`, and prices are refused (`40023`) until you submit the declarations again.
+	The declarations are kept by id, apart from the employee list, so editing the list leaves them alone; each call replaces them, so send every entry each time. Someone added to the list afterwards is not covered: prices are refused (`40023`, naming them) until you submit the declarations again.
 
 	In this example, John and his son Jack have something to declare; Jane and Richard are declared by the consent.
 
