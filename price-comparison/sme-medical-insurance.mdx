@@ -258,15 +258,18 @@ Benefits and networks differ by tier, not just by provider: a higher tier reache
 ## Policies
 
 ### Issue the policy
-A company buys one policy, and its employees are the members on it, which is how the insurer issues it and how the policy document reads. Call the [Issue policy API](/medical-api-reference/policies/issue-the-policy) with the `quote_request_id` and the `quote_price_id` of the quote the company chose, and you get that one policy back: the provider that priced it, the quoted total as `price`, and every employee inside `meta_data.insured`.
+A company buys one policy, and its employees are the members on it, which is how the insurer issues it and how the policy document reads. Call the [Issue policy API](/medical-api-reference/policies/issue-the-policy) with the `quote_request_id` and the `quote_price_id` of the quote the company chose, plus the company's Saudi IBAN as `iban`, and you get that one policy back: the provider that priced it, the quoted total as `price`, and every employee inside `meta_data.insured`.
 
 ```
 {
   "quote_request_id": "a2bc93db-131e-4726-8a0a-0fed1da5ac0f",
   "quote_price_id": "3fb4e3bb-6c7e-4a8f-9d2a-1b3c5d7e9f01",
+  "iban": "SA0380000000608010167519",
   "redirect_url": "https://www.example.com?yasmina_policy_id=policyID"
 }
 ```
+
+`iban` is required. The insurance provider transfers refunds to it, and the account is never charged. It must be a valid Saudi IBAN (SA followed by 22 characters, with correct check digits); spaces are removed and letters capitalised.
 
 A company has one policy waiting to be paid for at a time. Issue again before payment, from a different quote if you like, and it is replaced. Once it is paid for, the next issue starts a new policy.
 
