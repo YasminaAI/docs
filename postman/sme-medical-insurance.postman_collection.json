@@ -238,7 +238,7 @@
         "description": "Issues the company's policy from the chosen quote. The policy comes back pending payment, with every employee on it and the quoted total as its price. The optional redirect_url is where the customer is sent after paying; policyID in it is replaced with the policy's id.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"quote_request_id\": \"{{quote_request_id}}\",\n  \"quote_price_id\": \"{{quote_price_id}}\",\n  \"redirect_url\": \"https://www.example.com/insurance/done?policy=policyID\"\n}",
+          "raw": "{\n  \"quote_request_id\": \"{{quote_request_id}}\",\n  \"quote_price_id\": \"{{quote_price_id}}\",\n  \"iban\": \"SA0380000000608010167519\",\n  \"redirect_url\": \"https://www.example.com/insurance/done?policy=policyID\"\n}",
           "options": {
             "raw": {
               "language": "json"

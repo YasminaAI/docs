@@ -424,6 +424,12 @@
                     "type": "string",
                     "description": "Where to send the customer once they have paid. `policyID` in it is replaced with the policy's id.",
                     "example": "https://www.example.com?yasmina_policy_id=policyID"
+                  },
+                  "iban": {
+                    "type": "string",
+                    "pattern": "^SA\\d{4}[A-Z0-9]{18}$",
+                    "description": "The company's Saudi IBAN: SA followed by 22 alphanumeric characters, no spaces. It must be a valid Saudi IBAN (correct check digits), so made-up values are rejected. It is kept on the policy and used by the insurance provider to transfer refunds to the company; the account is never charged. Optional for now: it becomes required on 19 November 2026, so start sending it.",
+                    "example": "SA0380000000608010167519"
                   }
                 }
               }
@@ -1184,6 +1190,7 @@
               "insurance_provider": { "type": "string" },
               "quote_request_id": { "type": "string", "format": "uuid" },
               "quote_price_id": { "type": "string", "format": "uuid" },
+              "iban": { "type": "string", "nullable": true, "description": "The company's IBAN, as sent when issuing the policy. Null if none was sent." },
               "insured": { "type": "array", "items": { "$ref": "#/components/schemas/Insured" } }
             }
           }
