@@ -130,18 +130,18 @@ curl -X POST 'https://sandbox.yasmina.ai/api/v1/car-comp/embed-sessions' \
 
 ### Company buyer (SME Motor)
 
-A company buys with its Commercial Registration. The session takes the same fields as for a person, with three differences:
+A company buys with its Commercial Registration. The session takes the same fields as for a person, except that it has no `birthdate` (a company has none; each of its drivers carries their own) and these three differ:
 
 <ParamField body="owner_id" type="string" required>
   The company's Commercial Registration number, 10 digits starting with `7`.
 </ParamField>
 
 <ParamField body="authorized_person_id" type="string" required>
-  The national ID or Iqama of the person authorized to act for the company. They receive the OTPs and sign. `birthdate` is theirs, in the calendar their ID calls for: Hijri for a Saudi ID, Gregorian for an Iqama.
+  The national ID or Iqama of the person authorized to act for the company. They receive the OTPs and sign.
 </ParamField>
 
 <ParamField body="drivers" type="array" required>
-  At least one driver, each with `owner_id`, `birthdate` and `driving_percentage`, adding up to 100. A company cannot drive, and the authorized person is not assumed to drive: list exactly who does. A session without drivers is refused with a `drivers` validation error.
+  At least one driver, each with `owner_id`, `birthdate` (Hijri for a Saudi ID, Gregorian for an Iqama) and `driving_percentage`, adding up to 100. A company cannot drive, and the authorized person is not assumed to drive: list exactly who does. A session without drivers is refused with a `drivers` validation error.
 </ParamField>
 
 ```bash Company buyer
@@ -155,7 +155,6 @@ curl -X POST 'https://sandbox.yasmina.ai/api/v1/car-comp/embed-sessions' \
     "authorized_person_id": "1012345678",
     "email": "fleet@example.com",
     "phone": "0500000000",
-    "birthdate": "1409-09-14",
     "car_sequence_number": "123456789",
     "car_estimated_cost": 45000,
     "car_model_year": 2024,
