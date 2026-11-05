@@ -255,7 +255,7 @@
     "/companies/{companyId}/declarations": {
       "put": {
         "summary": "Submit the declarations",
-        "description": "Every employee's own health declaration in one call, under one consent. Each entry names an employee by `employee_id` and carries their answers to the questions. `consent` must be `true`: by sending it, you confirm the employees have stated that their answers are true and complete and agreed to share them with the insurance provider. The declarations are kept by employee id, apart from the employee list, so editing the list leaves them alone; each call replaces them. Every employee on the list has to have declared before the company can be priced.",
+        "description": "The company's health declarations in one call. One consent declares everyone on the employee list, dependents included; send answers only for an employee or a dependent who has something to declare. `consent` must be `true`: by sending it, you confirm that everyone on the list, dependents included, has stated that they have nothing to declare beyond the answers sent, that those answers are true and complete, and that they agree to share them with the insurance provider. The declarations are kept by person id, apart from the employee list, so editing the list leaves them alone; each call replaces them. Someone added to the list afterwards is not covered until the next call, and the company cannot be priced until then.",
         "tags": ["Medical Forms"],
         "parameters": [{ "name": "companyId", "in": "path", "required": true, "schema": { "type": "integer" } }],
         "requestBody": {
@@ -264,16 +264,16 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["consent", "employees"],
+                "required": ["consent"],
                 "properties": {
                   "consent": {
                     "type": "boolean",
                     "enum": [true],
-                    "description": "Consent for the whole submission. Must be true."
+                    "description": "Consent for everyone on the employee list, dependents included. Must be true. On its own, it declares everyone with nothing to declare."
                   },
                   "employees": {
                     "type": "array",
-                    "minItems": 1,
+                    "description": "The employees who have something to declare, each with their own answers. Leave out everyone else.",
                     "items": {
                       "type": "object",
                       "required": ["employee_id", "answers"],
@@ -286,6 +286,22 @@
                         "answers": { "$ref": "#/components/schemas/DeclarationAnswers" }
                       }
                     }
+                  },
+                  "dependents": {
+                    "type": "array",
+                    "description": "The dependents who have something to declare, each with their own answers. Leave out everyone else.",
+                    "items": {
+                      "type": "object",
+                      "required": ["dependent_id", "answers"],
+                      "properties": {
+                        "dependent_id": {
+                          "type": "string",
+                          "description": "The dependent's nationality_id or iqama_id. Each dependent once.",
+                          "example": "1111111112"
+                        },
+                        "answers": { "$ref": "#/components/schemas/DeclarationAnswers" }
+                      }
+                    }
                   }
                 }
               }
@@ -294,7 +310,7 @@
         },
         "responses": {
           "200": {
-            "description": "The company's declarations, keyed by employee id, and who is still to declare",
+            "description": "The company's declarations, keyed by the id of each employee and dependent, and who is still to declare",
             "content": {
               "application/json": {
                 "schema": {
@@ -305,7 +321,11 @@
                       "additionalProperties": {
                         "type": "object",
                         "properties": {
-                          "answers": { "$ref": "#/components/schemas/DeclarationAnswers" },
+                          "answers": {
+                            "allOf": [{ "$ref": "#/components/schemas/DeclarationAnswers" }],
+                            "nullable": true,
+                            "description": "The answers sent for this person, or null when the consent alone declares them."
+                          },
                           "consent": { "type": "boolean", "enum": [true] },
                           "filled_at": { "type": "string", "format": "date-time" }
                         }
@@ -314,7 +334,7 @@
                     "pending_declarations": {
                       "type": "array",
                       "items": { "type": "string" },
-                      "description": "Employees who still have to declare. Empty once everyone has, and the company can be priced."
+                      "description": "Employees the declarations do not cover. Always empty right after this call; an employee added to the list later appears here until the next call."
                     }
                   }
                 }
@@ -322,7 +342,7 @@
             }
           },
           "400": {
-            "description": "An employee_id is not in the company. Nothing is stored.",
+            "description": "An employee_id or dependent_id is not in the company. Nothing is stored.",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/Error" },

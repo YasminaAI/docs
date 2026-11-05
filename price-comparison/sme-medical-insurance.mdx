@@ -167,15 +167,19 @@ An employee can bring family members onto the policy through the `dependents` ar
 Send every `date_of_birth` as `YYYY-MM-DD`. Saudi nationals whose national id starts with `1` give the Hijri (Umm al-Qura) date printed on their id, as John and his family do above; everyone else gives a Gregorian date. Employees must be between 18 and 110 years old; dependents can be any age.
 
 ### Health declaration forms
-Insurers require a past medical history from every employee before they will price them, so every employee declares before you ask for prices. Yasmina publishes the questions and prints the form; each employee answers for themselves, on paper or inside your own platform.
+Insurers require a medical history for everyone they cover before they will price the company, so the company declares before you ask for prices. One consent covers everyone on the employee list, dependents included; only an employee or a dependent with something to declare answers the questions. Yasmina publishes the questions and prints the form, so they can answer on paper or inside your own platform.
 
 1. **The questions**: the [Medical form API](/medical-api-reference/medical-forms/get-the-medical-form-questions) returns every question, grouped the way the insurers ask them, so you can build your own screen for it.
 
 2. **The printable form**: the [Download declaration form API](/medical-api-reference/medical-forms/download-the-declaration-form) returns the same declaration as a PDF. Pass the `policy_id` and the file carries one page per employee on the policy, with their name, id and package filled in, ready to print or email. Leave `policy_id` out for a single blank form.
 
-3. **Submitting the declarations**: send every employee's answers in one call with the [Submit the declarations API](/medical-api-reference/medical-forms/submit-the-declarations). Each entry names an employee by their `nationality_id`, `iqama_id` or `border_number` as `employee_id`, and carries that employee's own answers. One `consent` covers the whole submission and must be `true`, confirming the employees have stated that their answers are true and complete and agreed to share them with the insurance provider. Show that statement before submitting.
+3. **Submitting the declarations**: send them in one call with the [Submit the declarations API](/medical-api-reference/medical-forms/submit-the-declarations). `consent` must be `true` and covers everyone on the employee list, dependents included. It confirms that they have stated they have nothing to declare beyond the answers sent, that those answers are true and complete, and that they agree to share them with the insurance provider. Show that statement before submitting.
 
-	The declarations are kept by employee id, apart from the employee list, so editing the list leaves them alone; each call replaces them, so send everyone each time. The response tells you who is still in `pending_declarations`, and prices are refused (`40023`) until everyone on the list has declared.
+	Add an entry under `employees` only for an employee with something to declare, named by their `nationality_id`, `iqama_id` or `border_number` as `employee_id`, and under `dependents` only for such a dependent, named by their `nationality_id` or `iqama_id` as `dependent_id`. Each entry carries that person's own answers. When nobody has anything to declare, send the consent alone: `{"consent": true}`.
+
+	The declarations are kept by person id, apart from the employee list, so editing the list leaves them alone; each call replaces them, so send every entry with answers each time. Someone added to the list afterwards is not covered: they appear in `pending_declarations`, and prices are refused (`40023`) until you submit the declarations again.
+
+	In this example, John has had surgery and has liver disease, and his son Jack has asthma; Jane and Richard have nothing to declare, so the consent covers them.
 
 	```
 	PUT /medical/companies/42/declarations
@@ -199,10 +203,16 @@ Insurers require a past medical history from every employee before they will pri
 	                "family_history": "No",
 	                "chronic_disease": ["Liver Disease"]
 	            }
-	        },
+	        }
+	    ],
+	    "dependents": [
 	        {
-	            "employee_id": "2222222222",
-	            "answers": { ... }
+	            "dependent_id": "1111111113",
+	            "answers": {
+	                "allergies": "No",
+	                ...
+	                "chronic_disease": ["Asthma"]
+	            }
 	        }
 	    ]
 	}
