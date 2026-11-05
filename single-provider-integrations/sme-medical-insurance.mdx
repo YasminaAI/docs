@@ -14,7 +14,7 @@ Using our secure and reliable endpoints, you’ll be able to request and manage 
 2. **Create a Company**: Register the SME that will provide medical insurance for its employees.
 3. **Choose a Package**: Retrieve and review available medical insurance packages.
 4. **Issue Insurance**: Select the employees who will be covered and create their policies.
-5. **Health Declarations**: Complete forms on behalf of employees or send them directly for completion.
+5. **Health Declarations**: Collect the employees' health declarations.
 6. **Payment**: Receive a secure payment link to finalize the purchase.
 
 ### Authorization
@@ -142,65 +142,9 @@ Send every `date_of_birth` as `YYYY-MM-DD`. Saudi nationals whose national id st
 ### HR declaration forms
 The companies that have requested insurance needs to be supply the insurance provider with Medical forms. These are mandatory for insurance providers to know past medical histories.
 
-Yasmina offers two ways to collect them:
+Submit them with the [Submit the declarations API](/medical-api-reference/medical-forms/submit-the-declarations), as described in the [multi-provider guide](/price-comparison/sme-medical-insurance#health-declaration-forms). To collect them on paper first, use the printable form.
 
-1. **Fill Medical Forms:** Company administrators fill out the forms on behalf of the employees.
-
-2. **Download the form:** Get a printable PDF and send it to the employees yourself.
-
-Detailed explanations for each method are provided below.
 <AccordionGroup>
-  <Accordion title="Fill medical forms" icon="pen-field">
-  	The fill medical forms allows the company admin to do so on behalf of the employers of the company. It takes two fields of which both are objects `all_employees` and `ids_or_emails`.
-
-  	The idea behind the two fields, is to allow the Company admin to select the default answers for all employees, and then override the answers for specific employees.
-
-  	For example, let us say that all employees except 1 (for example employee with email john.doe@example.com), never had surgeries before, we can declare the answer `No` on the surgery question in the all_employees field, but declare `Yes` for the other employee.employee
-
-  	Here's an example of such case
-
-  	```
-  	{
-        "all_employees": {
-            "allergies": "No",
-            "current_medications": "No",
-            "hospitalizations": "No",
-            "pre_existing_conditions": "No",
-            "past_surgeries": "No",
-            "surgery_complications": "No",
-            "chest_pain_or_breathlessness": "No",
-            "heart_procedures": "No",
-            "smoking": "No",
-            "alcohol_consumption": "No",
-            "physical_activity": "No",
-            "family_history": "No",
-            "chronic_disease": ["None of the above"]
-        },
-        "ids_or_emails": [
-            {
-                "id_or_email": "john.doe@example.com",
-                "answers": {
-                    "allergies": "No",
-                    "current_medications": "No",
-                    "hospitalizations": "No",
-                    "pre_existing_conditions": "No",
-                    "past_surgeries": "Yes",
-                    "surgery_complications": "No",
-                    "chest_pain_or_breathlessness": "No",
-                    "heart_procedures": "No",
-                    "smoking": "No",
-                    "alcohol_consumption": "No",
-                    "physical_activity": "No",
-                    "family_history": "No",
-                    "chronic_disease": ["Liver Disease"]
-                }
-            }
-        ]
-    }
-  	```
-    Check out the [Fill medical forms API](/medical-api-reference/medical-forms/fill-the-declarations) docs for all the supported props.
-  </Accordion>
-
   <Accordion title="Download the form" icon="file-arrow-down">
   	The [Download declaration form API](/medical-api-reference/medical-forms/download-the-declaration-form) returns the declaration as a PDF. Pass the `company_id` and the file carries one page per employee you have already enrolled, with their name, id and package filled in, so the company can print it or email it on. Leave `company_id` out and you get a single blank form.
   </Accordion>
