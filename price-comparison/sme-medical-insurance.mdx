@@ -269,7 +269,9 @@ A company buys one policy, and its employees are the members on it, which is how
 }
 ```
 
-`iban` is required. The insurance provider transfers refunds to it, and the account is never charged. It must be a valid Saudi IBAN (SA followed by 22 characters, with correct check digits); spaces are removed and letters capitalised.
+The insurance provider transfers refunds to the `iban`, and the account is never charged. It must be a valid Saudi IBAN (SA followed by 22 characters, with correct check digits); spaces are removed and letters capitalised.
+
+<Warning>`iban` is optional for now and becomes required on **19 November 2026**. From that date, issuing a policy without it is rejected, so start collecting the company's IBAN and sending it now.</Warning>
 
 A company has one policy waiting to be paid for at a time. Issue again before payment, from a different quote if you like, and it is replaced. Once it is paid for, the next issue starts a new policy.
 
