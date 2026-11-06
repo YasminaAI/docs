@@ -69,6 +69,33 @@ const handleSecretCopy = (button) => {
 	document.body.removeChild(tempInput);
 };
 
+// Saves a file instead of opening it, wherever the docs serve it from.
+const handleBrandDownload = (link) => {
+	const url = link.getAttribute("href");
+	const name = link.getAttribute("download") || url.split("/").pop();
+
+	fetch(url)
+		.then((response) => {
+			if (!response.ok) {
+				throw new Error(`Download failed: ${response.status}`);
+			}
+			return response.blob();
+		})
+		.then((blob) => {
+			const objectUrl = URL.createObjectURL(blob);
+			const anchor = document.createElement("a");
+			anchor.href = objectUrl;
+			anchor.download = name;
+			document.body.appendChild(anchor);
+			anchor.click();
+			document.body.removeChild(anchor);
+			setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+		})
+		.catch(() => {
+			window.open(url, "_blank", "noopener");
+		});
+};
+
 const activateTryTab = (tab) => {
 	const target = tab.getAttribute("data-try-target");
 	if (!target) {
@@ -100,9 +127,16 @@ const activateTryTab = (tab) => {
 };
 
 document.addEventListener("click", (event) => {
-	const copyButton = event.target.closest(".yasmina-secret-copy");
+	const copyButton = event.target.closest(".yasmina-secret-copy, .copy-text");
 	if (copyButton) {
 		handleSecretCopy(copyButton);
+		return;
+	}
+
+	const downloadLink = event.target.closest(".brand-download");
+	if (downloadLink) {
+		event.preventDefault();
+		handleBrandDownload(downloadLink);
 		return;
 	}
 

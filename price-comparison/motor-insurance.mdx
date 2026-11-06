@@ -20,6 +20,8 @@ Our APIs are built on RESTful principles and follow consistent input and output 
 - Requesting and managing quotes
 - Uploading vehicle photos
 - Issuing and managing policies
+- Showing the required provider and Insurance Authority branding
+- UI best practices for the quotes, photos and IBAN screens
 
 ## Prerequisites
 
@@ -921,3 +923,440 @@ Example a response
 ### Listing policies
 
 You can also use the <a href="/car-api-reference/policies/list-policies" target="_blank">List Policies API</a> to get a list of all policies that were generated from our system. You might use this on your admin interface, or if you just want to check what has been generated.
+
+## Branding guidelines
+
+Motor quotes in the price comparison flow are provided through a licensed insurance intermediary, under the supervision of the **Insurance Authority**. Every screen where you show these quotes to a customer must display three elements, numbered below. Your layout, colors and quote cards stay yours.
+
+<Tabs>
+  <Tab title="English">
+    <Frame caption="An example quotes screen in English">
+      <img src="/images/branding/quotes-page-en.png" alt="Example quotes screen in English with the provider attribution, support channels and Insurance Authority mark highlighted" />
+    </Frame>
+  </Tab>
+  <Tab title="العربية">
+    <Frame caption="The same screen in Arabic">
+      <img src="/images/branding/quotes-page-ar.png" alt="Example quotes screen in Arabic with the provider attribution, support channels and Insurance Authority mark highlighted" />
+    </Frame>
+  </Tab>
+</Tabs>
+
+<Frame caption="The same screen on a phone, in English and Arabic">
+  <img src="/images/branding/quotes-page-mobile.png" alt="Example quotes screen on a phone in English and Arabic with the three branding elements highlighted" />
+</Frame>
+
+| #   | Element                       | What it is                                                                        |
+| --- | ----------------------------- | --------------------------------------------------------------------------------- |
+| 1   | **Provider attribution**      | The provider's logo and the sentence naming it with its Insurance Authority license |
+| 2   | **Provider support channels** | WhatsApp, terms and conditions, and the toll-free number                          |
+| 3   | **Insurance Authority mark**  | The official Insurance Authority logo beside the words "Authorized by"            |
+
+### How to get them
+
+Everything in the three elements comes from one call. When your quotes screen loads, call the [Branding Guidelines API](#branding-guidelines-api) with your bearer token and display what it returns: the URLs of the provider's logo and the Insurance Authority logo, and every sentence, complete and ready to show. Send `Accept-Language: ar` to get the Arabic sentences, or nothing for English, so an Arabic page is the same call with a different header.
+
+Do not copy the provider's name, logo or license number from this page or from a screenshot. The provider behind the quotes can change, and so can the wording. The API is where a change reaches you, without an integration change on your side.
+
+<Note>
+  With the [Iframe and WebView](/whitelabel/motor-insurance), the quotes screen
+  is rendered for you and already carries this branding. These guidelines apply
+  when you build the quotes screen yourself on the APIs.
+</Note>
+
+### Branding Guidelines API
+
+`GET /api/v1/car-comp/branding-guidelines` returns three logo URLs and the sentences to display, in the language of the `Accept-Language` header: `ar` for Arabic, anything else or no header for English.
+
+<Tabs>
+  <Tab title="English">
+
+```bash cURL
+curl --location 'https://production.yasmina.ai/api/v1/car-comp/branding-guidelines' \
+  --header 'Accept: application/json' \
+  --header 'Authorization: Bearer <your-token>'
+```
+
+```json Response
+{
+  "provider_logo": "https://production.yasmina.ai/images/branding/provider-logo.png",
+  "authority_logo_dark": "https://production.yasmina.ai/images/branding/insurance-authority-logo-dark.svg",
+  "authority_logo_white": "https://production.yasmina.ai/images/branding/insurance-authority-logo-white.svg",
+  "attribution": "Quotes are provided through Provider name · Under supervision of the Insurance Authority, license و س ط/No. 00000/00",
+  "support": "Support and assistance through Provider name",
+  "whatsapp": "Customer service via WhatsApp",
+  "whatsapp_url": "https://wa.me/966500000000",
+  "terms": "Terms & conditions",
+  "terms_url": "https://www.provider.example/en/terms-and-conditions",
+  "tollfree": "Toll-free 8000000000",
+  "tollfree_url": "tel:8000000000",
+  "authorized_by": "Authorized by",
+  "photos_intro": "Five quick shots documenting the car's condition before cover starts. They protect you and speed up any future claim.",
+  "photos_vin_hint": "The chassis number: inside the driver's door frame or at the base of the windshield.",
+  "photos_requirements": "Clear daylight photos, JPG or PNG, up to 3 MB each. Make sure the chassis number is readable in the VIN shot.",
+  "photos_declaration": "I confirm the uploaded images are genuine images of the insured vehicle, taken recently and not altered in any way. I understand that if the contrary is established, the policy will be cancelled and claims made on the vehicle will be affected.",
+  "iban_intro": "Claim settlements and refunds are transferred to this account. It is never charged.",
+  "iban_hint": "Starts with SA followed by 22 characters. Find it in your banking app.",
+  "faq": [
+    {
+      "question": "What is the difference between TPL and Comprehensive insurance?",
+      "answer": "TPL covers damage you cause to others, while Comprehensive also covers damage to your own vehicle, subject to the policy terms."
+    }
+  ]
+}
+```
+
+  </Tab>
+  <Tab title="العربية">
+
+```bash cURL
+curl --location 'https://production.yasmina.ai/api/v1/car-comp/branding-guidelines' \
+  --header 'Accept: application/json' \
+  --header 'Accept-Language: ar' \
+  --header 'Authorization: Bearer <your-token>'
+```
+
+```json Response
+{
+  "provider_logo": "https://production.yasmina.ai/images/branding/provider-logo.png",
+  "authority_logo_dark": "https://production.yasmina.ai/images/branding/insurance-authority-logo-dark.svg",
+  "authority_logo_white": "https://production.yasmina.ai/images/branding/insurance-authority-logo-white.svg",
+  "attribution": "هذه العروض مقدَّمة عبر اسم المزود · خاضع لإشراف ورقابة هيئة التأمين ترخيص و س ط/00000/00",
+  "support": "للدعم والمساعدة عبر اسم المزود",
+  "whatsapp": "خدمة العملاء عبر واتساب",
+  "whatsapp_url": "https://wa.me/966500000000",
+  "terms": "الشروط والأحكام",
+  "terms_url": "https://www.provider.example/ar/terms-and-conditions",
+  "tollfree": "الرقم المجاني 8000000000",
+  "tollfree_url": "tel:8000000000",
+  "authorized_by": "مصرح من قبل",
+  "photos_intro": "خمس صور سريعة توثّق حالة السيارة قبل بدء التغطية. تحفظ حقك وتُسرّع أي مطالبة مستقبلية.",
+  "photos_vin_hint": "رقم الهيكل (VIN): داخل إطار باب السائق أو أسفل الزجاج الأمامي.",
+  "photos_requirements": "صور واضحة في ضوء النهار بصيغة JPG أو PNG، بحجم لا يتجاوز 3 ميجابايت للصورة، وتأكد من ظهور رقم الهيكل بوضوح في صورته.",
+  "photos_declaration": "أقر بأن الصور المرفوعة هي الصور الحقيقية للمركبة المؤمن عليها، والتي تم أخذها مؤخراً ولم يتم التعديل عليها بأي شكل من الأشكال. وأقر بمعرفتي بأنه في حال ثبوت عكس ذلك فإن هذا سيؤدي إلى إلغاء وثيقة التأمين وسيؤثر على المطالبات المرفوعة على المركبة.",
+  "iban_intro": "تُحوَّل تعويضات المطالبات والمبالغ المستردة إلى هذا الحساب، ولن يُخصم منه أي مبلغ.",
+  "iban_hint": "يبدأ بـ SA ويتبعه 22 خانة. تجده في تطبيق البنك.",
+  "faq": [
+    {
+      "question": "ما الفرق بين التأمين ضد الغير والتأمين الشامل؟",
+      "answer": "يغطي التأمين ضد الغير الأضرار التي تتسبب بها للآخرين، بينما يغطي التأمين الشامل كذلك الأضرار التي تلحق بمركبتك، وفقاً لشروط الوثيقة."
+    }
+  ]
+}
+```
+
+  </Tab>
+</Tabs>
+
+| Field                                        | Where it goes                                                                                       |
+| -------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `provider_logo`, `attribution`               | Element 1. The logo (PNG, transparent) next to the sentence.                                        |
+| `support`, `whatsapp`, `terms`, `tollfree`   | Element 2. The lead sentence, then three links. Each `*_url` is the link for the label before it.   |
+| `authority_logo_white`, `authority_logo_dark`, `authorized_by` | Element 3. The label next to the logo: the white logo on dark backgrounds, the dark one on light. |
+| `photos_*`, `iban_*`                         | The texts recommended in [UI best practices](#ui-best-practices).                                   |
+| `faq`                                        | Eight question-and-answer pairs about motor insurance, if you want an FAQ on the screen. One is shown above. |
+
+The sentences are complete, and the license number inside `attribution` is already wrapped in a Unicode isolate so it reads correctly in both directions. Nothing needs assembling or translating.
+
+### 1. Provider attribution
+
+<Frame>
+  <img src="/images/branding/attribution.png" alt="The provider attribution line in English and Arabic" />
+</Frame>
+
+Display `provider_logo` and `attribution` together. Use the logo file as it is, and put it on a white tile when your page is dark or colored.
+
+### 2. Provider support channels
+
+<Frame>
+  <img src="/images/branding/support.png" alt="The provider support channels in English and Arabic" />
+</Frame>
+
+Display `support`, then `whatsapp`, `terms` and `tollfree` as real links, not plain text: `whatsapp_url` opens the chat, `terms_url` opens in a new tab, and `tollfree_url` dials the number on a phone.
+
+### 3. Insurance Authority mark
+
+<Frame>
+  <img src="/images/branding/authority-mark.png" alt="The Insurance Authority mark on dark and light backgrounds, in English and Arabic" />
+</Frame>
+
+Display `authorized_by` beside the Insurance Authority logo: `authority_logo_white` on a dark background, `authority_logo_dark` on a light one. The two files are also here to download, for a design review or a static mockup. In the integration itself, load them from the API.
+
+<div className="brand-asset">
+  <span className="brand-asset__preview brand-asset__preview--dark">
+    <img src="/images/branding/insurance-authority-logo-white.svg" alt="Insurance Authority logo, white" noZoom />
+  </span>
+  <span className="brand-asset__body">
+    <span className="brand-asset__name">Insurance Authority logo, white</span>
+    <span className="brand-asset__meta">SVG, for dark backgrounds</span>
+  </span>
+  <a className="brand-download" href="/images/branding/insurance-authority-logo-white.svg" download="insurance-authority-logo-white.svg">Download</a>
+</div>
+
+<div className="brand-asset">
+  <span className="brand-asset__preview">
+    <img src="/images/branding/insurance-authority-logo-dark.svg" alt="Insurance Authority logo, dark" noZoom />
+  </span>
+  <span className="brand-asset__body">
+    <span className="brand-asset__name">Insurance Authority logo, dark</span>
+    <span className="brand-asset__meta">SVG, for light backgrounds</span>
+  </span>
+  <a className="brand-download" href="/images/branding/insurance-authority-logo-dark.svg" download="insurance-authority-logo-dark.svg">Download</a>
+</div>
+
+### Usage rules
+
+<CardGroup cols={2}>
+  <Card title="Do" icon="circle-check" color="#16A34A">
+    - Display all three elements on every screen that lists quotes.
+    - Load the logos and the sentences from the API, in the language the page is shown in.
+    - Keep the logos in their original colors and proportions.
+    - Put the provider's logo on a white tile when your page is dark or colored.
+  </Card>
+  <Card title="Don't" icon="circle-xmark" color="#DC2626">
+    - Hard-code the provider's name, logo or license number.
+    - Reword, shorten or translate the sentences yourself.
+    - Recolor, crop, stretch or rotate either logo.
+  </Card>
+</CardGroup>
+
+### Starter markup
+
+The markup below produces the three elements from the examples. The `{{ … }}` placeholders are the fields of the Branding Guidelines API, requested in the language of the page. It uses logical CSS properties, so setting `dir="rtl"` on the page is all the Arabic version needs.
+
+<AccordionGroup>
+  <Accordion title="Provider attribution" icon="code">
+    <CodeGroup>
+
+```html HTML
+<div class="provider">
+  <span class="provider__logo">
+    <img src="{{ provider_logo }}" alt="" />
+  </span>
+  <p class="provider__text">{{ attribution }}</p>
+</div>
+```
+
+```css CSS
+.provider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* White tile so the logo keeps its colors on any page background */
+.provider__logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex: none;
+  padding: 4px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 9px;
+}
+
+.provider__logo img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.provider__text {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.6;
+  color: #6b7280;
+}
+```
+
+    </CodeGroup>
+
+  </Accordion>
+  <Accordion title="Support channels" icon="code">
+    <CodeGroup>
+
+```html HTML
+<div class="support">
+  <p>{{ support }}</p>
+  <div class="support__actions">
+    <a href="{{ whatsapp_url }}" target="_blank" rel="noopener">{{ whatsapp }}</a>
+    <a href="{{ terms_url }}" target="_blank" rel="noopener">{{ terms }}</a>
+    <a href="{{ tollfree_url }}">{{ tollfree }}</a>
+  </div>
+</div>
+```
+
+```css CSS
+/* Written for a dark background; on a light one, swap the colors */
+.support {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.84rem;
+}
+
+.support p {
+  margin: 0 0 12px;
+}
+
+.support__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.support__actions a {
+  padding: 8px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.88);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* Phones: center the lead sentence and the routes */
+@media (max-width: 640px) {
+  .support {
+    text-align: center;
+  }
+
+  .support__actions {
+    justify-content: center;
+  }
+}
+```
+
+    </CodeGroup>
+
+  </Accordion>
+  <Accordion title="Insurance Authority mark" icon="code">
+    <CodeGroup>
+
+```html HTML
+<div class="authority-mark">
+  <span>{{ authorized_by }}</span>
+  <img src="{{ authority_logo_white }}" alt="Insurance Authority" />
+</div>
+```
+
+```css CSS
+/* Written for a dark background; on a light one, use authority_logo_dark */
+.authority-mark {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.authority-mark img {
+  height: 34px;
+  width: auto;
+}
+```
+
+    </CodeGroup>
+
+  </Accordion>
+</AccordionGroup>
+
+## UI best practices
+
+These are recommendations, not requirements. Each one addresses something customers stumble on in a motor insurance journey, and the examples show one way to build it in your own design.
+
+### Quotes list
+
+<Tabs>
+  <Tab title="English">
+    <Frame caption="An example quotes list in English. The numbers match the practices below">
+      <img src="/images/ui-best-practices/quotes-en.png" alt="Example quotes list in English with the deductible dropdown, cover type tabs, sorting, included benefits and price highlighted" />
+    </Frame>
+  </Tab>
+  <Tab title="العربية">
+    <Frame caption="The same list in Arabic">
+      <img src="/images/ui-best-practices/quotes-ar.png" alt="Example quotes list in Arabic with the deductible dropdown, cover type tabs, sorting, included benefits and price highlighted" />
+    </Frame>
+  </Tab>
+</Tabs>
+
+#### 1. Show the deductible in a dropdown
+
+A comprehensive offer routinely carries ten or more prices, one per deductible. Show one entry per offer with its deductibles in a dropdown, rather than one entry per price.
+
+- List the `deductible` values from `quotes[].prices[]` in ascending order.
+- Preselect one, so the offer always shows a price. The highest deductible carries the lowest price.
+- When the customer picks another, show that option's `total` and keep its `quote_price_id`: it is the one you send to the Issue Policy OTP, Issue Policy and Upload Vehicle Photos APIs.
+- Leave the dropdown out when there is nothing to choose. TPL offers have no deductible (`null`), and some offers come with a single price.
+
+#### 2. Group the offers by cover type
+
+One quote request returns TPL and comprehensive offers together. Group them by `type` (`TPL`, `TPL +`, `Comprehensive`) and show how many offers each group holds. Label the offers themselves with `insurance_type_display`.
+
+#### 3. Let the customer sort by price
+
+Start with the lowest price first, let the customer reverse it, and mark the lowest-priced offer. Sort on the price each offer opened with, so the list does not reshuffle while the customer tries different deductibles.
+
+#### 4. Show the included benefits on the offer
+
+Benefits with an `amount` of `0` are part of the cover: show the first few on the offer and the full list on request. Benefits with a price are optional. Present them as add-ons once the customer has chosen an offer, with the total updating as they select.
+
+#### 5. Show the full price
+
+Show `total`, which includes VAT, and say that it does. When the customer adds benefits, show the breakdown before they pay: the premium, each add-on, VAT and the total, as in [What the customer actually pays](#what-the-customer-actually-pays).
+
+### Photo upload
+
+Photos are only needed for comprehensive cover, and the insurance provider keeps the first set it accepts for a vehicle. Getting them right the first time matters.
+
+<Tabs>
+  <Tab title="English">
+    <Frame caption="An example photo upload in English">
+      <img src="/images/ui-best-practices/photos-en.png" alt="Example vehicle photo upload in English with the explanation, VIN hint, requirements and declaration highlighted" />
+    </Frame>
+  </Tab>
+  <Tab title="العربية">
+    <Frame caption="The same upload in Arabic">
+      <img src="/images/ui-best-practices/photos-ar.png" alt="Example vehicle photo upload in Arabic with the explanation, VIN hint, requirements and declaration highlighted" />
+    </Frame>
+  </Tab>
+</Tabs>
+
+1. **Say why you ask.** Customers upload more readily when they know the photos protect them.
+2. **Help the customer find the chassis number.** It is the photo most often taken wrong.
+3. **State the requirements before the upload.** Check the format and the size on the device, so a photo over 3 MB never reaches the API.
+4. **Ask the customer to confirm the photos are genuine.** Show the declaration and do not continue until the customer accepts it.
+
+These four texts are `photos_intro`, `photos_vin_hint`, `photos_requirements` and `photos_declaration` in the [Branding Guidelines API](#branding-guidelines-api), in English and Arabic. Show them as they come; the declaration in particular must not be reworded.
+
+Give each of the five photos its own labelled slot, show how many are done, and let the customer review and replace a photo before you upload the set.
+
+### IBAN
+
+Customers hesitate to give an IBAN to something they are paying for. Tell them what it is for. The explanation and the format hint are `iban_intro` and `iban_hint` in the [Branding Guidelines API](#branding-guidelines-api), in English and Arabic.
+
+<Tabs>
+  <Tab title="English">
+    <Frame caption="An example IBAN field in English">
+      <img src="/images/ui-best-practices/iban-en.png" alt="Example IBAN field in English with the explanation, grouped input and format hint highlighted" />
+    </Frame>
+  </Tab>
+  <Tab title="العربية">
+    <Frame caption="The same field in Arabic">
+      <img src="/images/ui-best-practices/iban-ar.png" alt="Example IBAN field in Arabic with the explanation, grouped input and format hint highlighted" />
+    </Frame>
+  </Tab>
+</Tabs>
+
+1. **Say what the IBAN is for.** It receives claim settlements and refunds, and it is never charged.
+2. **Make the number easy to type and check.** Group the characters in fours as the customer types, keep the field left-to-right on Arabic screens, and remove the spaces before you send it.
+3. **Show the format, and check it before you request the OTP.** A Saudi IBAN is 24 characters starting with `SA`, and it carries the standard IBAN checksum (mod 97). Checking both on the device catches a mistyped number before the Issue Policy OTP API rejects it.
+
+### Other details
+
+- **Match the date of birth calendar to the ID.** A national ID (starts with `1`) takes a Hijri birthdate and an Iqama (starts with `2`) takes a Gregorian one. Switch the date picker when the ID is entered, and clear a date that was typed under the other calendar.
+- **Keep the customer informed while the quotes load.** A quote request can take up to two minutes. Show that it is in progress and stop the form from being submitted twice.
+- **Ask for the quote OTP once.** It stays valid for 8 hours and covers every quote request in that time, so a customer who changes a detail and asks again does not need a new code.
+- **Check the inputs on the device first.** A 10-digit ID starting with `1` or `2`, a mobile number starting with `05`, and a start date from tomorrow onwards are quicker to correct in the form than after a rejected request.
+- **Use the Arabic fields on Arabic screens.** Every offer carries `company_name_ar`, `insurance_type_display_ar` and `benefits[].name_ar`, so switching language never takes a second request.
