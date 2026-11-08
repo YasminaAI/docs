@@ -86,6 +86,7 @@ A failed or abandoned payment is never an API error: the customer pays on the in
 
 | Endpoint                                      | Code    | Status | Message                                                             | When                                                            |
 |-----------------------------------------------|---------|--------|---------------------------------------------------------------------|-----------------------------------------------------------------|
+| `POST /medical/companies`                     | `40025` | 400    | This company is already registered as company 123. Use that company_id instead of creating it again. | Production only: you already registered a company with this `unified_national_number`. The response carries its `company_id`. |
 | `POST /medical/quote-requests`                | `40020` | 400    | Add the company's employees before asking for prices.               | The company has no employees yet.                               |
 |                                               | `40023` | 400    | Every employee has to declare … Still to declare: Mary Major.       | Someone in the company has not declared their medical history.  |
 |                                               | `40024` | 400    | SME medical covers up to 250 employees per company; this list has 251. | The company has more than 250 employees.                     |

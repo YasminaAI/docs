@@ -24,7 +24,7 @@
   "paths": {
     "/companies": {
       "post": {
-        "description": "You need to create a company record before requesting medical insurance to the employees of the company",
+        "description": "You need to create a company record before requesting medical insurance to the employees of the company. On production, you register each unified national number once: creating a company you already registered answers 400 with code 40025 and the existing company_id, which you use instead. Sandbox allows registering the same company again, so you can re-run tests",
         "summary": "Create company",
         "tags": ["Company"],
         "requestBody": {
@@ -82,6 +82,21 @@
                     "$ref": "#/components/schemas/Company"
                   }
                 }
+            }
+          },
+          "400": {
+            "description": "Production only: this company is already registered under your account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": { "type": "string", "example": "40025" },
+                    "message": { "type": "string", "example": "This company is already registered as company 123. Use that company_id instead of creating it again." },
+                    "company_id": { "type": "integer", "example": 123 }
+                  }
+                }
+              }
             }
           },
           "401": {

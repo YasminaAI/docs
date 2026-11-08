@@ -3,6 +3,10 @@ title: 'Changelog'
 icon: 'clock-rotate-left'
 ---
 
+<Update label="8th November 2026" tags={["APIs", "Docs"]}>
+	**On production, a company is registered once.** The [Create Company API](/medical-api-reference/company/create-company) refuses a `unified_national_number` you already registered, answering `400` with code `40025` and the existing `company_id` so you can continue with that company. Another partner registering the same company is not affected. Sandbox keeps allowing the same company to be registered again, so test runs can repeat. The [Errors](/api-resources/errors) page lists the new code.
+</Update>
+
 <Update label="28th October 2026" tags={["APIs", "Docs"]}>
 	**SME medical policies come with an invoice of their own.** Once a company has paid, the policy object carries two documents: `policy_url`, the schedule listing every member, and `invoice_url`, a new invoice billing the company one line per package tier for the premium it paid. The two used to point at the same file. On sandbox the invoice is watermarked SANDBOX and says the premiums are placeholder figures; it is not a tax invoice. The [Read the policy](/medical-api-reference/policies/read-the-policy) and [List policies](/medical-api-reference/policies/list-policies) references and the [SME Medical Insurance guide](/price-comparison/sme-medical-insurance#payment-and-policy-activation) describe both fields.
 </Update>
