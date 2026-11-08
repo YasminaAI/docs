@@ -346,11 +346,11 @@
             }
           },
           "400": {
-            "description": "An employee_id is not an employee or a dependent on the company's list. Nothing is stored.",
+            "description": "An employee_id is not an employee or a dependent on the company's list. Nothing is stored. employee_ids lists them.",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/Error" },
-                "example": { "code": "40022", "message": "No employee of this company matches: 9999999999." }
+                "example": { "code": "40022", "message": "No employee of this company matches: 9999999999.", "employee_ids": ["9999999999"] }
               }
             }
           },
@@ -389,13 +389,14 @@
             }
           },
           "400": {
-            "description": "The company cannot be priced yet: `40020` when it has no employees, `40023` while anyone still has to declare, `40024` when it has more than 250 employees.",
+            "description": "The company cannot be priced yet: `40020` when it has no employees, `40023` while anyone still has to declare (employee_ids lists them), `40024` when it has more than 250 employees.",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/Error" },
                 "example": {
                   "code": "40023",
-                  "message": "Every employee has to declare their medical history before the company can be priced. Still to declare: Mary Major."
+                  "message": "Every employee has to declare their medical history before the company can be priced. Still to declare: Mary Major.",
+                  "employee_ids": ["1111111115"]
                 }
               }
             }
