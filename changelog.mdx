@@ -4,6 +4,10 @@ icon: 'clock-rotate-left'
 ---
 
 <Update label="8th November 2026" tags={["APIs", "Docs"]}>
+	**Add employees to a paid SME medical policy.** The new [Add employees API](/medical-api-reference/policies/add-employees) (`POST /api/v1/medical/policies/{id}/additions`) adds the people on the company's list who are not on the policy yet, after they have declared. They are priced by the policy's own insurer from today to the policy's last day and paid through a `payment_link`; once paid they join the same policy. The policy object lists them under `additions`. [Issue the policy](/medical-api-reference/policies/issue-the-policy) now answers `40026` while the company's policy is paid and in force, so a company is never charged twice for the same employees; cancel the policy first to start a new one. New error codes `40026`, `40027` and `40028` are on the [Errors](/api-resources/errors) page, and the [SME Medical Insurance guide](/price-comparison/sme-medical-insurance#add-employees-after-purchase) walks through it.
+</Update>
+
+<Update label="8th November 2026" tags={["APIs", "Docs"]}>
 	**On production, a company is registered once.** The [Create Company API](/medical-api-reference/company/create-company) refuses a `unified_national_number` you already registered, answering `400` with code `40025` and the existing `company_id` so you can continue with that company. Another partner registering the same company is not affected. Sandbox keeps allowing the same company to be registered again, so test runs can repeat. The [Errors](/api-resources/errors) page lists the new code.
 </Update>
 

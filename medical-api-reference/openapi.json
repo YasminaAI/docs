@@ -461,6 +461,26 @@
             "description": "The company's policy, pending payment",
             "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MedicalPolicy" } } }
           },
+          "400": {
+            "description": "The company already has an active policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "40026"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "This company already has an active policy (123). Add new employees to it with POST /api/v1/medical/policies/123/additions."
+                    }
+                  }
+                }
+              }
+            }
+          },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "422": { "$ref": "#/components/responses/UnprocessableEntity" }
         }
@@ -941,6 +961,64 @@
           }
         }
       }
+    },
+    "/policies/{policyId}/additions": {
+      "post": {
+        "summary": "Add employees",
+        "tags": [
+          "Policies"
+        ],
+        "description": "Adds the people on the company employee list who are not on this paid policy yet: new employees with their dependents, and new dependents of employees already covered. Everyone joining must have declared first. They are priced by the insurer of the policy for the days from today to the last day of the policy, and the response carries a payment link. Once paid they join this same policy. Calling again before payment replaces the unpaid addition. Removals are not supported yet.",
+        "parameters": [
+          {
+            "name": "policyId",
+            "required": true,
+            "description": "The id of the paid policy",
+            "in": "path",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "The addition, waiting to be paid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MedicalAddition"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "40023: someone joining has not declared. 40024: more than 250 employees. 40027: the policy is unpaid, cancelled or expired. 40028: nobody on the list is new",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "40028"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Everyone on the company employee list is already on this policy. Save the new employees first."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -997,6 +1075,92 @@
       }
     },
     "schemas": {
+      "MedicalAddition": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "paid"
+            ]
+          },
+          "insurance_provider": {
+            "type": "string",
+            "description": "The insurer of the policy, which prices the addition"
+          },
+          "starts_on": {
+            "type": "string",
+            "format": "date",
+            "description": "The first day the new people are covered: the day the addition was priced"
+          },
+          "ends_on": {
+            "type": "string",
+            "format": "date",
+            "description": "The last day of the policy"
+          },
+          "days": {
+            "type": "integer",
+            "description": "Days from starts_on to ends_on, both included"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "identifier": {
+                  "type": "string",
+                  "description": "National id or iqama"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "employee",
+                    "dependent"
+                  ]
+                },
+                "category": {
+                  "type": "string",
+                  "description": "The tier. A dependent is covered under the tier of the employee they are listed beneath"
+                },
+                "price": {
+                  "type": "number",
+                  "description": "What this person costs for the days covered. Dependents are not charged separately"
+                }
+              }
+            },
+            "description": "Everyone joining: new employees, their dependents, and new dependents of employees already covered"
+          },
+          "total_price": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string",
+            "example": "SAR"
+          },
+          "payment_link": {
+            "type": "string",
+            "nullable": true,
+            "description": "Where the company pays for the addition. Null once it is paid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "paid_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
       "Network": {
         "type": "object",
         "description": "The network of facilities a tier gives access to.",
@@ -1202,6 +1366,13 @@
           "provider_policy_id": { "type": "string", "nullable": true, "description": "The insurer's policy number, once issued." },
           "policy_url": { "type": "string", "nullable": true, "description": "The policy schedule listing every member, once the company has paid. Null before that." },
           "invoice_url": { "type": "string", "nullable": true, "description": "The invoice for the premium the company paid, one line per package tier, once the company has paid. Null before that. On sandbox the document is watermarked SANDBOX and is not a tax invoice." },
+          "additions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MedicalAddition"
+            },
+            "description": "People added to the policy after it was paid for, oldest first. At most one is pending"
+          },
           "redirect_url": { "type": "string", "nullable": true },
           "meta_data": {
             "type": "object",

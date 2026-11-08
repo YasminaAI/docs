@@ -281,7 +281,7 @@ The insurance provider transfers refunds to the `iban`, and the account is never
 
 <Warning>`iban` is optional for now and becomes required on **19 November 2026**. From that date, issuing a policy without it is rejected, so start collecting the company's IBAN and sending it now.</Warning>
 
-A company has one policy waiting to be paid for at a time. Issue again before payment, from a different quote if you like, and it is replaced. Once it is paid for, the next issue starts a new policy.
+A company has one policy waiting to be paid for at a time. Issue again before payment, from a different quote if you like, and it is replaced. Once it is paid for, issuing again is refused with `40026` for as long as the policy is in force: new employees join it through an [addition](#add-employees-after-purchase) instead. A cancelled or expired policy no longer blocks a new one.
 
 ### Payment
 Everything needed to take payment is on the policy object. [Read the policy](/medical-api-reference/policies/read-the-policy) and you get:
@@ -308,6 +308,42 @@ On sandbox the invoice is watermarked SANDBOX and says that the premiums are pla
 <Note>Although the payment page is provided by Yasmina, it does not display the Yasmina logo or have any mention of Yasmina. <br /><br />Yasmina does not receive credit card information, instead the payment page sends card information directly to the payment vendor.</Note>
 
 <Tip>On Sandbox, you can use a testing card with the following information: <br /> Card number: 4111 1111 1111 1111 <br /> Expiry: 02/27 <br /> CVV: 123 <br />Card owner: Yasmina test</Tip>
+
+### Add employees after purchase
+
+New employees, and new dependents of employees already covered, join the company's existing policy through an addition. The addition is priced by the insurer that issued the policy only, for the days from today to the policy's last day, and paid separately. The policy keeps its number.
+
+1. [Save the employees](/medical-api-reference/employees/save-the-employees) with the full list: everyone already covered plus the new people.
+2. [Submit the declarations](/medical-api-reference/medical-forms/submit-the-declarations) with `consent: true` and answers for anyone with something to declare. Everyone joining has to be declared, dependents included. Each call replaces the previous one, so send the answers of anyone already covered who declared something too.
+3. Call the [Add employees API](/medical-api-reference/policies/add-employees) on the paid policy. It works out who is new by comparing the company's list with the policy's members, and returns what they cost with a `payment_link`.
+
+```
+{
+  "id": "6f1c2a7e-0b5d-4b8e-9a51-3d2f7c9e1a44",
+  "status": "pending",
+  "insurance_provider": "walaa",
+  "starts_on": "2026-07-02",
+  "ends_on": "2026-12-31",
+  "days": 183,
+  "members": [
+    { "name": "Sam New", "identifier": "1333333333", "type": "employee", "category": "premium", "price": 451.23 },
+    { "name": "Sara New", "identifier": "1333333334", "type": "dependent", "category": "premium", "price": 0 }
+  ],
+  "total_price": 451.23,
+  "currency": "SAR",
+  "payment_link": "https://sandbox.yasmina.ai/short/AbC123",
+  "created_at": "2026-07-02T09:00:00+00:00",
+  "paid_at": null
+}
+```
+
+4. Send the company to the `payment_link`. Once it pays, the new people appear in the policy's `meta_data.insured` with their declarations, `policy_url` points at a redrawn schedule listing them, and the addition shows `status: paid` under `additions` when you [read the policy](/medical-api-reference/policies/read-the-policy).
+
+Calling the API again before paying replaces the unpaid addition. If nobody on the list is new it answers `40028`; if someone joining has not declared it answers `40023` with their names; on a policy that is unpaid, cancelled or expired it answers `40027`.
+
+<Info>
+Removing employees from a policy is not supported yet: someone left off the list stays on the policy. On sandbox, addition prices come from the same placeholder figures as quotes.
+</Info>
 
 ### Redirect URL
 
