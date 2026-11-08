@@ -46,7 +46,9 @@ After acquiring an access_token, you can begin using the APIs. Before you produc
 
 The <a href="/medical-api-reference/company/create-company" target="_blank">The Create Company API</a>, will require a few fields that define details of the company such as Email, Phone, the company's unified national number and a 10-digit sponsor number.
 
-On production, register each company once. Creating a company whose `unified_national_number` you already registered answers `400` with code `40025` and the existing `company_id`; carry on with that company. Sandbox lets you register the same company again, so you can re-run your tests.
+<Info>
+**Production only: each company is registered once.** Creating a company whose `unified_national_number` you already registered answers `400` with code `40025` and the existing `company_id`; carry on with that company instead. Sandbox does not check this, so you can register the same company again and re-run your tests.
+</Info>
 
 It will return a response with a unique identifier (id). Here is an example of the response from the POST companies API.
 ```
