@@ -1141,10 +1141,9 @@
             "type": "string",
             "enum": [
               "spouse",
-              "child",
-              "parent"
+              "child"
             ],
-            "description": "How the dependent is related to the employee"
+            "description": "How the dependent is related to the employee. Parents cannot be added as dependents."
           },
           "nationality_iso": {
             "type": "string",
