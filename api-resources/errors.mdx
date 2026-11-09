@@ -97,8 +97,6 @@ A failed or abandoned payment is never an API error: the customer pays on the in
 |                                               | `40024` | 400    | SME medical covers up to 250 employees per company; this list has 251. | The policy would cover more than 250 employees. |
 |                                               | `40027` | 400    | Employees can only be added to a paid policy that is still in force. | The policy is unpaid, cancelled or expired. |
 |                                               | `40028` | 400    | Everyone on the company's employee list is already on this policy. Save the new employees first. | Nobody on the company's list is new to the policy. |
-| `POST /medical/policies/{id}/declarations`    | `40021` | 400    | This policy is already issued.                                      | The insurer has issued the policy; its declarations are final.  |
-|                                               | `40022` | 400    | No employee on this policy matches: 1234567890, hr@example.com.     | An `ids_or_emails` entry names nobody on the policy.            |
 | `PUT /medical/companies/{id}/declarations`    | `40022` | 400    | No employee of this company matches: 9999999999.                    | An `employee_id` is not an employee or a dependent on the company's list. `employee_ids` lists them. |
 
 <Info>

@@ -849,51 +849,6 @@
         }
       }
     },
-    "/policies/{policyId}/declarations": {
-      "post": {
-        "summary": "Fill the declarations",
-        "description": "A company admin answers the health declaration on the employees' behalf. `all_employees` is the default set of answers; `ids_or_emails` overrides them for the employees whose history differs. The answers are stored on the members of the policy, and its `payment_link` appears once nobody is left in `pending_declarations`.",
-        "tags": ["Medical Forms"],
-        "parameters": [
-          { "name": "policyId", "in": "path", "required": true, "schema": { "type": "integer" } }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": ["all_employees"],
-                "properties": {
-                  "all_employees": { "$ref": "#/components/schemas/DeclarationAnswers" },
-                  "ids_or_emails": {
-                    "type": "array",
-                    "description": "Employees whose answers differ from all_employees, named by nationality_id or iqama_id.",
-                    "items": {
-                      "type": "object",
-                      "required": ["id_or_email", "answers"],
-                      "properties": {
-                        "id_or_email": { "type": "string", "example": "1111111111" },
-                        "answers": { "$ref": "#/components/schemas/DeclarationAnswers" }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "The policy, with its declarations recorded",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MedicalPolicy" } } }
-          },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" },
-          "422": { "$ref": "#/components/responses/UnprocessableEntity" }
-        }
-      }
-    },
     "/policies/{policyId}/deletion": {
       "post": {
         "summary": "Cancel a policy",
