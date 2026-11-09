@@ -3,6 +3,22 @@ title: 'Changelog'
 icon: 'clock-rotate-left'
 ---
 
+<Update label="9th November 2026" tags={["APIs", "Docs"]}>
+	**SME medical declarations are made once, on the company.** `POST /api/v1/medical/policies/{id}/declarations` and its error `40021` are removed. Declare with [Submit the declarations](/medical-api-reference/medical-forms/submit-the-declarations) before asking for prices; the policy keeps the declarations it was priced on.
+</Update>
+
+<Update label="9th November 2026" tags={["APIs", "Docs"]}>
+	**Add employees to a paid SME medical policy.** The new [Add employees API](/medical-api-reference/policies/add-employees) (`POST /api/v1/medical/policies/{id}/additions`) adds the people on the company's list who are not on the policy yet, after they have declared; if someone joining has not, the answer is `40023` with their `employee_ids`. They are priced by the policy's own insurer from today to the policy's last day and paid through a `payment_link`; once paid they join the same policy. The policy object lists them under `additions`. [Issue the policy](/medical-api-reference/policies/issue-the-policy) now answers `40026` while the company's policy is paid and in force, so a company is never charged twice for the same employees; cancel the policy first to start a new one. New error codes `40026`, `40027` and `40028` are on the [Errors](/api-resources/errors) page, and the [SME Medical Insurance guide](/price-comparison/sme-medical-insurance#add-employees-after-purchase) walks through it.
+</Update>
+
+<Update label="8th November 2026" tags={["APIs", "Docs"]}>
+	**SME medical errors name the employees in a field.** `40022` from [Submit the declarations](/medical-api-reference/medical-forms/submit-the-declarations) and `40023` from [Get prices from every provider](/medical-api-reference/quotes/get-prices-from-every-provider) now carry `employee_ids`, the national ids or iqamas of the people concerned, next to `code` and `message`, so you can match them without reading the message. Codes and messages are unchanged.
+</Update>
+
+<Update label="8th November 2026" tags={["APIs", "Docs"]}>
+	**On production, a company is registered once.** The [Create Company API](/medical-api-reference/company/create-company) refuses a `unified_national_number` you already registered, answering `400` with code `40025` and the existing `company_id` so you can continue with that company. Another partner registering the same company is not affected. Sandbox keeps allowing the same company to be registered again, so test runs can repeat. The [Errors](/api-resources/errors) page lists the new code.
+</Update>
+
 <Update label="28th October 2026" tags={["APIs", "Docs"]}>
 	**SME medical policies come with an invoice of their own.** Once a company has paid, the policy object carries two documents: `policy_url`, the schedule listing every member, and `invoice_url`, a new invoice billing the company one line per package tier for the premium it paid. The two used to point at the same file. On sandbox the invoice is watermarked SANDBOX and says the premiums are placeholder figures; it is not a tax invoice. The [Read the policy](/medical-api-reference/policies/read-the-policy) and [List policies](/medical-api-reference/policies/list-policies) references and the [SME Medical Insurance guide](/price-comparison/sme-medical-insurance#payment-and-policy-activation) describe both fields.
 </Update>

@@ -86,10 +86,22 @@ A failed or abandoned payment is never an API error: the customer pays on the in
 
 | Endpoint                                      | Code    | Status | Message                                                             | When                                                            |
 |-----------------------------------------------|---------|--------|---------------------------------------------------------------------|-----------------------------------------------------------------|
+| `POST /medical/companies`                     | `40025` | 400    | This company is already registered as company 123. Use that company_id instead of creating it again. | Production only: you already registered a company with this `unified_national_number`. The response carries its `company_id`. |
 | `POST /medical/quote-requests`                | `40020` | 400    | Add the company's employees before asking for prices.               | The company has no employees yet.                               |
-|                                               | `40023` | 400    | Every employee has to declare … Still to declare: Mary Major.       | Someone in the company has not declared their medical history.  |
+|                                               | `40023` | 400    | Every employee has to declare … Still to declare: Mary Major.       | Someone in the company has not declared their medical history. `employee_ids` lists their national ids or iqamas. |
+|                                               | `40024` | 400    | SME medical covers up to 250 employees per company; this list has 251. | The company has more than 250 employees.                     |
+| `PUT /medical/companies/{id}/employees`       | `40024` | 400    | SME medical covers up to 250 employees per company; this list has 251. | The list has more than 250 employees. Dependents do not count. |
 | `POST /medical/policies`                      | `40009` | 400    | That quote_price_id does not belong to this quote request.          | The price comes from a different quote request.                 |
-| `PUT /medical/companies/{id}/declarations`    | `40022` | 400    | No employee of this company matches: 9999999999.                    | An `employee_id` is not on the company's employee list.         |
+|                                               | `40026` | 400    | This company already has an active policy (123). Add new employees to it with POST /api/v1/medical/policies/123/additions. | The company's policy is paid and in force. Add employees through an addition instead. |
+| `POST /medical/policies/{id}/additions`       | `40023` | 400    | Everyone joining the policy has to declare their medical history first. Still to declare: Sam New. | Someone joining, dependents included, has not declared. `employee_ids` lists their national ids or iqamas. |
+|                                               | `40024` | 400    | SME medical covers up to 250 employees per company; this list has 251. | The policy would cover more than 250 employees. |
+|                                               | `40027` | 400    | Employees can only be added to a paid policy that is still in force. | The policy is unpaid, cancelled or expired. |
+|                                               | `40028` | 400    | Everyone on the company's employee list is already on this policy. Save the new employees first. | Nobody on the company's list is new to the policy. |
+| `PUT /medical/companies/{id}/declarations`    | `40022` | 400    | No employee of this company matches: 9999999999.                    | An `employee_id` is not an employee or a dependent on the company's list. `employee_ids` lists them. |
+
+<Info>
+`40025` is returned on production only. Sandbox lets you register the same company again so you can re-run your tests.
+</Info>
 
 Payment has no errors of its own: read the policy, and `pending_declarations` names who still has to declare while `payment_link` appears once nobody does. A failed or abandoned payment leaves the policy unissued (`status` 0, `provider_policy_id` null) until a payment succeeds; the [webhooks](/webhooks/guide) tell you when it is issued.
 

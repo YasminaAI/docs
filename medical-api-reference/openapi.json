@@ -24,7 +24,7 @@
   "paths": {
     "/companies": {
       "post": {
-        "description": "You need to create a company record before requesting medical insurance to the employees of the company",
+        "description": "You need to create a company record before requesting medical insurance to the employees of the company. On production, you register each unified national number once: creating a company you already registered answers 400 with code 40025 and the existing company_id, which you use instead. Sandbox allows registering the same company again, so you can re-run tests",
         "summary": "Create company",
         "tags": ["Company"],
         "requestBody": {
@@ -82,6 +82,21 @@
                     "$ref": "#/components/schemas/Company"
                   }
                 }
+            }
+          },
+          "400": {
+            "description": "Production only: this company is already registered under your account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": { "type": "string", "example": "40025" },
+                    "message": { "type": "string", "example": "This company is already registered as company 123. Use that company_id instead of creating it again." },
+                    "company_id": { "type": "integer", "example": 123 }
+                  }
+                }
+              }
             }
           },
           "401": {
@@ -215,6 +230,7 @@
                   "employees": {
                     "type": "array",
                     "minItems": 1,
+                    "maxItems": 250,
                     "items": { "$ref": "#/components/schemas/Insured" }
                   }
                 }
@@ -224,6 +240,15 @@
         },
         "responses": {
           "200": { "description": "The saved list" },
+          "400": {
+            "description": "`40024` when the list has more than 250 employees. Dependents do not count.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" },
+                "example": { "code": "40024", "message": "SME medical covers up to 250 employees per company; this list has 251." }
+              }
+            }
+          },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "422": { "$ref": "#/components/responses/UnprocessableEntity" }
         }
@@ -255,7 +280,7 @@
     "/companies/{companyId}/declarations": {
       "put": {
         "summary": "Submit the declarations",
-        "description": "Every employee's own health declaration in one call, under one consent. Each entry names an employee by `employee_id` and carries their answers to the questions. `consent` must be `true`: by sending it, you confirm the employees have stated that their answers are true and complete and agreed to share them with the insurance provider. The declarations are kept by employee id, apart from the employee list, so editing the list leaves them alone; each call replaces them. Every employee on the list has to have declared before the company can be priced.",
+        "description": "The company's health declarations in one call, under one consent for everyone on the employee list, employees and dependents alike. Send an entry only for someone with something to declare, named by their own id as `employee_id`; the consent declares everyone else, so the consent alone is enough when nobody has anything to declare. `consent` must be `true`: by sending it, you confirm they have stated that their answers are true and complete and agreed to share them with the insurance provider. The declarations are kept by id, apart from the employee list, so editing the list leaves them alone; each call replaces them. Someone added to the list afterwards is not covered until the next call, and the company cannot be priced until then.",
         "tags": ["Medical Forms"],
         "parameters": [{ "name": "companyId", "in": "path", "required": true, "schema": { "type": "integer" } }],
         "requestBody": {
@@ -264,7 +289,7 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["consent", "employees"],
+                "required": ["consent"],
                 "properties": {
                   "consent": {
                     "type": "boolean",
@@ -273,14 +298,14 @@
                   },
                   "employees": {
                     "type": "array",
-                    "minItems": 1,
+                    "description": "Everyone with something to declare, employees and dependents alike, each with their own answers. Leave out everyone else.",
                     "items": {
                       "type": "object",
                       "required": ["employee_id", "answers"],
                       "properties": {
                         "employee_id": {
                           "type": "string",
-                          "description": "The employee's nationality_id, iqama_id or border_number. Each employee once.",
+                          "description": "The id of the person declaring: an employee's nationality_id, iqama_id or border_number, or a dependent's nationality_id or iqama_id. Each person once.",
                           "example": "1111111111"
                         },
                         "answers": { "$ref": "#/components/schemas/DeclarationAnswers" }
@@ -294,7 +319,7 @@
         },
         "responses": {
           "200": {
-            "description": "The company's declarations, keyed by employee id, and who is still to declare",
+            "description": "The company's declarations, keyed by the id of every employee and dependent on the list",
             "content": {
               "application/json": {
                 "schema": {
@@ -305,16 +330,15 @@
                       "additionalProperties": {
                         "type": "object",
                         "properties": {
-                          "answers": { "$ref": "#/components/schemas/DeclarationAnswers" },
+                          "answers": {
+                            "allOf": [{ "$ref": "#/components/schemas/DeclarationAnswers" }],
+                            "nullable": true,
+                            "description": "The answers sent for this person, or null when the consent alone declares them."
+                          },
                           "consent": { "type": "boolean", "enum": [true] },
                           "filled_at": { "type": "string", "format": "date-time" }
                         }
                       }
-                    },
-                    "pending_declarations": {
-                      "type": "array",
-                      "items": { "type": "string" },
-                      "description": "Employees who still have to declare. Empty once everyone has, and the company can be priced."
                     }
                   }
                 }
@@ -322,11 +346,11 @@
             }
           },
           "400": {
-            "description": "An employee_id is not in the company. Nothing is stored.",
+            "description": "An employee_id is not an employee or a dependent on the company's list. Nothing is stored. employee_ids lists them.",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/Error" },
-                "example": { "code": "40022", "message": "No employee of this company matches: 9999999999." }
+                "example": { "code": "40022", "message": "No employee of this company matches: 9999999999.", "employee_ids": ["9999999999"] }
               }
             }
           },
@@ -365,13 +389,14 @@
             }
           },
           "400": {
-            "description": "The company cannot be priced yet: `40020` when it has no employees, `40023` while anyone still has to declare.",
+            "description": "The company cannot be priced yet: `40020` when it has no employees, `40023` while anyone still has to declare (employee_ids lists them), `40024` when it has more than 250 employees.",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/Error" },
                 "example": {
                   "code": "40023",
-                  "message": "Every employee has to declare their medical history before the company can be priced. Still to declare: Mary Major."
+                  "message": "Every employee has to declare their medical history before the company can be priced. Still to declare: Mary Major.",
+                  "employee_ids": ["1111111115"]
                 }
               }
             }
@@ -420,6 +445,12 @@
                     "type": "string",
                     "description": "Where to send the customer once they have paid. `policyID` in it is replaced with the policy's id.",
                     "example": "https://www.example.com?yasmina_policy_id=policyID"
+                  },
+                  "iban": {
+                    "type": "string",
+                    "pattern": "^SA\\d{4}[A-Z0-9]{18}$",
+                    "description": "The company's Saudi IBAN: SA followed by 22 alphanumeric characters, no spaces. It must be a valid Saudi IBAN (correct check digits), so made-up values are rejected. It is kept on the policy and used by the insurance provider to transfer refunds to the company; the account is never charged. Optional for now: it becomes required on 19 November 2026, so start sending it.",
+                    "example": "SA0380000000608010167519"
                   }
                 }
               }
@@ -430,6 +461,26 @@
           "201": {
             "description": "The company's policy, pending payment",
             "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MedicalPolicy" } } }
+          },
+          "400": {
+            "description": "The company already has an active policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "40026"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "This company already has an active policy (123). Add new employees to it with POST /api/v1/medical/policies/123/additions."
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "422": { "$ref": "#/components/responses/UnprocessableEntity" }
@@ -866,6 +917,57 @@
           }
         }
       }
+    },
+    "/policies/{policyId}/additions": {
+      "post": {
+        "summary": "Add employees",
+        "tags": [
+          "Policies"
+        ],
+        "description": "Adds the people on the company employee list who are not on this paid policy yet: new employees with their dependents, and new dependents of employees already covered. Everyone joining must have declared first. They are priced by the insurer of the policy for the days from today to the last day of the policy, and the response carries a payment link. Once paid they join this same policy. Calling again before payment replaces the unpaid addition. Removals are not supported yet.",
+        "parameters": [
+          {
+            "name": "policyId",
+            "required": true,
+            "description": "The id of the paid policy",
+            "in": "path",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "The addition, waiting to be paid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MedicalAddition"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`40023` when someone joining has not declared yet (employee_ids lists them), `40024` when the policy would pass 250 employees, `40027` when the policy is unpaid, cancelled or expired, `40028` when nobody on the list is new.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" },
+                "example": {
+                  "code": "40023",
+                  "message": "Everyone joining the policy has to declare their medical history first. Still to declare: Sam New, Sara New.",
+                  "employee_ids": ["1333333333", "1333333334"]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -922,6 +1024,92 @@
       }
     },
     "schemas": {
+      "MedicalAddition": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "paid"
+            ]
+          },
+          "insurance_provider": {
+            "type": "string",
+            "description": "The insurer of the policy, which prices the addition"
+          },
+          "starts_on": {
+            "type": "string",
+            "format": "date",
+            "description": "The first day the new people are covered: the day the addition was priced"
+          },
+          "ends_on": {
+            "type": "string",
+            "format": "date",
+            "description": "The last day of the policy"
+          },
+          "days": {
+            "type": "integer",
+            "description": "Days from starts_on to ends_on, both included"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "identifier": {
+                  "type": "string",
+                  "description": "National id or iqama"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "employee",
+                    "dependent"
+                  ]
+                },
+                "category": {
+                  "type": "string",
+                  "description": "The tier. A dependent is covered under the tier of the employee they are listed beneath"
+                },
+                "price": {
+                  "type": "number",
+                  "description": "What this person costs for the days covered. Dependents are not charged separately"
+                }
+              }
+            },
+            "description": "Everyone joining: new employees, their dependents, and new dependents of employees already covered"
+          },
+          "total_price": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string",
+            "example": "SAR"
+          },
+          "payment_link": {
+            "type": "string",
+            "nullable": true,
+            "description": "Where the company pays for the addition. Null once it is paid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "paid_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
       "Network": {
         "type": "object",
         "description": "The network of facilities a tier gives access to.",
@@ -1127,6 +1315,13 @@
           "provider_policy_id": { "type": "string", "nullable": true, "description": "The insurer's policy number, once issued." },
           "policy_url": { "type": "string", "nullable": true, "description": "The policy schedule listing every member, once the company has paid. Null before that." },
           "invoice_url": { "type": "string", "nullable": true, "description": "The invoice for the premium the company paid, one line per package tier, once the company has paid. Null before that. On sandbox the document is watermarked SANDBOX and is not a tax invoice." },
+          "additions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MedicalAddition"
+            },
+            "description": "People added to the policy after it was paid for, oldest first. At most one is pending"
+          },
           "redirect_url": { "type": "string", "nullable": true },
           "meta_data": {
             "type": "object",
@@ -1135,6 +1330,7 @@
               "insurance_provider": { "type": "string" },
               "quote_request_id": { "type": "string", "format": "uuid" },
               "quote_price_id": { "type": "string", "format": "uuid" },
+              "iban": { "type": "string", "nullable": true, "description": "The company's IBAN, as sent when issuing the policy. Null if none was sent." },
               "insured": { "type": "array", "items": { "$ref": "#/components/schemas/Insured" } }
             }
           }
