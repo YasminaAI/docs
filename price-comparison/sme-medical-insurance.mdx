@@ -339,7 +339,7 @@ New employees, and new dependents of employees already covered, join the company
 
 4. Send the company to the `payment_link`. Once it pays, the new people appear in the policy's `meta_data.insured` with their declarations, `policy_url` points at a redrawn schedule listing them, and the addition shows `status: paid` under `additions` when you [read the policy](/medical-api-reference/policies/read-the-policy).
 
-Calling the API again before paying replaces the unpaid addition. If nobody on the list is new it answers `40028`; if someone joining has not declared it answers `40023` with their names; on a policy that is unpaid, cancelled or expired it answers `40027`.
+Calling the API again before paying replaces the unpaid addition. If nobody on the list is new it answers `40028`; if someone joining has not declared it answers `40023` with their national ids or iqamas in `employee_ids`; on a policy that is unpaid, cancelled or expired it answers `40027`.
 
 <Info>
 Removing employees from a policy is not supported yet: someone left off the list stays on the policy. On sandbox, addition prices come from the same placeholder figures as quotes.

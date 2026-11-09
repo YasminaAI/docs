@@ -346,11 +346,11 @@
             }
           },
           "400": {
-            "description": "An employee_id is not an employee or a dependent on the company's list. Nothing is stored.",
+            "description": "An employee_id is not an employee or a dependent on the company's list. Nothing is stored. employee_ids lists them.",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/Error" },
-                "example": { "code": "40022", "message": "No employee of this company matches: 9999999999." }
+                "example": { "code": "40022", "message": "No employee of this company matches: 9999999999.", "employee_ids": ["9999999999"] }
               }
             }
           },
@@ -389,13 +389,14 @@
             }
           },
           "400": {
-            "description": "The company cannot be priced yet: `40020` when it has no employees, `40023` while anyone still has to declare, `40024` when it has more than 250 employees.",
+            "description": "The company cannot be priced yet: `40020` when it has no employees, `40023` while anyone still has to declare (employee_ids lists them), `40024` when it has more than 250 employees.",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/Error" },
                 "example": {
                   "code": "40023",
-                  "message": "Every employee has to declare their medical history before the company can be priced. Still to declare: Mary Major."
+                  "message": "Every employee has to declare their medical history before the company can be priced. Still to declare: Mary Major.",
+                  "employee_ids": ["1111111115"]
                 }
               }
             }
@@ -992,21 +993,14 @@
             }
           },
           "400": {
-            "description": "40023: someone joining has not declared. 40024: more than 250 employees. 40027: the policy is unpaid, cancelled or expired. 40028: nobody on the list is new",
+            "description": "`40023` when someone joining has not declared yet (employee_ids lists them), `40024` when the policy would pass 250 employees, `40027` when the policy is unpaid, cancelled or expired, `40028` when nobody on the list is new.",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "code": {
-                      "type": "string",
-                      "example": "40028"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Everyone on the company employee list is already on this policy. Save the new employees first."
-                    }
-                  }
+                "schema": { "$ref": "#/components/schemas/Error" },
+                "example": {
+                  "code": "40023",
+                  "message": "Everyone joining the policy has to declare their medical history first. Still to declare: Sam New, Sara New.",
+                  "employee_ids": ["1333333333", "1333333334"]
                 }
               }
             }

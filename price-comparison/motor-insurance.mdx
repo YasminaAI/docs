@@ -92,9 +92,10 @@ You need to provider the following properties for the Request Quotes API:
 | Field                   | Example Value         | Is Required       | Description                                                                                                                                                                     |
 | ----------------------- | --------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `otp`                   | `1234`                | Yes               | The four-digit OTP received by the customer from the Request OTP API.                                                                                                           |
-| `owner_id`              | `2234567890`          | Yes               | The owner’s national ID (starts with `1` for Saudi nationals) or Iqama ID (starts with `2` for residents). Must be exactly 10 digits.                                           |
+| `owner_id`              | `2234567890`          | Yes               | The owner’s national ID (starts with `1` for Saudi nationals) or Iqama ID (starts with `2` for residents), or a company’s Commercial Registration number (starts with `7`). Must be exactly 10 digits. |
+| `authorized_person_id`  | `1012345678`          | Yes (if company)  | The national ID or Iqama of the person authorized to act for the company; they receive the OTP and sign. Only accepted when `owner_id` is a Commercial Registration. |
 | `email`                 | `someone@example.com` | Yes               | The owner’s email. Must be unique and belong to the one customer (Do not use the same email for multiple customers).                                                            |
-| `birthdate`             | `1988-04-20`          | Yes               | Date of birth of the owner in `YYYY-MM-DD` format. For a Saudi national ID (starts with `1`) give a Hijri date; for an Iqama ID (starts with `2`) give a Gregorian date.        |
+| `birthdate`             | `1988-04-20`          | Yes (if person)   | Date of birth of the owner in `YYYY-MM-DD` format. For a Saudi national ID (starts with `1`) give a Hijri date; for an Iqama ID (starts with `2`) give a Gregorian date. A company has no birthdate: its drivers carry their own. |
 | `phone`                 | `05XXXXXXXX`          | Yes               | Saudi mobile number. Must start with `05` and be exactly 10 digits.                                                                                                             |
 | `car_sequence_number`   | `52423810`            | Conditional       | The car’s sequence number (5-10 digits). Required when `custom_number` is not provided. Do not send both vehicle identifiers.                                                    |
 | `custom_number`         | `1234567890`          | Conditional       | Customs card number for an imported vehicle (6-10 digits). Required when `car_sequence_number` is not provided. Also requires `maker_code`, `model_code`, and `body_type_code`. |
@@ -106,7 +107,7 @@ You need to provider the following properties for the Request Quotes API:
 | `car_estimated_cost`    | `45000`               | Yes               | Estimated market cost of the car in SAR.                                                                                                                                        |
 | `car_model_year`        | `2026`                | No                | Year of manufacture of the car. Must be between 1950 and the next year. If omitted, Yasmina uses the current year.                                                              |
 | `start_date`            | `2026-07-28`          | No                | Start date of the policy in `YYYY-MM-DD` format. It must be after today and before the date 28 days from today.                                                                 |
-| `drivers`               | See below             | No                | An array of driver objects. When provided, the sum of all `driving_percentage` values must equal 100, and the owner must be included among the drivers.                         |
+| `drivers`               | See below             | Yes (if company)  | An array of driver objects. Optional for a person: when provided, the sum of all `driving_percentage` values must equal 100, and the owner must be included among the drivers. Required for a company, which cannot drive: at least one driver, adding up to 100. |
 
 ### Customs card vehicle lookup
 
@@ -179,8 +180,9 @@ When providing drivers, each driver object must include the following fields:
 | `driving_percentage` | `50`          | Yes         | Percentage of driving for this driver. Valid values: `25`, `50`, `75`, or `100`. The sum of all drivers' percentages must equal 100. |
 
 <Note>
-  When drivers are provided, the vehicle owner must be included among the
-  drivers.
+  When drivers are provided for a person, the vehicle owner must be included
+  among the drivers. For a company buyer, the drivers are whoever drives: the
+  authorized person is not assumed to be one, and the array is required.
 </Note>
 
 <Warning>
