@@ -3,83 +3,83 @@ title: 'Changelog'
 icon: 'clock-rotate-left'
 ---
 
-<Update label="9th November 2026" tags={["APIs", "Docs"]}>
+<Update label="9th November 2026" tags={["SME Medical", "APIs", "Docs"]}>
 	**SME medical declarations are made once, on the company.** `POST /api/v1/medical/policies/{id}/declarations` and its error `40021` are removed. Declare with [Submit the declarations](/medical-api-reference/medical-forms/submit-the-declarations) before asking for prices; the policy keeps the declarations it was priced on.
 </Update>
 
-<Update label="9th November 2026" tags={["APIs", "Docs"]}>
+<Update label="9th November 2026" tags={["SME Medical", "APIs", "Docs"]}>
 	**Add employees to a paid SME medical policy.** The new [Add employees API](/medical-api-reference/policies/add-employees) (`POST /api/v1/medical/policies/{id}/additions`) adds the people on the company's list who are not on the policy yet, after they have declared; if someone joining has not, the answer is `40023` with their `employee_ids`. They are priced by the policy's own insurer from today to the policy's last day and paid through a `payment_link`; once paid they join the same policy. The policy object lists them under `additions`. [Issue the policy](/medical-api-reference/policies/issue-the-policy) now answers `40026` while the company's policy is paid and in force, so a company is never charged twice for the same employees; cancel the policy first to start a new one. New error codes `40026`, `40027` and `40028` are on the [Errors](/api-resources/errors) page, and the [SME Medical Insurance guide](/price-comparison/sme-medical-insurance#add-employees-after-purchase) walks through it.
 </Update>
 
-<Update label="8th November 2026" tags={["APIs", "Docs"]}>
+<Update label="8th November 2026" tags={["SME Medical", "APIs", "Docs"]}>
 	**SME medical errors name the employees in a field.** `40022` from [Submit the declarations](/medical-api-reference/medical-forms/submit-the-declarations) and `40023` from [Get prices from every provider](/medical-api-reference/quotes/get-prices-from-every-provider) now carry `employee_ids`, the national ids or iqamas of the people concerned, next to `code` and `message`, so you can match them without reading the message. Codes and messages are unchanged.
 </Update>
 
-<Update label="8th November 2026" tags={["APIs", "Docs"]}>
+<Update label="8th November 2026" tags={["SME Medical", "APIs", "Docs"]}>
 	**On production, a company is registered once.** The [Create Company API](/medical-api-reference/company/create-company) refuses a `unified_national_number` you already registered, answering `400` with code `40025` and the existing `company_id` so you can continue with that company. Another partner registering the same company is not affected. Sandbox keeps allowing the same company to be registered again, so test runs can repeat. The [Errors](/api-resources/errors) page lists the new code.
 </Update>
 
-<Update label="28th October 2026" tags={["APIs", "Docs"]}>
+<Update label="28th October 2026" tags={["SME Medical", "APIs", "Docs"]}>
 	**SME medical policies come with an invoice of their own.** Once a company has paid, the policy object carries two documents: `policy_url`, the schedule listing every member, and `invoice_url`, a new invoice billing the company one line per package tier for the premium it paid. The two used to point at the same file. On sandbox the invoice is watermarked SANDBOX and says the premiums are placeholder figures; it is not a tax invoice. The [Read the policy](/medical-api-reference/policies/read-the-policy) and [List policies](/medical-api-reference/policies/list-policies) references and the [SME Medical Insurance guide](/price-comparison/sme-medical-insurance#payment-and-policy-activation) describe both fields.
 </Update>
 
-<Update label="27th October 2026" tags={["APIs", "Docs"]}>
+<Update label="27th October 2026" tags={["SME Medical", "APIs", "Docs"]}>
 	**Claims leave the SME medical API.** Claims are not part of the medical product. `POST /api/v1/medical/policies/{id}/claims` and `GET /api/v1/medical/policies/{id}/claims/{claim}` now return 404, the Issue claim page is gone from the medical API reference, and the SME medical guides no longer mention claims.
 </Update>
 
-<Update label="26th October 2026" tags={["APIs", "Docs"]}>
+<Update label="26th October 2026" tags={["SME Medical", "APIs", "Docs"]}>
 	**SME medical packages no longer carry a price.** The [Categories API](/medical-api-reference/products/list-categories) describes what each insurance provider covers in each tier; the `price` field that used to sit on every category is gone. A package is priced on the [Quote request API](/medical-api-reference/quotes/get-prices-from-every-provider), for the company's own employees, once they are saved and have declared. The [SME Medical Insurance guide](/price-comparison/sme-medical-insurance#compare-the-packages) now says so.
 </Update>
 
-<Update label="22nd October 2026" tags={["APIs"]}>
+<Update label="22nd October 2026" tags={["Motor", "APIs"]}>
 	**Car sequence numbers of 5 to 10 digits are accepted.** `car_sequence_number` on the Request Quotes API, the Issue Policy API and the TPL Motor Insurance API used to be rejected outside 8 or 9 digits, which turned away valid registrations at both ends. Every endpoint now accepts 5 to 10 digits; the guides and API references say so.
 </Update>
 
-<Update label="5th October 2026" tags={["Docs"]}>
+<Update label="5th October 2026" tags={["Motor", "Docs"]}>
 	**Driver birthdates follow the driver's own ID.** The `drivers[]` entries on the Request Quotes API and the Embed Session API take a Hijri (Umm al-Qura) `birthdate` for a Saudi national ID (starts with `1`) and a Gregorian one for an Iqama ID (starts with `2`), the same rule the owner's `birthdate` already followed. The backend has always validated it this way; a Gregorian year sent for a national ID is rejected as a date in the future. The Motor Insurance guide and the API reference now say so, and the example requests, which showed a Gregorian date on a national ID, are corrected.
 </Update>
 
-<Update label="14th September 2026" tags={["Docs", "APIs"]}>
+<Update label="14th September 2026" tags={["Motor", "SME Medical", "Docs", "APIs"]}>
 	**Every error now has its own code.** The [Errors](/api-resources/errors) page lists the errors any endpoint can return, then the ones specific to each product, with the message and the reason for each. Cases that used to share `40000` are told apart: no OTP requested yet (`40001`), car or owner not verified by Yakeen (`40002`, `40003`, `40004`), phone not the owner's or already in use (`40005`, `40006`), unknown quote request, quote, price or benefit (`40007`, `40008`, `40009`, `40011`), IBAN refused (`40013`), photo problems (`40014`, `40015`), the insurer's own refusal (`40016`), and a policy that cannot be cancelled yet (`40017`). SME medical rules have theirs too: a company with no employees (`40020`), declarations on a policy the insurer already issued (`40021`), an `ids_or_emails` entry naming nobody (`40022`). `422` is reserved for field validation and is always `42201`; the medical rules that used to answer `422` answer `400` now.
 	`code` is always a JSON string now; a few responses used to send a number. Every error is JSON with a `code` whatever the `Accept` header says: business-rule rejections and rate limits used to come back as an HTML page or a bare `message`. `POST /api/v1/car-comp/issue-otp` answers `400` instead of `200` when the quote request belongs to another client. An unreachable insurer is `504` / `50401`, not `502`.
 	**Rate limits are enforced** as described on the rewritten [Rate limiting](/api-resources/rate) page: 120 reads, 60 writes and 30 issue-type calls a minute per client, answered with `429` / `42901` and `retry_after_seconds` when exceeded.
 </Update>
 
-<Update label="30th August 2026" tags={["Docs", "APIs"]}>
+<Update label="30th August 2026" tags={["Motor", "Docs", "APIs"]}>
 	Added the Guideline Texts API (`GET /api/v1/car-comp/guideline-texts`): the copy to show alongside motor quotes — the provider attribution with its Insurance Authority licence, the support routes, and the buyer FAQ — returned in English and Arabic together. Fetch it rather than hard-coding the wording, so changes reach you without an integration change.
 </Update>
 
-<Update label="26th August 2026" tags={["Docs", "APIs"]}>
+<Update label="26th August 2026" tags={["Motor", "Docs", "APIs"]}>
 	Added the Upload Vehicle Photos API (`POST /api/v1/car-comp/quote-requests/{id}/attachments`): the five vehicle photos (`front`, `back`, `right`, `left`, `chassis`) required for comprehensive cover, sent as file uploads with the selected `quote_price_id`. Call it before requesting the payment OTP — the insurance provider downloads and checks every image during the call, so an unreadable photo is rejected while the customer can still retake it. All five are required together, JPG or PNG up to 3 MB each, and the photos can only be submitted once per vehicle.
 </Update>
 
-<Update label="19th August 2026" tags={["Docs", "APIs"]}>
+<Update label="19th August 2026" tags={["Motor", "Docs", "APIs"]}>
 	Moved the `iban` field from the Issue Policy API to the Issue OTP API (`POST /api/v1/car-comp/issue-otp`), where it is now **required**. The customer's Saudi IBAN (`SA` followed by 22 digits) is forwarded to the insurance provider with the payment OTP request and used for claim settlements and refunds. `POST /api/v1/car-comp/policies` no longer accepts the field.
 </Update>
 
-<Update label="18th August 2026" tags={["Docs", "APIs"]}>
+<Update label="18th August 2026" tags={["Motor", "Docs", "APIs"]}>
 	Added the optional `iban` field to the Issue Policy API (`POST /api/v1/car-comp/policies`): the customer's Saudi IBAN (`SA` followed by 22 digits) that insurance providers use to transfer claim settlements and refunds. Sending it is strongly recommended; when omitted, payouts are routed through a Yasmina fallback account, which can delay refunds to the customer.
 </Update>
 
-<Update label="21st July 2026" tags={["Docs", "APIs"]}>
+<Update label="21st July 2026" tags={["Motor", "Docs", "APIs"]}>
 	Documented TPL Motor Insurance policy cancellation document validation. Cancellation requests now require an updated vehicle information document that matches the policy VIN and sequence number, and confirms that ownership transfer is complete. Added the new `422` cancellation document mismatch response to the TPL Motor Insurance API reference.
 	Removed the unused TPL Motor Insurance v1 API reference from the API Reference navigation.
 </Update>
 
-<Update label="17th June 2026" tags={["Docs"]}>
+<Update label="17th June 2026" tags={["Motor", "Docs"]}>
 	Added `otp` as a required field to the Request Quotes API (`POST /api/v1/car-comp/quote-requests`) and Issue Policy API (`POST /api/v1/car-comp/policies`) documentation. The field was already required by the backend but was missing from the docs and API reference.
 </Update>
 
-<Update label="9th June 2026" tags={["Docs", "APIs"]}>
+<Update label="9th June 2026" tags={["Motor", "Docs", "APIs"]}>
 	Added `company_logo_url` and `square_company_logo_url` to motor quote responses so clients can display both the standard company logo and square logo from the CDN.
 	Added the optional `Accept-Language: ar` header to the Car Insurance Request Quotes API for Arabic-localized quote content.
 </Update>
 
-<Update label="24th December 2025" tags={["Docs", "APIs"]}>
+<Update label="24th December 2025" tags={["Motor", "Docs", "APIs"]}>
 	Added support for `custom_number` as an alternative to `car_sequence_number` in car quote requests. The `custom_number` is used for newly imported cars and must be between 1000000 and 9999999999.
 </Update>
 
-<Update label="10th December 2025" tags={["Docs", "APIs"]}>
+<Update label="10th December 2025" tags={["Motor", "Docs", "APIs"]}>
 	Add start_date to the Car Insurance Issue Policy API documentation
 </Update>
 
@@ -87,7 +87,7 @@ icon: 'clock-rotate-left'
 	Seperated Products between Multi Providers and Single Provider
 </Update>
 
-<Update label="7th October 2025" tags={["Docs"]}>
+<Update label="7th October 2025" tags={["Motor", "Docs"]}>
 	Added Payment section to Motor Insurance
 </Update>
 
