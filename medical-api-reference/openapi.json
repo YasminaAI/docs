@@ -831,6 +831,65 @@
         }
       }
     },
+    "/texts": {
+      "get": {
+        "summary": "Get the terms and consent",
+        "description": "Three texts to show your users as they are, each a plain string: the consent the health declarations are submitted under, the insurance company agreement and the aggregator agreement. One language per request, picked by the `Accept-Language` header: `ar` for Arabic, English otherwise. Show the consent before [submitting the declarations](/medical-api-reference/medical-forms/submit-the-declarations); sending `consent: true` means the company accepted it.",
+        "tags": [
+          "Medical Forms"
+        ],
+        "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "required": false,
+            "description": "`ar` for Arabic. Anything else, or no header, returns English.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "en",
+                "ar"
+              ],
+              "default": "en"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The three texts, in the language asked for",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "consent": {
+                      "type": "string",
+                      "description": "The consent the health declarations are submitted under: the company confirms it collected every member's health declaration form, signed and stamped, and will keep them available."
+                    },
+                    "insurance_company_agreement": {
+                      "type": "string",
+                      "description": "The insurance company's terms and conditions. Lines are separated by `\\n`: show it with its line breaks."
+                    },
+                    "aggregator_agreement": {
+                      "type": "string",
+                      "description": "The aggregator's terms and conditions, including the medical declaration terms. Lines are separated by `\\n`: show it with its line breaks."
+                    }
+                  },
+                  "example": {
+                    "consent": "I acknowledge that I have obtained all the health declaration forms, filled in with reference to the entity's employees as they were answered before getting the offers, with their signatures taken and certified with the establishment's stamp. I undertake to keep the health declaration forms and to make them available when needed.",
+                    "insurance_company_agreement": "By buying this policy, you agree to the following terms of the insurance company:\n\n1. The insurance company issues the policy under the unified health insurance policy of the Council of Health Insurance. The benefits, limits, exclusions, medical network and each member's class are as stated in the policy schedule.\n2. Cover starts on the policy start date, once the premium is paid in full and the members are registered with the Council of Health Insurance.\n3. The insurance company prices and accepts the policy on the basis of the information provided about the establishment, its members and their health declarations. Incorrect or incomplete information may lead to a claim being rejected, the premium being adjusted or the policy being cancelled, in line with the policy and the Insurance Authority's regulations.\n4. The policy can hold more than one class, and each member is covered under their own class. A member's class can be upgraded during the policy period with the insurance company's prior approval.\n5. The employer adds new employees and their eligible dependents, and removes those who leave, during the policy period, and the premium is adjusted for each addition or removal. Newborns must be added within 30 days of birth.\n6. The employer keeps members' details up to date, including replacing a border number with the iqama number once it is issued, so that cover stays linked to the member's ID with the Council of Health Insurance.\n7. Members are treated inside the medical network of their class on showing their ID. Outside the network, only emergencies are covered, as set out in the policy.\n8. Claims for covered costs can be submitted by the member, or by the employer on their behalf, through the insurance company's channels.\n9. The insurance company may obtain the establishment's and members' data from the National Information Center to issue and manage the policy, in line with the Personal Data Protection Law.\n10. Cancelling the policy and refunding the premium follow the unified policy and the Insurance Authority's regulations.\n11. The policy runs for one year and may be renewed by agreement of both parties.\n12. Complaints go to the insurance company first, then to the Insurance Authority if they are not resolved. These terms are governed by the laws of the Kingdom of Saudi Arabia.",
+                    "aggregator_agreement": "By continuing with our services, you hereby declare all of the following:\n\n1. I hereby acknowledge that the insured members who were not selected do not need a medical declaration (their medical declaration questions will be answered \"No\", without stating weight and height).\n2. I undertake that I have provided correct information, and I agree to appoint Provider name as our exclusive insurance broker to negotiate in our name and on our behalf with any insurance company, and to grant Provider name the right to use this information, share it with insurance companies, and inquire about the company's and/or the employees' data.\n3. I undertake that all the medical declarations were filled in with reference to the employee concerned, for correct pricing and to ensure access to the required healthcare services. This means:\n   a. You confirm that the information in all the medical declarations is correct, that offers will be accepted on the basis of this information, and that the insurance company has the right to contact the hospitals it deals with to collect any medical information needed to assess the risk.\n   b. You agree that the insurance company has the right to reject the coverage or the claim in full if any condition existing before the contract date, before enrolment, or before a new member is added during the contract period was not declared.\n   c. You confirm that you have read and understood all the points in the medical declaration form, and you agree that if all members are stated to have no medical declarations, all members are in normal health for their age and gender.\n   d. Failure to fill in weight and height will lead to the cost of obesity surgery not being covered.\n4. As an employer, I declare that I comply with all the requirements of the Insurance Authority, the regulations of the Council of Health Insurance, and the related decisions."
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
     "/policies/{policyId}": {
       "get": {
         "summary": "Read the policy",
