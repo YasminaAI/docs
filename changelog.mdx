@@ -23,6 +23,18 @@ icon: 'clock-rotate-left'
 	**On production, a company is registered once.** The [Create Company API](/medical-api-reference/company/create-company) refuses a `unified_national_number` you already registered, answering `400` with code `40025` and the existing `company_id` so you can continue with that company. Another partner registering the same company is not affected. Sandbox keeps allowing the same company to be registered again, so test runs can repeat. The [Errors](/api-resources/errors) page lists the new code.
 </Update>
 
+<Update label="5th November 2026" tags={["SME Medical", "APIs", "Docs"]}>
+	**SME medical policies take the company's IBAN, required from 19 November 2026.** [Issue the policy](/medical-api-reference/policies/issue-the-policy) accepts `iban`, the company's Saudi IBAN (`SA` followed by 22 characters, with correct check digits), which the insurance provider uses to transfer refunds; the account is never charged. It is optional until **19 November 2026**. From that date a policy issued without it is rejected, so start collecting the company's IBAN and sending it now. The policy object returns it as `meta_data.iban`, and the [SME Medical Insurance guide](/price-comparison/sme-medical-insurance#issue-the-policy) shows it in the example.
+</Update>
+
+<Update label="5th November 2026" tags={["SME Medical", "APIs", "Docs"]}>
+	**One consent declares everyone on the company's list.** [Submit the declarations](/medical-api-reference/medical-forms/submit-the-declarations) takes one `consent` for every employee and dependent on the list, and an entry in `employees` only for someone with something to declare, named by their own id as `employee_id`. That id can now be a dependent's `nationality_id` or `iqama_id`. Everyone else is declared by the consent, so `{"consent": true}` alone is enough when nobody has anything to declare; sending everyone's answers still works. In the response, `answers` is `null` for anyone the consent declares, and `pending_declarations` is gone (the policy object keeps its own). Someone added to the list later is not covered: prices are refused with `40023` naming them until you submit the declarations again. The [SME Medical Insurance guide](/price-comparison/sme-medical-insurance#health-declaration-forms) has an example with a dependent.
+</Update>
+
+<Update label="5th November 2026" tags={["SME Medical", "APIs", "Docs"]}>
+	**An SME medical company covers up to 250 employees.** [Save the employees](/medical-api-reference/employees/save-the-employees) refuses a list of more than 250 employees with `400` / `40024`, and [Get prices from every provider](/medical-api-reference/quotes/get-prices-from-every-provider) refuses a company that has more. Dependents do not count towards the limit. The [Errors](/api-resources/errors) page lists the new code.
+</Update>
+
 <Update label="28th October 2026" tags={["SME Medical", "APIs", "Docs"]}>
 	**SME medical policies come with an invoice of their own.** Once a company has paid, the policy object carries two documents: `policy_url`, the schedule listing every member, and `invoice_url`, a new invoice billing the company one line per package tier for the premium it paid. The two used to point at the same file. On sandbox the invoice is watermarked SANDBOX and says the premiums are placeholder figures; it is not a tax invoice. The [Read the policy](/medical-api-reference/policies/read-the-policy) and [List policies](/medical-api-reference/policies/list-policies) references and the [SME Medical Insurance guide](/price-comparison/sme-medical-insurance#payment-and-policy-activation) describe both fields.
 </Update>
