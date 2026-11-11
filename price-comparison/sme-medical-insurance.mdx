@@ -40,7 +40,7 @@ Authorization: Bearer \{access_token\}
 
 ## Terms and consent
 
-The [Terms and consent API](/medical-api-reference/medical-forms/get-the-terms-and-consent) returns the texts to show your users as they are: the aggregator's terms and conditions, the insurance company's terms and conditions, and the consent the health declarations are submitted under (see [Health declaration forms](#health-declaration-forms)). Send `Accept-Language: ar` for Arabic; anything else returns English. Fetch them rather than copying them into your platform, so a change of wording reaches your users without a release on your side.
+The [Terms and consent API](/medical-api-reference/medical-forms/get-the-terms-and-consent) returns three texts to show your users as they are, each a plain string: `consent`, the consent the health declarations are submitted under (see [Health declaration forms](#health-declaration-forms)), `insurance_company_agreement` and `aggregator_agreement`. Send `Accept-Language: ar` for Arabic; anything else returns English. Fetch them rather than copying them into your platform, so a change of wording reaches your users without a release on your side.
 
 ## Companies
 
