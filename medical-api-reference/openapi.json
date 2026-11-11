@@ -831,6 +831,158 @@
         }
       }
     },
+    "/texts": {
+      "get": {
+        "summary": "Get the terms and consent",
+        "description": "The texts to show your users as they are: the aggregator's terms and conditions, the insurance company's terms and conditions, and the consent the health declarations are submitted under. One language per request, picked by the `Accept-Language` header: `ar` for Arabic, English otherwise. Show the consent before [submitting the declarations](/medical-api-reference/medical-forms/submit-the-declarations); sending `consent: true` means the company accepted it.",
+        "tags": [
+          "Medical Forms"
+        ],
+        "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "required": false,
+            "description": "`ar` for Arabic. Anything else, or no header, returns English.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "en",
+                "ar"
+              ],
+              "default": "en"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The texts, in the language asked for",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "terms": {
+                      "type": "object",
+                      "properties": {
+                        "aggregator": {
+                          "type": "object",
+                          "description": "The aggregator's terms and conditions.",
+                          "properties": {
+                            "title": {
+                              "type": "string",
+                              "description": "The heading to show above the text."
+                            },
+                            "text": {
+                              "type": "string",
+                              "description": "The terms and conditions. Paragraphs are separated by a blank line."
+                            }
+                          }
+                        },
+                        "insurer": {
+                          "type": "object",
+                          "description": "The insurance company's terms and conditions.",
+                          "properties": {
+                            "title": {
+                              "type": "string",
+                              "description": "The heading to show above the text."
+                            },
+                            "text": {
+                              "type": "string",
+                              "description": "The terms and conditions. Paragraphs are separated by a blank line."
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "consent": {
+                      "type": "object",
+                      "description": "The consent the health declarations are submitted under.",
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "description": "The heading to show above the consent."
+                        },
+                        "intro": {
+                          "type": "string",
+                          "description": "The sentence that introduces the clauses."
+                        },
+                        "clauses": {
+                          "type": "array",
+                          "description": "The clauses, in order. Show them as a numbered list.",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "text": {
+                                "type": "string"
+                              },
+                              "points": {
+                                "type": "array",
+                                "description": "The clause's points, in order, shown under it as a lettered list. Empty when the clause has none.",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "acceptance": {
+                          "type": "string",
+                          "description": "The label of the checkbox the company ticks to accept the consent."
+                        }
+                      }
+                    }
+                  },
+                  "example": {
+                    "terms": {
+                      "aggregator": {
+                        "title": "Aggregator terms and conditions",
+                        "text": "The aggregator's terms and conditions will be published here."
+                      },
+                      "insurer": {
+                        "title": "Insurance company terms and conditions",
+                        "text": "The insurance company's terms and conditions will be published here."
+                      }
+                    },
+                    "consent": {
+                      "title": "Terms and conditions of the medical declaration",
+                      "intro": "By continuing with our services, you hereby declare all of the following:",
+                      "clauses": [
+                        {
+                          "text": "I hereby acknowledge that the insured members who were not selected do not need a medical declaration (their medical declaration questions will be answered \"No\", without stating weight and height).",
+                          "points": []
+                        },
+                        {
+                          "text": "I undertake that I have provided correct information, and I agree to appoint Provider name as our exclusive insurance broker to negotiate in our name and on our behalf with any insurance company, and to grant Provider name the right to use this information, share it with insurance companies, and inquire about the company's and/or the employees' data.",
+                          "points": []
+                        },
+                        {
+                          "text": "I undertake that all the medical declarations were filled in with reference to the employee concerned, for correct pricing and to ensure access to the required healthcare services. This means:",
+                          "points": [
+                            "You confirm that the information in all the medical declarations is correct, that offers will be accepted on the basis of this information, and that the insurance company has the right to contact the hospitals it deals with to collect any medical information needed to assess the risk.",
+                            "You agree that the insurance company has the right to reject the coverage or the claim in full if any condition existing before the contract date, before enrolment, or before a new member is added during the contract period was not declared.",
+                            "You confirm that you have read and understood all the points in the medical declaration form, and you agree that if all members are stated to have no medical declarations, all members are in normal health for their age and gender.",
+                            "Failure to fill in weight and height will lead to the cost of obesity surgery not being covered."
+                          ]
+                        },
+                        {
+                          "text": "As an employer, I declare that I comply with all the requirements of the Insurance Authority, the regulations of the Council of Health Insurance, and the related decisions.",
+                          "points": []
+                        }
+                      ],
+                      "acceptance": "I acknowledge and accept all the terms and conditions above"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
     "/policies/{policyId}": {
       "get": {
         "summary": "Read the policy",

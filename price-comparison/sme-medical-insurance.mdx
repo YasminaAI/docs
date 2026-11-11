@@ -38,6 +38,10 @@ Authorization: Bearer \{access_token\}
 
 <Warning>For security reasons. Do not make your client_id and client_secret public in your platform.</Warning>
 
+## Terms and consent
+
+The [Terms and consent API](/medical-api-reference/medical-forms/get-the-terms-and-consent) returns the texts to show your users as they are: the aggregator's terms and conditions, the insurance company's terms and conditions, and the consent the health declarations are submitted under (see [Health declaration forms](#health-declaration-forms)). Send `Accept-Language: ar` for Arabic; anything else returns English. Fetch them rather than copying them into your platform, so a change of wording reaches your users without a release on your side.
+
 ## Companies
 
 ### Create a Company record
@@ -177,7 +181,7 @@ Insurers require a past medical history from every employee before they will pri
 
 2. **The printable form**: the [Download declaration form API](/medical-api-reference/medical-forms/download-the-declaration-form) returns the same declaration as a PDF. Pass the `policy_id` and the file carries one page per employee on the policy, with their name, id and package filled in, ready to print or email. Leave `policy_id` out for a single blank form.
 
-3. **Submitting the declarations**: send them in one call with the [Submit the declarations API](/medical-api-reference/medical-forms/submit-the-declarations). One `consent` covers everyone on the employee list, employees and dependents alike, and must be `true`, confirming they have stated that their answers are true and complete and agreed to share them with the insurance provider. Show that statement before submitting.
+3. **Submitting the declarations**: send them in one call with the [Submit the declarations API](/medical-api-reference/medical-forms/submit-the-declarations). One `consent` covers everyone on the employee list, employees and dependents alike, and must be `true`, confirming they have stated that their answers are true and complete and agreed to share them with the insurance provider. Show the `consent` from the [Terms and consent API](/medical-api-reference/medical-forms/get-the-terms-and-consent) before submitting.
 
 	Add an entry only for someone with something to declare. It names them by their own id as `employee_id`: an employee's `nationality_id`, `iqama_id` or `border_number`, or a dependent's `nationality_id` or `iqama_id`. It carries their answers. Everyone else is declared by the consent alone, so `{"consent": true}` is enough when nobody has anything to declare.
 
