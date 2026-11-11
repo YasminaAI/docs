@@ -3,6 +3,10 @@ title: 'Changelog'
 icon: 'clock-rotate-left'
 ---
 
+<Update label="11th November 2026" tags={["SME Medical", "APIs", "Docs"]}>
+	**The SME medical terms and consent come from the API.** The new [Get the terms and consent API](/medical-api-reference/medical-forms/get-the-terms-and-consent) (`GET /api/v1/medical/texts`) returns the three texts to show your users, each a plain string: `consent`, the acknowledgement the health declarations are submitted under; `insurance_company_agreement`, the insurance company's terms and conditions; and `aggregator_agreement`, the aggregator's terms, including the medical declaration terms. Send `Accept-Language: ar` for Arabic; anything else returns English. Fetch them rather than copying them into your platform, so a change of wording reaches your users without a release on your side. The [SME Medical Insurance guide](/price-comparison/sme-medical-insurance#terms-and-consent) says where to show them.
+</Update>
+
 <Update label="9th November 2026" tags={["SME Medical", "APIs", "Docs"]}>
 	**SME medical declarations are made once, on the company.** `POST /api/v1/medical/policies/{id}/declarations` and its error `40021` are removed. Declare with [Submit the declarations](/medical-api-reference/medical-forms/submit-the-declarations) before asking for prices; the policy keeps the declarations it was priced on.
 </Update>
