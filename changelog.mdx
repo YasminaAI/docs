@@ -3,6 +3,14 @@ title: 'Changelog'
 icon: 'clock-rotate-left'
 ---
 
+<Update label="13th November 2026" tags={["Motor", "APIs", "Docs"]}>
+	**`40016` is replaced by `50302`, and insurer errors are no longer passed through.** Motor endpoints used to answer `400` / `40016` with the insurer's own error text whenever we had no wording of our own — including, on occasion, the insurer's internal database errors, which read as though your request was at fault. They now answer `503` with the new code `50302` and the message "The insurance service is temporarily unavailable. Please try again in a few minutes." (Arabic with `Accept-Language: ar`). **`40016` is no longer returned**; if you match on it, match on `50302` instead and treat it as retryable with the request unchanged. Every message behind it now raises an alert on our side, so anything that turns out to be a real customer error gets a code of its own — the first of those is also in this release. The [Errors](/api-resources/errors) page lists both codes.
+</Update>
+
+<Update label="13th November 2026" tags={["Motor", "APIs", "Docs"]}>
+	**New error `40029`: the email belongs to another customer.** `POST /car-comp/quote-otp` answers `400` / `40029` with "This email address is already registered to another customer. Please use a different email address." when the insurer has the email on file against a different person. It used to arrive as `40016` in the insurer's own English wording. Ask the customer for another address and request the OTP again. The [Errors](/api-resources/errors) page lists it.
+</Update>
+
 <Update label="11th November 2026" tags={["SME Medical", "APIs", "Docs"]}>
 	**The SME medical terms and consent come from the API.** The new [Get the terms and consent API](/medical-api-reference/medical-forms/get-the-terms-and-consent) (`GET /api/v1/medical/texts`) returns the three texts to show your users, each a plain string: `consent`, the acknowledgement the health declarations are submitted under; `insurance_company_agreement`, the insurance company's terms and conditions; and `aggregator_agreement`, the aggregator's terms, including the medical declaration terms. Send `Accept-Language: ar` for Arabic; anything else returns English. Fetch them rather than copying them into your platform, so a change of wording reaches your users without a release on your side. The [SME Medical Insurance guide](/price-comparison/sme-medical-insurance#terms-and-consent) says where to show them.
 </Update>
