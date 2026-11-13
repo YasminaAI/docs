@@ -4,7 +4,7 @@ icon: 'clock-rotate-left'
 ---
 
 <Update label="13th November 2026" tags={["Motor", "APIs", "Docs"]}>
-	**A quote OTP is tied to the `owner_id` it was requested for.** `POST /car-comp/quote-requests` now answers `400` / `40001` "You need to request an OTP before getting Quotation" when the `owner_id` is not the one the OTP was requested for on that phone number — most often a customer correcting a mistyped ID after the code was already sent. Request a fresh OTP for the corrected ID and quote again. Previously the call went through to the insurer, who refused it, and you received their refusal instead. Nothing changes when the ID is unchanged between the two calls. The [Errors](/api-resources/errors) page has the detail.
+	**A quote OTP is tied to the identity it was requested for.** `POST /car-comp/quote-requests` now answers `400` / `40001` "You need to request an OTP before getting Quotation" when the OTP on that phone number was requested for a different identity — most often a customer correcting a mistyped ID after the code was already sent. Request a fresh OTP for the corrected ID and quote again. Previously the call went through to the insurer, who refused it, and you received their refusal instead. The OTP verifies one person: the `owner_id` for an individual, the `authorized_person_id` for a company, so company quotes are unaffected. Nothing changes when the identity is the same across both calls. The [Errors](/api-resources/errors) page has the detail.
 </Update>
 
 <Update label="11th November 2026" tags={["SME Medical", "APIs", "Docs"]}>
