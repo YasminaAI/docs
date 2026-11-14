@@ -3,6 +3,18 @@ title: 'Changelog'
 icon: 'clock-rotate-left'
 ---
 
+<Update label="14th November 2026" tags={["Motor", "APIs", "Docs"]}>
+	**New error `40030`: the quote has expired.** `POST /car-comp/policies` answers `400` / `40030` with "This quote has expired. Please request new prices for this vehicle." when the quote is past the insurer's expiry date. Retrying will not help — start again at `POST /car-comp/quote-requests` for fresh prices. Until now the call went through to the insurer, who refused it. Every quote carries `quote_expiry_date`, so you can check it before offering the purchase. The [Errors](/api-resources/errors) page lists it.
+</Update>
+
+<Update label="13th November 2026" tags={["Motor", "APIs", "Docs"]}>
+	**`40016` is replaced by `50302`.** Motor endpoints used to answer `400` / `40016` when the insurer's system was unavailable or it refused the request. They now answer `503` with the new code `50302` and the message "The insurance service is temporarily unavailable. Please try again in a few minutes." (Arabic with `Accept-Language: ar`). **`40016` is no longer returned** — if you match on it, match on `50302` instead, and treat it as retryable with the request unchanged. Two codes narrow by the same rule: `40013` on `POST /car-comp/issue-otp` now means the IBAN itself was rejected, and `40015` from `POST /car-comp/quote-requests/{id}/attachments` always reads "The vehicle photos could not be uploaded. Please try again." Refusals that turn out to be the customer's to fix get codes of their own as we find them — the first is also in this release. The [Errors](/api-resources/errors) page lists both codes.
+</Update>
+
+<Update label="13th November 2026" tags={["Motor", "APIs", "Docs"]}>
+	**New error `40029`: the email belongs to another customer.** `POST /car-comp/quote-otp` answers `400` / `40029` with "This email address is already registered to another customer. Please use a different email address." when the insurer has the email on file against a different person. It used to arrive as `40016`. Ask the customer for another address and request the OTP again. The [Errors](/api-resources/errors) page lists it.
+</Update>
+
 <Update label="11th November 2026" tags={["SME Medical", "APIs", "Docs"]}>
 	**The SME medical terms and consent come from the API.** The new [Get the terms and consent API](/medical-api-reference/medical-forms/get-the-terms-and-consent) (`GET /api/v1/medical/texts`) returns the three texts to show your users, each a plain string: `consent`, the acknowledgement the health declarations are submitted under; `insurance_company_agreement`, the insurance company's terms and conditions; and `aggregator_agreement`, the aggregator's terms, including the medical declaration terms. Send `Accept-Language: ar` for Arabic; anything else returns English. Fetch them rather than copying them into your platform, so a change of wording reaches your users without a release on your side. The [SME Medical Insurance guide](/price-comparison/sme-medical-insurance#terms-and-consent) says where to show them.
 </Update>
