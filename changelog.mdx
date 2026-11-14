@@ -3,6 +3,18 @@ title: 'Changelog'
 icon: 'clock-rotate-left'
 ---
 
+<Update label="14th November 2026" tags={["Motor", "APIs", "Docs"]}>
+	**New error `40030`: the quote has expired.** `POST /car-comp/policies` answers `400` / `40030` with "This quote has expired. Please request new prices for this vehicle." when the quote is past the insurer's expiry date. Retrying will not help — start again at `POST /car-comp/quote-requests` for fresh prices. Until now the call went through to the insurer, who refused it. Every quote carries `quote_expiry_date`, so you can check it before offering the purchase. The [Errors](/api-resources/errors) page lists it.
+</Update>
+
+<Update label="13th November 2026" tags={["Motor", "APIs", "Docs"]}>
+	**`40016` is replaced by `50302`.** Motor endpoints used to answer `400` / `40016` when the insurer's system was unavailable or it refused the request. They now answer `503` with the new code `50302` and the message "The insurance service is temporarily unavailable. Please try again in a few minutes." (Arabic with `Accept-Language: ar`). **`40016` is no longer returned** — if you match on it, match on `50302` instead, and treat it as retryable with the request unchanged. Two codes narrow by the same rule: `40013` on `POST /car-comp/issue-otp` now means the IBAN itself was rejected, and `40015` from `POST /car-comp/quote-requests/{id}/attachments` always reads "The vehicle photos could not be uploaded. Please try again." Refusals that turn out to be the customer's to fix get codes of their own as we find them — the first is also in this release. The [Errors](/api-resources/errors) page lists both codes.
+</Update>
+
+<Update label="13th November 2026" tags={["Motor", "APIs", "Docs"]}>
+	**New error `40029`: the email belongs to another customer.** `POST /car-comp/quote-otp` answers `400` / `40029` with "This email address is already registered to another customer. Please use a different email address." when the insurer has the email on file against a different person. It used to arrive as `40016`. Ask the customer for another address and request the OTP again. The [Errors](/api-resources/errors) page lists it.
+</Update>
+
 <Update label="13th November 2026" tags={["Motor", "APIs", "Docs"]}>
 	**A quote OTP is tied to the identity it was requested for.** `POST /car-comp/quote-requests` now answers `400` / `40001` "You need to request an OTP before getting Quotation" when the OTP on that phone number was requested for a different identity — most often a customer correcting a mistyped ID after the code was already sent. Request a fresh OTP for the corrected ID and quote again. Previously the call went through to the insurer, who refused it. The OTP verifies one person: the `owner_id` for an individual, the `authorized_person_id` for a company, so company quotes are unaffected. Nothing changes when the identity is the same across both calls. The [Errors](/api-resources/errors) page has the detail.
 </Update>
