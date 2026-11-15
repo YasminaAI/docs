@@ -43,7 +43,8 @@ Authorization: Bearer \{access_token\}
 The [Terms and consent API](/medical-api-reference/medical-forms/get-the-terms-and-consent) returns what to show your users as it is:
 
 - `consent`: the short consent, shown beside the checkbox the health declarations are submitted under (see [Health declaration forms](#health-declaration-forms)).
-- `declaration_terms`: the full declaration and its terms. Show it in the step before the checkbox, so the employer reads it before confirming. `aggregator_agreement` carries the same text under its earlier name.
+- `declaration_terms`: the full declaration and its terms. Show it in the step before the checkbox, so the employer reads it before confirming.
+- `aggregator_agreement`: the aggregator's terms and conditions. Show it where the employer accepts the terms.
 - `privacy_policy`: a link to Yasmina's privacy policy.
 
 Send `Accept-Language: ar` for Arabic; anything else returns English. Fetch them rather than copying them into your platform, so a change of wording reaches your users without a release on your side.
