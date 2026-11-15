@@ -40,16 +40,20 @@ Authorization: Bearer \{access_token\}
 
 ## Terms and consent
 
-The [Terms and consent API](/medical-api-reference/medical-forms/get-the-terms-and-consent) returns what to show your users as it is:
+The employer agrees twice during the journey: once before seeing prices, and once before paying.
 
-- `consent`: the short consent, shown beside the checkbox the health declarations are submitted under (see [Health declaration forms](#health-declaration-forms)).
-- `declaration_terms`: the full declaration and its terms. Show it in the step before the checkbox, so the employer reads it before confirming.
-- `aggregator_agreement`: the aggregator's terms and conditions. Show it where the employer accepts the terms.
-- `privacy_policy`: a link to Yasmina's privacy policy.
+| When | What to show | What the employer does | What you send |
+| --- | --- | --- | --- |
+| **Before prices** | `declaration_terms` | Ticks one checkbox | `consent: true` in [Submit the declarations](/medical-api-reference/medical-forms/submit-the-declarations) |
+| **Before payment** | `aggregator_agreement`, the chosen insurer's `insurance_company_agreement`, and `consent` | Ticks one checkbox for each | Nothing. Call [Issue the policy](/medical-api-reference/policies/issue-the-policy) only after all three are ticked |
 
-Send `Accept-Language: ar` for Arabic; anything else returns English. Fetch them rather than copying them into your platform, so a change of wording reaches your users without a release on your side.
+Where each text comes from:
 
-Each insurance company has its own terms and conditions document. Its link comes with that company's quote, as `insurance_company_agreement` (see [Prices](#prices)). Show it beside that offer, so the employer can open the terms of the insurer they choose.
+- `declaration_terms`, `aggregator_agreement` and `consent` come from the [Terms and consent API](/medical-api-reference/medical-forms/get-the-terms-and-consent). Send `Accept-Language: ar` for Arabic; anything else returns English.
+- `insurance_company_agreement` is a link to the insurer's own terms and conditions. It comes with each quote (see [Prices](#prices)). Show the link of the insurer the employer chose.
+- `privacy_policy`, also from the Terms and consent API, is a link to Yasmina's privacy policy. Show it next to the agreements.
+
+Show the texts exactly as the API returns them. Fetch them each time instead of copying them into your platform, so a change of wording reaches your users without a release on your side.
 
 ## Companies
 
@@ -189,20 +193,13 @@ Insurers price a company on its members' health, so the declarations are submitt
 
 **How it works, in short**
 
-- The employer gives **one consent** for the whole company.
-- You send answers **only for the people who have something to declare**. Everyone else is covered by the consent, with nothing to send.
-- If nobody has anything to declare, the consent alone is enough.
+- The employer accepts the declaration terms **once**, for the whole company.
+- You send answers **only for the people who have something to declare**. Everyone else is covered by that acceptance, with nothing to send.
+- If nobody has anything to declare, the acceptance alone is enough.
 
-#### Step 1: Show the two texts
+#### Step 1: Show the declaration terms
 
-The [Terms and consent API](/medical-api-reference/medical-forms/get-the-terms-and-consent) returns two texts for this step. Show both, as they are:
-
-| Text | What it is | Where to show it |
-| --- | --- | --- |
-| `declaration_terms` | The full declaration and its terms | On the screen before the checkbox, so the employer reads it first |
-| `consent` | The short consent | Beside the checkbox the employer ticks |
-
-The employer ticks one checkbox. That tick is the `consent: true` you send in Step 3.
+Show `declaration_terms` from the [Terms and consent API](/medical-api-reference/medical-forms/get-the-terms-and-consent), with one checkbox under it. The employer reads the text and ticks the checkbox. That tick is the `consent: true` you send in Step 3.
 
 #### Step 2: Collect answers from anyone with something to declare
 
@@ -321,6 +318,9 @@ Benefits and networks differ by tier, not just by provider: a higher tier reache
 ## Policies
 
 ### Issue the policy
+
+<Note>Before you issue the policy, show the employer `aggregator_agreement`, the chosen insurer's `insurance_company_agreement` and `consent`, each with its own checkbox. Continue only when all three are ticked. See [Terms and consent](#terms-and-consent).</Note>
+
 A company buys one policy, and its employees are the members on it, which is how the insurer issues it and how the policy document reads. Call the [Issue policy API](/medical-api-reference/policies/issue-the-policy) with the `quote_request_id` and the `quote_price_id` of the quote the company chose, plus the company's Saudi IBAN as `iban`, and you get that one policy back: the provider that priced it, the quoted total as `price`, and every employee inside `meta_data.insured`.
 
 ```

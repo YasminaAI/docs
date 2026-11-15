@@ -1021,7 +1021,7 @@
     "/texts": {
       "get": {
         "summary": "Get the terms and consent",
-        "description": "What to show your users as it is: `consent`, the short text beside the checkbox the health declarations are submitted under; `declaration_terms`, the full declaration and its terms, to show in the step before that checkbox; and `privacy_policy`, a link to Yasmina's privacy policy. `aggregator_agreement` is the aggregator's terms and conditions. The wording comes in one language per request, picked by the `Accept-Language` header: `ar` for Arabic, English otherwise. Each insurance company's own terms and conditions come with its quote, as `insurance_company_agreement`.",
+        "description": "The texts to show the employer, exactly as returned. Before prices: `declaration_terms`, with one checkbox; that tick is the `consent: true` sent in Submit the declarations. Before payment: `aggregator_agreement` (the aggregator's terms and conditions) and `consent` (the employer confirms they hold the signed declaration forms), each with its own checkbox, next to the chosen insurer's `insurance_company_agreement` link from its quote. `privacy_policy` is a link to Yasmina's privacy policy. One language per request, picked by the `Accept-Language` header: `ar` for Arabic, English otherwise.",
         "tags": [
           "Medical Forms"
         ],
@@ -1051,15 +1051,15 @@
                   "properties": {
                     "consent": {
                       "type": "string",
-                      "description": "The short consent, shown beside the checkbox."
+                      "description": "Shown before payment, with its own checkbox: the employer confirms they hold the signed declaration forms."
                     },
                     "declaration_terms": {
                       "type": "string",
-                      "description": "The full declaration and its terms, shown in the step before the checkbox."
+                      "description": "Shown before prices, with one checkbox. That tick is the `consent: true` sent in Submit the declarations."
                     },
                     "aggregator_agreement": {
                       "type": "string",
-                      "description": "The aggregator's terms and conditions."
+                      "description": "The aggregator's terms and conditions. Shown before payment, with its own checkbox."
                     },
                     "privacy_policy": {
                       "type": "string",
