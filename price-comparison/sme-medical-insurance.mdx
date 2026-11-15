@@ -40,7 +40,15 @@ Authorization: Bearer \{access_token\}
 
 ## Terms and consent
 
-The [Terms and consent API](/medical-api-reference/medical-forms/get-the-terms-and-consent) returns three texts to show your users as they are, each a plain string: `consent`, the consent the health declarations are submitted under (see [Health declaration forms](#health-declaration-forms)), `insurance_company_agreement` and `aggregator_agreement`. Send `Accept-Language: ar` for Arabic; anything else returns English. Fetch them rather than copying them into your platform, so a change of wording reaches your users without a release on your side.
+The [Terms and consent API](/medical-api-reference/medical-forms/get-the-terms-and-consent) returns what to show your users as it is:
+
+- `consent`: the short consent, shown beside the checkbox the health declarations are submitted under (see [Health declaration forms](#health-declaration-forms)).
+- `declaration_terms`: the full declaration and its terms. Show it in the step before the checkbox, so the employer reads it before confirming. `aggregator_agreement` carries the same text under its earlier name.
+- `privacy_policy`: a link to Yasmina's privacy policy.
+
+Send `Accept-Language: ar` for Arabic; anything else returns English. Fetch them rather than copying them into your platform, so a change of wording reaches your users without a release on your side.
+
+Each insurance company has its own terms and conditions document. Its link comes with that company's quote, as `insurance_company_agreement` (see [Prices](#prices)). Show it beside that offer, so the employer can open the terms of the insurer they choose.
 
 ## Companies
 
@@ -177,13 +185,13 @@ Send every `date_of_birth` as `YYYY-MM-DD`. Saudi nationals whose national id st
 ### Health declaration forms
 Insurers require a past medical history from every employee before they will price them, so every employee declares before you ask for prices. Yasmina publishes the questions and prints the form; each employee answers for themselves, on paper or inside your own platform.
 
-1. **The questions**: the [Medical form API](/medical-api-reference/medical-forms/get-the-medical-form-questions) returns every question, grouped the way the insurers ask them, so you can build your own screen for it.
+1. **The questions**: the [Medical form API](/medical-api-reference/medical-forms/get-the-medical-form-questions) returns the questions of the unified medical declaration form every insurance company uses, so you can build your own screen for it. Send `Accept-Language: ar` for the Arabic wording. A question with `choices` takes one of them, one with `options` takes one of those, and one with neither takes a free value: a number for `weight` (kg) and `height` (cm), a date for `expected_delivery_date`. Each key is a key of `answers` when you submit.
 
 2. **The printable form**: the [Download declaration form API](/medical-api-reference/medical-forms/download-the-declaration-form) returns the same declaration as a PDF. Pass the `policy_id` and the file carries one page per employee on the policy, with their name, id and package filled in, ready to print or email. Leave `policy_id` out for a single blank form.
 
-3. **Submitting the declarations**: send them in one call with the [Submit the declarations API](/medical-api-reference/medical-forms/submit-the-declarations). One `consent` covers everyone on the employee list, employees and dependents alike, and must be `true`, confirming they have stated that their answers are true and complete and agreed to share them with the insurance provider. Show the `consent` from the [Terms and consent API](/medical-api-reference/medical-forms/get-the-terms-and-consent) before submitting.
+3. **Submitting the declarations**: send them in one call with the [Submit the declarations API](/medical-api-reference/medical-forms/submit-the-declarations). One `consent` covers everyone on the employee list, employees and dependents alike, and must be `true`, confirming they have stated that their answers are true and complete and agreed to share them with the insurance provider. Show `declaration_terms` from the [Terms and consent API](/medical-api-reference/medical-forms/get-the-terms-and-consent) in the step before, and `consent` beside the checkbox.
 
-	Add an entry only for someone with something to declare. It names them by their own id as `employee_id`: an employee's `nationality_id`, `iqama_id` or `border_number`, or a dependent's `nationality_id` or `iqama_id`. It carries their answers. Everyone else is declared by the consent alone, so `{"consent": true}` is enough when nobody has anything to declare.
+	Add an entry only for someone with something to declare. It names them by their own id as `employee_id`: an employee's `nationality_id`, `iqama_id` or `border_number`, or a dependent's `nationality_id` or `iqama_id`. It carries their answers: the five yes/no questions are all answered; `weight`, `height`, `pregnancy` and `expected_delivery_date` are given when they apply. Without weight and height, the cost of obesity surgery is not covered. Everyone else is declared by the consent alone, so `{"consent": true}` is enough when nobody has anything to declare.
 
 	The declarations are kept by id, apart from the employee list, so editing the list leaves them alone; each call replaces them, so send every entry each time. Someone added to the list afterwards is not covered: prices are refused (`40023`, naming them) until you submit the declarations again.
 
@@ -197,24 +205,18 @@ Insurers require a past medical history from every employee before they will pri
 	        {
 	            "employee_id": "1111111111",
 	            "answers": {
-	                "allergies": "No",
-	                "current_medications": "No",
+	                "weight": 82,
+	                "height": 176,
 	                "hospitalizations": "No",
-	                "pre_existing_conditions": "No",
-	                "past_surgeries": "Yes",
-	                "surgery_complications": "No",
-	                "chest_pain_or_breathlessness": "No",
-	                "heart_procedures": "No",
-	                "smoking": "No",
-	                "alcohol_consumption": "No",
-	                "physical_activity": "No",
-	                "family_history": "No",
-	                "chronic_disease": ["Liver Disease"]
+	                "chronic_diseases": "Yes",
+	                "hereditary_diseases": "No",
+	                "eye_diseases": "No",
+	                "bone_diseases": "No"
 	            }
 	        },
 	        {
 	            "employee_id": "1111111113",
-	            "answers": { ... "chronic_disease": ["Asthma"] }
+	            "answers": { ... "eye_diseases": "Yes" }
 	        }
 	    ]
 	}
@@ -223,7 +225,7 @@ Insurers require a past medical history from every employee before they will pri
 ## Prices
 
 ### Get prices from every provider
-Call the [Quote request API](/medical-api-reference/quotes/get-prices-from-every-provider) with the `company_id` and you get one response with a quote from every insurance provider, each priced for the employees saved above at the tiers they picked. Every quote carries a `quote_price_id`; the response itself carries an `id`, the `quote_request_id`. Keep both for the next step.
+Call the [Quote request API](/medical-api-reference/quotes/get-prices-from-every-provider) with the `company_id` and you get one response with a quote from every insurance provider, each priced for the employees saved above at the tiers they picked. Every quote carries a `quote_price_id` and `insurance_company_agreement`, a link to that insurance company's own terms and conditions to show beside its offer; the response itself carries an `id`, the `quote_request_id`. Keep both for the next step.
 
 ```
 {
@@ -235,6 +237,7 @@ Call the [Quote request API](/medical-api-reference/quotes/get-prices-from-every
       "quote_price_id": "3fb4e3bb-6c7e-4a8f-9d2a-1b3c5d7e9f01",
       "insurance_provider": "medgulf",
       "insurance_provider_name": "MedGulf",
+      "insurance_company_agreement": "https://sandbox.yasmina.ai/medical/terms/medgulf.pdf",
       "total_price": 1600,
       "price_per_employee": 800,
       "currency": "SAR",

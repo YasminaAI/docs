@@ -3,6 +3,14 @@ title: 'Changelog'
 icon: 'clock-rotate-left'
 ---
 
+<Update label="15th November 2026" tags={["SME Medical", "APIs", "Docs"]}>
+	**The health declaration asks the unified medical declaration form's questions.** The [Medical form API](/medical-api-reference/medical-forms/get-the-medical-form-questions) (`GET /api/v1/medical/medical-forms`) now returns the questions of the unified form every insurance company uses: `weight`, `height`, `hospitalizations` (now the last 12 months), `chronic_diseases`, `hereditary_diseases`, `eye_diseases`, `bone_diseases`, `pregnancy` and `expected_delivery_date`. The response keeps its shape; send `Accept-Language: ar` for the Arabic wording. **The answers change with it:** [Submit the declarations](/medical-api-reference/medical-forms/submit-the-declarations) takes these keys in `answers`, with the five yes/no questions required and the rest given when they apply. The twelve earlier keys and `chronic_disease` are no longer read, so a call that still sends only those answers `422`. `{"consent": true}` on its own is unaffected. The printable form prints the same questions. The [SME Medical Insurance guide](/price-comparison/sme-medical-insurance#health-declaration-forms) has an example.
+</Update>
+
+<Update label="15th November 2026" tags={["SME Medical", "APIs", "Docs"]}>
+	**Each insurance company's terms come with its quote, and the texts gain the declaration terms and the privacy policy.** Every quote from [Get prices from every provider](/medical-api-reference/quotes/get-prices-from-every-provider) now carries `insurance_company_agreement`, a link to that insurance company's own terms and conditions document; show it beside that offer. **`insurance_company_agreement` is no longer returned by** [Get the terms and consent](/medical-api-reference/medical-forms/get-the-terms-and-consent), which now returns `consent` (the short text beside the checkbox, unchanged), the new `declaration_terms` (the full declaration and its terms, to show in the step before the checkbox), `aggregator_agreement` (the same text as `declaration_terms`, under its earlier name) and the new `privacy_policy`, a link to Yasmina's privacy policy. The [SME Medical Insurance guide](/price-comparison/sme-medical-insurance#terms-and-consent) says where to show each.
+</Update>
+
 <Update label="14th November 2026" tags={["Motor", "APIs", "Docs"]}>
 	**New error `40030`: the quote has expired.** `POST /car-comp/policies` answers `400` / `40030` with "This quote has expired. Please request new prices for this vehicle." when the quote is past the insurer's expiry date. Retrying will not help — start again at `POST /car-comp/quote-requests` for fresh prices. Until now the call went through to the insurer, who refused it. Every quote carries `quote_expiry_date`, so you can check it before offering the purchase. The [Errors](/api-resources/errors) page lists it.
 </Update>
