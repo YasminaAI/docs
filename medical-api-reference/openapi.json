@@ -26,7 +26,9 @@
       "post": {
         "description": "You need to create a company record before requesting medical insurance to the employees of the company. On production, you register each unified national number once: creating a company you already registered answers 400 with code 40025 and the existing company_id, which you use instead. Sandbox allows registering the same company again, so you can re-run tests",
         "summary": "Create company",
-        "tags": ["Company"],
+        "tags": [
+          "Company"
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -77,11 +79,11 @@
           "200": {
             "description": "Company created",
             "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Company"
-                  }
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Company"
                 }
+              }
             }
           },
           "400": {
@@ -91,9 +93,18 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": { "type": "string", "example": "40025" },
-                    "message": { "type": "string", "example": "This company is already registered as company 123. Use that company_id instead of creating it again." },
-                    "company_id": { "type": "integer", "example": 123 }
+                    "code": {
+                      "type": "string",
+                      "example": "40025"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "This company is already registered as company 123. Use that company_id instead of creating it again."
+                    },
+                    "company_id": {
+                      "type": "integer",
+                      "example": 123
+                    }
                   }
                 }
               }
@@ -138,7 +149,9 @@
       "get": {
         "description": "To list all the companies that you've created",
         "summary": "List companies",
-        "tags": ["Company"],
+        "tags": [
+          "Company"
+        ],
         "responses": {
           "200": {
             "description": "A list of companies",
@@ -163,7 +176,9 @@
       "post": {
         "description": "Cancel a policy for a company",
         "summary": "Cancel policy",
-        "tags": ["Company"],
+        "tags": [
+          "Company"
+        ],
         "parameters": [
           {
             "required": true,
@@ -191,9 +206,18 @@
       "get": {
         "summary": "List the employees",
         "description": "The company's employee list as last saved.",
-        "tags": ["Employees"],
+        "tags": [
+          "Employees"
+        ],
         "parameters": [
-          { "name": "companyId", "in": "path", "required": true, "schema": { "type": "integer" } }
+          {
+            "name": "companyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
         ],
         "responses": {
           "200": {
@@ -203,21 +227,37 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "employees": { "type": "array", "items": { "$ref": "#/components/schemas/Insured" } }
+                    "employees": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Insured"
+                      }
+                    }
                   }
                 }
               }
             }
           },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
         }
       },
       "put": {
         "summary": "Save the employees",
         "description": "Replaces the company's employee list with the one given: who is covered, their dependents, and the tier each has picked (`basic`, `standard`, `premium` or `executive`). Use it to edit or remove employees after fetching the list. An employee who stays on the list keeps their health declaration. Nothing is priced here; see Get prices from every provider.",
-        "tags": ["Employees"],
+        "tags": [
+          "Employees"
+        ],
         "parameters": [
-          { "name": "companyId", "in": "path", "required": true, "schema": { "type": "integer" } }
+          {
+            "name": "companyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
         ],
         "requestBody": {
           "required": true,
@@ -225,13 +265,17 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["employees"],
+                "required": [
+                  "employees"
+                ],
                 "properties": {
                   "employees": {
                     "type": "array",
                     "minItems": 1,
                     "maxItems": 250,
-                    "items": { "$ref": "#/components/schemas/Insured" }
+                    "items": {
+                      "$ref": "#/components/schemas/Insured"
+                    }
                   }
                 }
               }
@@ -239,18 +283,29 @@
           }
         },
         "responses": {
-          "200": { "description": "The saved list" },
+          "200": {
+            "description": "The saved list"
+          },
           "400": {
             "description": "`40024` when the list has more than 250 employees. Dependents do not count.",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Error" },
-                "example": { "code": "40024", "message": "SME medical covers up to 250 employees per company; this list has 251." }
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "40024",
+                  "message": "SME medical covers up to 250 employees per company; this list has 251."
+                }
               }
             }
           },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "422": { "$ref": "#/components/responses/UnprocessableEntity" }
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
         }
       }
     },
@@ -258,8 +313,19 @@
       "post": {
         "summary": "Fetch the employees",
         "description": "Fills the company's employee list with the employees registered under the company, so you start from the company's current headcount instead of typing it in. It replaces the list; edit it afterwards with Save the employees. Every fetched employee starts on the `basic` tier with no dependents.",
-        "tags": ["Employees"],
-        "parameters": [{ "name": "companyId", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "tags": [
+          "Employees"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "The company's employee list",
@@ -267,13 +333,24 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "employees": { "type": "array", "items": { "$ref": "#/components/schemas/Insured" } } }
+                  "properties": {
+                    "employees": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Insured"
+                      }
+                    }
+                  }
                 }
               }
             }
           },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
         }
       }
     },
@@ -281,19 +358,34 @@
       "put": {
         "summary": "Submit the declarations",
         "description": "The company's health declarations in one call, under one consent for everyone on the employee list, employees and dependents alike. Send an entry only for someone with something to declare, named by their own id as `employee_id`; the consent declares everyone else, so the consent alone is enough when nobody has anything to declare. `consent` must be `true`: by sending it, you confirm they have stated that their answers are true and complete and agreed to share them with the insurance provider. The declarations are kept by id, apart from the employee list, so editing the list leaves them alone; each call replaces them. Someone added to the list afterwards is not covered until the next call, and the company cannot be priced until then.",
-        "tags": ["Medical Forms"],
-        "parameters": [{ "name": "companyId", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "tags": [
+          "Medical Forms"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["consent"],
+                "required": [
+                  "consent"
+                ],
                 "properties": {
                   "consent": {
                     "type": "boolean",
-                    "enum": [true],
+                    "enum": [
+                      true
+                    ],
                     "description": "Consent for the whole submission. Must be true."
                   },
                   "employees": {
@@ -301,14 +393,19 @@
                     "description": "Everyone with something to declare, employees and dependents alike, each with their own answers. Leave out everyone else.",
                     "items": {
                       "type": "object",
-                      "required": ["employee_id", "answers"],
+                      "required": [
+                        "employee_id",
+                        "answers"
+                      ],
                       "properties": {
                         "employee_id": {
                           "type": "string",
                           "description": "The id of the person declaring: an employee's nationality_id, iqama_id or border_number, or a dependent's nationality_id or iqama_id. Each person once.",
                           "example": "1111111111"
                         },
-                        "answers": { "$ref": "#/components/schemas/DeclarationAnswers" }
+                        "answers": {
+                          "$ref": "#/components/schemas/DeclarationAnswers"
+                        }
                       }
                     }
                   }
@@ -331,12 +428,24 @@
                         "type": "object",
                         "properties": {
                           "answers": {
-                            "allOf": [{ "$ref": "#/components/schemas/DeclarationAnswers" }],
+                            "allOf": [
+                              {
+                                "$ref": "#/components/schemas/DeclarationAnswers"
+                              }
+                            ],
                             "nullable": true,
                             "description": "The answers sent for this person, or null when the consent alone declares them."
                           },
-                          "consent": { "type": "boolean", "enum": [true] },
-                          "filled_at": { "type": "string", "format": "date-time" }
+                          "consent": {
+                            "type": "boolean",
+                            "enum": [
+                              true
+                            ]
+                          },
+                          "filled_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
                         }
                       }
                     }
@@ -349,14 +458,28 @@
             "description": "An employee_id is not an employee or a dependent on the company's list. Nothing is stored. employee_ids lists them.",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Error" },
-                "example": { "code": "40022", "message": "No employee of this company matches: 9999999999.", "employee_ids": ["9999999999"] }
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "40022",
+                  "message": "No employee of this company matches: 9999999999.",
+                  "employee_ids": [
+                    "9999999999"
+                  ]
+                }
               }
             }
           },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" },
-          "422": { "$ref": "#/components/responses/UnprocessableEntity" }
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
         }
       }
     },
@@ -364,16 +487,22 @@
       "post": {
         "summary": "Get prices from every provider",
         "description": "Prices the company's saved employees, at the tiers they picked, with every insurance provider at once. Every employee has to have declared their medical history first. One response, one quote per provider, each with its own `quote_price_id`, its total and price per employee, and the benefits and hospital network of each tier the employees picked. The response `id` is the `quote_request_id`. A quote prices the employees as they stood when it was asked for.",
-        "tags": ["Quotes"],
+        "tags": [
+          "Quotes"
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["company_id"],
+                "required": [
+                  "company_id"
+                ],
                 "properties": {
-                  "company_id": { "type": "integer" }
+                  "company_id": {
+                    "type": "integer"
+                  }
                 }
               }
             }
@@ -384,7 +513,9 @@
             "description": "The quotes",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/QuoteRequest" }
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteRequest"
+                }
               }
             }
           },
@@ -392,37 +523,59 @@
             "description": "The company cannot be priced yet: `40020` when it has no employees, `40023` while anyone still has to declare (employee_ids lists them), `40024` when it has more than 250 employees.",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Error" },
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
                 "example": {
                   "code": "40023",
                   "message": "Every employee has to declare their medical history before the company can be priced. Still to declare: Mary Major.",
-                  "employee_ids": ["1111111115"]
+                  "employee_ids": [
+                    "1111111115"
+                  ]
                 }
               }
             }
           },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "422": { "$ref": "#/components/responses/UnprocessableEntity" }
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
         }
       }
     },
     "/quote-requests/{quoteRequestId}": {
       "get": {
         "summary": "Read a quote request",
-        "tags": ["Quotes"],
+        "tags": [
+          "Quotes"
+        ],
         "parameters": [
-          { "name": "quoteRequestId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+          {
+            "name": "quoteRequestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
         ],
         "responses": {
           "200": {
             "description": "The quote request",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/QuoteRequest" }
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteRequest"
+                }
               }
             }
           },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
         }
       }
     },
@@ -430,17 +583,30 @@
       "post": {
         "summary": "Issue the policy",
         "description": "Issues the company's policy from one of the quotes it was given: the employees as they were priced, the provider that priced them, and its total as the premium. A company has one policy waiting to be paid for at a time; issuing again before payment replaces it.",
-        "tags": ["Policies"],
+        "tags": [
+          "Policies"
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["quote_request_id", "quote_price_id"],
+                "required": [
+                  "quote_request_id",
+                  "quote_price_id"
+                ],
                 "properties": {
-                  "quote_request_id": { "type": "string", "format": "uuid", "description": "The `id` of the quote request." },
-                  "quote_price_id": { "type": "string", "format": "uuid", "description": "The `quote_price_id` of the chosen provider's quote." },
+                  "quote_request_id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "The `id` of the quote request."
+                  },
+                  "quote_price_id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "The `quote_price_id` of the chosen provider's quote."
+                  },
                   "redirect_url": {
                     "type": "string",
                     "description": "Where to send the customer once they have paid. `policyID` in it is replaced with the policy's id.",
@@ -460,7 +626,13 @@
         "responses": {
           "201": {
             "description": "The company's policy, pending payment",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MedicalPolicy" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MedicalPolicy"
+                }
+              }
+            }
           },
           "400": {
             "description": "The company already has an active policy",
@@ -482,14 +654,20 @@
               }
             }
           },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "422": { "$ref": "#/components/responses/UnprocessableEntity" }
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
         }
       },
       "get": {
         "description": "List policies that you've requested",
         "summary": "List policies",
-        "tags": ["Policies"],
+        "tags": [
+          "Policies"
+        ],
         "parameters": [
           {
             "name": "company_id",
@@ -518,11 +696,12 @@
           }
         }
       }
-
     },
     "/products/networks": {
       "get": {
-        "tags": ["Products"],
+        "tags": [
+          "Products"
+        ],
         "summary": "List a network's facilities",
         "description": "The hospitals, clinics, pharmacies and other facilities one tier of one provider gives access to, each with its `status` in that tier: `included` for direct access, `referral` when a referral is needed first. Filter by `city` to show one city at a time, or by `search` to match a facility's English or Arabic name. This is the `provider_list_url` the Categories and Quote APIs return with every tier.",
         "parameters": [
@@ -533,7 +712,13 @@
             "description": "Whose network. Defaults to `medgulf`.",
             "schema": {
               "type": "string",
-              "enum": ["medgulf", "walaa", "alrajhi", "tawuniya", "malath"],
+              "enum": [
+                "medgulf",
+                "walaa",
+                "alrajhi",
+                "tawuniya",
+                "malath"
+              ],
               "default": "medgulf"
             }
           },
@@ -544,7 +729,12 @@
             "description": "Which tier's network.",
             "schema": {
               "type": "string",
-              "enum": ["basic", "standard", "premium", "executive"]
+              "enum": [
+                "basic",
+                "standard",
+                "premium",
+                "executive"
+              ]
             }
           },
           {
@@ -552,14 +742,18 @@
             "in": "query",
             "required": false,
             "description": "Only facilities in this city, as spelled in `cities`.",
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "search",
             "in": "query",
             "required": false,
             "description": "Only facilities whose name contains this text.",
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -570,28 +764,82 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "insurance_provider": { "type": "string", "example": "tawuniya" },
-                    "category": { "type": "string", "example": "basic" },
-                    "network": { "$ref": "#/components/schemas/Network" },
+                    "insurance_provider": {
+                      "type": "string",
+                      "example": "tawuniya"
+                    },
+                    "category": {
+                      "type": "string",
+                      "example": "basic"
+                    },
+                    "network": {
+                      "$ref": "#/components/schemas/Network"
+                    },
                     "cities": {
                       "type": "array",
                       "description": "Every city with a facility in this tier, for a city filter.",
-                      "items": { "type": "string" },
-                      "example": ["Abha", "Dammam", "Jeddah", "Riyadh"]
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "Abha",
+                        "Dammam",
+                        "Jeddah",
+                        "Riyadh"
+                      ]
                     },
                     "providers": {
                       "type": "array",
                       "items": {
                         "type": "object",
                         "properties": {
-                          "code": { "type": "string", "nullable": true, "description": "The provider's own code for the facility.", "example": "560806" },
-                          "name": { "type": "string", "example": "ALMAHALLA PULSE MEDICAL CENTER - ABHA" },
-                          "name_ar": { "type": "string", "nullable": true, "example": "مجمع نبض المحالة الطبي العام - ابها" },
-                          "type": { "type": "string", "enum": ["hospital", "pharmacy", "clinic", "optical", "other"] },
-                          "region": { "type": "string", "nullable": true, "example": "South" },
-                          "city": { "type": "string", "nullable": true, "example": "Abha" },
-                          "phone": { "type": "string", "nullable": true, "example": "172740805" },
-                          "status": { "type": "string", "enum": ["included", "referral"] }
+                          "code": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "The provider's own code for the facility.",
+                            "example": "560806"
+                          },
+                          "name": {
+                            "type": "string",
+                            "example": "ALMAHALLA PULSE MEDICAL CENTER - ABHA"
+                          },
+                          "name_ar": {
+                            "type": "string",
+                            "nullable": true,
+                            "example": "مجمع نبض المحالة الطبي العام - ابها"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "hospital",
+                              "pharmacy",
+                              "clinic",
+                              "optical",
+                              "other"
+                            ]
+                          },
+                          "region": {
+                            "type": "string",
+                            "nullable": true,
+                            "example": "South"
+                          },
+                          "city": {
+                            "type": "string",
+                            "nullable": true,
+                            "example": "Abha"
+                          },
+                          "phone": {
+                            "type": "string",
+                            "nullable": true,
+                            "example": "172740805"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "included",
+                              "referral"
+                            ]
+                          }
                         }
                       }
                     }
@@ -611,7 +859,9 @@
     },
     "/products/categories": {
       "get": {
-        "tags": ["Products"],
+        "tags": [
+          "Products"
+        ],
         "summary": "List categories",
         "description": "The medical insurance packages one insurance provider offers. Call it once per provider to compare them. Each item in `categories` carries the coverage values and the `category` and `insurance_provider` values to send when issuing policies. There is no price here: a package is priced on the Quote request API, for the company's own employees, once they are saved and have declared.",
         "parameters": [
@@ -687,8 +937,10 @@
     "/medical-forms": {
       "get": {
         "summary": "Get the Medical form questions",
-        "description": "This is for showing the required medical questions and presenting it to employees",
-        "tags": ["Medical Forms"],
+        "description": "The questions of the unified medical declaration form that every insurance company uses, grouped in sections. A question with `choices` takes one of them; one with `options` takes one of those; one with neither takes a free value (a number for weight and height, a date for the expected delivery date). The question text comes in one language per request, picked by the `Accept-Language` header: `ar` for Arabic, English otherwise. The values to send back are the same in both languages. Each key here is a key of `answers` in Submit the declarations.",
+        "tags": [
+          "Medical Forms"
+        ],
         "responses": {
           "200": {
             "description": "Success",
@@ -696,72 +948,16 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "example":{
+                  "example": {
                     "general_health_information": {
-                      "allergies": {
-                        "question": "Do you have any known allergies?",
-                        "choices": [
-                          "Yes",
-                          "No"
-                        ]
+                      "weight": {
+                        "question": "Weight (kg)"
                       },
-                      "current_medications": {
-                        "question": "Are you currently taking any medications?",
-                        "choices": [
-                          "Yes",
-                          "No"
-                        ]
+                      "height": {
+                        "question": "Height (cm)"
                       },
                       "hospitalizations": {
-                        "question": "Have you been hospitalized in the last 5 years?",
-                        "choices": [
-                          "Yes",
-                          "No"
-                        ]
-                      },
-                      "pre_existing_conditions": {
-                        "question": "Do you have any pre-existing medical conditions?",
-                        "choices": [
-                          "Yes",
-                          "No"
-                        ]
-                      }
-                    },
-                    "surgical_history": {
-                      "past_surgeries": {
-                        "question": "Have you ever had surgery?",
-                        "choices": [
-                          "Yes",
-                          "No"
-                        ]
-                      },
-                      "surgery_complications": {
-                        "question": "Have you had any complications related to surgeries?",
-                        "choices": [
-                          "Yes",
-                          "No"
-                        ]
-                      }
-                    },
-                    "cardiovascular_health": {
-                      "conditions": {
-                        "question": "Have you ever been diagnosed with any of the following conditions?",
-                        "options": [
-                          "High Blood Pressure",
-                          "Heart Disease",
-                          "Stroke",
-                          "None of the above"
-                        ]
-                      },
-                      "chest_pain_or_breathlessness": {
-                        "question": "Do you experience chest pain or shortness of breath?",
-                        "choices": [
-                          "Yes",
-                          "No"
-                        ]
-                      },
-                      "heart_procedures": {
-                        "question": "Have you undergone any heart-related treatments or procedures (e.g., angioplasty, bypass surgery)?",
+                        "question": "Any hospital admission during the last 12 months? \"Admission: registration as an admitted patient at the hospital until the following morning\"",
                         "choices": [
                           "Yes",
                           "No"
@@ -769,42 +965,29 @@
                       }
                     },
                     "chronic_conditions": {
-                      "diagnoses": {
-                        "question": "Have you been diagnosed with any of the following?",
-                        "options": [
-                          "Diabetes",
-                          "Asthma",
-                          "Chronic Kidney Disease",
-                          "Liver Disease",
-                          "Cancer",
-                          "None of the above"
-                        ]
-                      }
-                    },
-                    "lifestyle_and_habits": {
-                      "smoking": {
-                        "question": "Do you smoke or use tobacco products?",
+                      "chronic_diseases": {
+                        "question": "Have you been diagnosed with any of the following chronic diseases limited to: Autism, listed Benign Tumor (Breast tumors, fibroid uterus, benign prostatic hyperplasia, thyroid goiter and parathyroid glands, liver tumors, colon tumors), Malignant tumors, listed Cardiac diseases (Coronary and valve heart diseases, heart failure, cardiac fibrillation, myocardial infarction, heart clots), Chronic Hepatitis C, Gallstones, Severe Kidney failure (stage 5 requiring dialysis, clearance of less than 15 ml/minute), Urinary tract stones, hernias, Autoimmune diseases (lupus, rheumatoid arthritis, psoriasis, Crohn's disease, ulcerative colitis, multiple sclerosis, celiac disease)",
                         "choices": [
                           "Yes",
                           "No"
                         ]
                       },
-                      "alcohol_consumption": {
-                        "question": "Do you consume alcohol?",
+                      "hereditary_diseases": {
+                        "question": "Have you been diagnosed with any of the following congenital disorder or hereditary diseases limited to: Cerebral palsy, Sickle cell disorder, Thalassemia, hemophilia, metabolic diseases, Hydrocephalus, spinal muscle atrophy, genital malformations, Chromosomal abnormalities, Gaucher's disease, G6PD Deficiency, cystic fibrosis, hemochromatosis, Wilson disease, Polycystic Kidney Disease",
                         "choices": [
                           "Yes",
                           "No"
                         ]
                       },
-                      "physical_activity": {
-                        "question": "Do you engage in regular physical activity?",
+                      "eye_diseases": {
+                        "question": "Have you been diagnosed with any of the following eye diseases limited to: Cataract, Glaucoma, Retinal diseases",
                         "choices": [
                           "Yes",
                           "No"
                         ]
                       },
-                      "family_history": {
-                        "question": "Do you have a family history of any major medical conditions (e.g., heart disease, diabetes, cancer)?",
+                      "bone_diseases": {
+                        "question": "Have you been diagnosed with any of the following bone diseases limited to: Vertebral disc prolapse (moderate or severe), Scoliosis (moderate or severe), Ligament tears, osteoarthritis (moderate or severe)",
                         "choices": [
                           "Yes",
                           "No"
@@ -812,12 +995,16 @@
                       }
                     },
                     "additional_information": {
-                      "other_medical_info": {
-                        "question": "Is there any other medical information that you believe we should be aware of?",
-                        "choices": [
-                          "Yes",
-                          "No"
+                      "pregnancy": {
+                        "question": "Pregnant females only",
+                        "options": [
+                          "Current single pregnancy",
+                          "Current single pregnancy with previous CS delivery",
+                          "Current multiple pregnancy"
                         ]
+                      },
+                      "expected_delivery_date": {
+                        "question": "Expected delivery date"
                       }
                     }
                   }
@@ -834,7 +1021,7 @@
     "/texts": {
       "get": {
         "summary": "Get the terms and consent",
-        "description": "Three texts to show your users as they are, each a plain string: the consent the health declarations are submitted under, the insurance company agreement and the aggregator agreement. One language per request, picked by the `Accept-Language` header: `ar` for Arabic, English otherwise. Show the consent before [submitting the declarations](/medical-api-reference/medical-forms/submit-the-declarations); sending `consent: true` means the company accepted it.",
+        "description": "What to show your users as it is: `consent`, the short text beside the checkbox the health declarations are submitted under; `declaration_terms`, the full declaration and its terms, to show in the step before that checkbox; and `privacy_policy`, a link to Yasmina's privacy policy. `aggregator_agreement` carries the same text as `declaration_terms` under its earlier name. The wording comes in one language per request, picked by the `Accept-Language` header: `ar` for Arabic, English otherwise. Each insurance company's own terms and conditions come with its quote, as `insurance_company_agreement`.",
         "tags": [
           "Medical Forms"
         ],
@@ -864,21 +1051,27 @@
                   "properties": {
                     "consent": {
                       "type": "string",
-                      "description": "The consent the health declarations are submitted under: the company confirms it collected every member's health declaration form, signed and stamped, and will keep them available."
+                      "description": "The short consent, shown beside the checkbox."
                     },
-                    "insurance_company_agreement": {
+                    "declaration_terms": {
                       "type": "string",
-                      "description": "The insurance company's terms and conditions. Lines are separated by `\\n`: show it with its line breaks."
+                      "description": "The full declaration and its terms, shown in the step before the checkbox."
                     },
                     "aggregator_agreement": {
                       "type": "string",
-                      "description": "The aggregator's terms and conditions, including the medical declaration terms. Lines are separated by `\\n`: show it with its line breaks."
+                      "description": "The same text as `declaration_terms`, under its earlier name."
+                    },
+                    "privacy_policy": {
+                      "type": "string",
+                      "format": "uri",
+                      "description": "A link to Yasmina's privacy policy."
                     }
                   },
                   "example": {
                     "consent": "I acknowledge that I have obtained all the health declaration forms, filled in with reference to the entity's employees as they were answered before getting the offers, with their signatures taken and certified with the establishment's stamp. I undertake to keep the health declaration forms and to make them available when needed.",
-                    "insurance_company_agreement": "By buying this policy, you agree to the following terms of the insurance company:\n\n1. The insurance company issues the policy under the unified health insurance policy of the Council of Health Insurance. The benefits, limits, exclusions, medical network and each member's class are as stated in the policy schedule.\n2. Cover starts on the policy start date, once the premium is paid in full and the members are registered with the Council of Health Insurance.\n3. The insurance company prices and accepts the policy on the basis of the information provided about the establishment, its members and their health declarations. Incorrect or incomplete information may lead to a claim being rejected, the premium being adjusted or the policy being cancelled, in line with the policy and the Insurance Authority's regulations.\n4. The policy can hold more than one class, and each member is covered under their own class. A member's class can be upgraded during the policy period with the insurance company's prior approval.\n5. The employer adds new employees and their eligible dependents, and removes those who leave, during the policy period, and the premium is adjusted for each addition or removal. Newborns must be added within 30 days of birth.\n6. The employer keeps members' details up to date, including replacing a border number with the iqama number once it is issued, so that cover stays linked to the member's ID with the Council of Health Insurance.\n7. Members are treated inside the medical network of their class on showing their ID. Outside the network, only emergencies are covered, as set out in the policy.\n8. Claims for covered costs can be submitted by the member, or by the employer on their behalf, through the insurance company's channels.\n9. The insurance company may obtain the establishment's and members' data from the National Information Center to issue and manage the policy, in line with the Personal Data Protection Law.\n10. Cancelling the policy and refunding the premium follow the unified policy and the Insurance Authority's regulations.\n11. The policy runs for one year and may be renewed by agreement of both parties.\n12. Complaints go to the insurance company first, then to the Insurance Authority if they are not resolved. These terms are governed by the laws of the Kingdom of Saudi Arabia.",
-                    "aggregator_agreement": "By continuing with our services, you hereby declare all of the following:\n\n1. I hereby acknowledge that the insured members who were not selected do not need a medical declaration (their medical declaration questions will be answered \"No\", without stating weight and height).\n2. I undertake that I have provided correct information, and I agree to appoint Provider name as our exclusive insurance broker to negotiate in our name and on our behalf with any insurance company, and to grant Provider name the right to use this information, share it with insurance companies, and inquire about the company's and/or the employees' data.\n3. I undertake that all the medical declarations were filled in with reference to the employee concerned, for correct pricing and to ensure access to the required healthcare services. This means:\n   a. You confirm that the information in all the medical declarations is correct, that offers will be accepted on the basis of this information, and that the insurance company has the right to contact the hospitals it deals with to collect any medical information needed to assess the risk.\n   b. You agree that the insurance company has the right to reject the coverage or the claim in full if any condition existing before the contract date, before enrolment, or before a new member is added during the contract period was not declared.\n   c. You confirm that you have read and understood all the points in the medical declaration form, and you agree that if all members are stated to have no medical declarations, all members are in normal health for their age and gender.\n   d. Failure to fill in weight and height will lead to the cost of obesity surgery not being covered.\n4. As an employer, I declare that I comply with all the requirements of the Insurance Authority, the regulations of the Council of Health Insurance, and the related decisions."
+                    "declaration_terms": "By continuing with our services, you hereby declare all of the following:\n\n1. I hereby acknowledge that the insured members who were not selected do not need a medical declaration (their medical declaration questions will be answered \"No\", without stating weight and height).\n2. I undertake that I have provided correct information, and I agree to appoint Diamond/Shahin (insurance brokers) as our exclusive insurance broker to negotiate in our name and on our behalf with any insurance company, and to grant Shahin the right to use this information, share it with insurance companies, and inquire about the company's and/or the employees' data.\n3. I undertake that all the medical declarations were filled in with reference to the employee concerned, for correct pricing and to ensure access to the required healthcare services. This means:\n   a. You confirm that the information in all the medical declarations is correct, that offers will be accepted on the basis of this information, and that the insurance company has the right to contact the hospitals it deals with to collect any medical information needed to assess the risk.\n   b. You agree that the insurance company has the right to reject the coverage or the claim in full if any condition existing before the contract date, before enrolment, or before a new member is added during the contract period was not declared.\n   c. You confirm that you have read and understood all the points in the medical declaration form, and you agree that if all members are stated to have no medical declarations, all members are in normal health for their age and gender.\n   d. Failure to fill in weight and height will lead to the cost of obesity surgery not being covered.\n4. As an employer, I declare that I comply with all the requirements of the Insurance Authority, the regulations of the Council of Health Insurance, and the related decisions.",
+                    "aggregator_agreement": "By continuing with our services, you hereby declare all of the following:\n\n1. I hereby acknowledge that the insured members who were not selected do not need a medical declaration (their medical declaration questions will be answered \"No\", without stating weight and height).\n2. I undertake that I have provided correct information, and I agree to appoint Diamond/Shahin (insurance brokers) as our exclusive insurance broker to negotiate in our name and on our behalf with any insurance company, and to grant Shahin the right to use this information, share it with insurance companies, and inquire about the company's and/or the employees' data.\n3. I undertake that all the medical declarations were filled in with reference to the employee concerned, for correct pricing and to ensure access to the required healthcare services. This means:\n   a. You confirm that the information in all the medical declarations is correct, that offers will be accepted on the basis of this information, and that the insurance company has the right to contact the hospitals it deals with to collect any medical information needed to assess the risk.\n   b. You agree that the insurance company has the right to reject the coverage or the claim in full if any condition existing before the contract date, before enrolment, or before a new member is added during the contract period was not declared.\n   c. You confirm that you have read and understood all the points in the medical declaration form, and you agree that if all members are stated to have no medical declarations, all members are in normal health for their age and gender.\n   d. Failure to fill in weight and height will lead to the cost of obesity surgery not being covered.\n4. As an employer, I declare that I comply with all the requirements of the Insurance Authority, the regulations of the Council of Health Insurance, and the related decisions.",
+                    "privacy_policy": "https://www.yasmina.ai/privacy"
                   }
                 }
               }
@@ -894,24 +1087,45 @@
       "get": {
         "summary": "Read the policy",
         "description": "One policy, with everything needed to take payment: its `price`, `pending_declarations` naming anyone who still has to declare, and `payment_link` once nobody does. The link is a fresh signed URL on every read, valid 15 minutes, and null while the policy cannot be paid for or once it is issued.",
-        "tags": ["Policies"],
+        "tags": [
+          "Policies"
+        ],
         "parameters": [
-          { "name": "policyId", "in": "path", "required": true, "schema": { "type": "integer" } }
+          {
+            "name": "policyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
         ],
         "responses": {
           "200": {
             "description": "The policy",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MedicalPolicy" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MedicalPolicy"
+                }
+              }
+            }
           },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
         }
       }
     },
     "/policies/{policyId}/deletion": {
       "post": {
         "summary": "Cancel a policy",
-        "tags": ["Policies"],
+        "tags": [
+          "Policies"
+        ],
         "description": "Cancel a policy. Important if, for example, someone resigns",
         "parameters": [
           {
@@ -1010,11 +1224,16 @@
             "description": "`40023` when someone joining has not declared yet (employee_ids lists them), `40024` when the policy would pass 250 employees, `40027` when the policy is unpaid, cancelled or expired, `40028` when nobody on the list is new.",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Error" },
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
                 "example": {
                   "code": "40023",
                   "message": "Everyone joining the policy has to declare their medical history first. Still to declare: Sam New, Sara New.",
-                  "employee_ids": ["1333333333", "1333333334"]
+                  "employee_ids": [
+                    "1333333333",
+                    "1333333334"
+                  ]
                 }
               }
             }
@@ -1173,17 +1392,41 @@
         "type": "object",
         "description": "The network of facilities a tier gives access to.",
         "properties": {
-          "name": { "type": "string", "nullable": true, "description": "The provider's own name for this tier's network.", "example": "Network 3" },
-          "total": { "type": "integer", "description": "How many facilities are in it, included or by referral.", "example": 907 },
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "description": "The provider's own name for this tier's network.",
+            "example": "Network 3"
+          },
+          "total": {
+            "type": "integer",
+            "description": "How many facilities are in it, included or by referral.",
+            "example": 907
+          },
           "facilities": {
             "type": "object",
             "description": "The facilities by type.",
             "properties": {
-              "hospital": { "type": "integer", "example": 137 },
-              "pharmacy": { "type": "integer", "example": 7 },
-              "clinic": { "type": "integer", "example": 591 },
-              "optical": { "type": "integer", "example": 39 },
-              "other": { "type": "integer", "example": 133 }
+              "hospital": {
+                "type": "integer",
+                "example": 137
+              },
+              "pharmacy": {
+                "type": "integer",
+                "example": 7
+              },
+              "clinic": {
+                "type": "integer",
+                "example": 591
+              },
+              "optical": {
+                "type": "integer",
+                "example": 39
+              },
+              "other": {
+                "type": "integer",
+                "example": 133
+              }
             }
           },
           "provider_list_url": {
@@ -1197,120 +1440,80 @@
       "MedicalFormAnswers": {
         "type": "object",
         "required": [
-          "allergies",
-          "current_medications",
           "hospitalizations",
-          "pre_existing_conditions",
-          "past_surgeries",
-          "surgery_complications",
-          "chest_pain_or_breathlessness",
-          "heart_procedures",
-          "smoking",
-          "alcohol_consumption",
-          "physical_activity",
-          "family_history"
+          "chronic_diseases",
+          "hereditary_diseases",
+          "eye_diseases",
+          "bone_diseases"
         ],
         "properties": {
-          "allergies": {
-            "type": "string",
-            "enum": [
-              "Yes",
-              "No"
-            ]
+          "weight": {
+            "type": "number",
+            "description": "Weight in kilograms. Optional; without weight and height the cost of obesity surgery is not covered.",
+            "example": 82
           },
-          "current_medications": {
-            "type": "string",
-            "enum": [
-              "Yes",
-              "No"
-            ]
+          "height": {
+            "type": "number",
+            "description": "Height in centimetres. Optional.",
+            "example": 176
           },
           "hospitalizations": {
             "type": "string",
             "enum": [
               "Yes",
               "No"
-            ]
+            ],
+            "description": "Any hospital admission during the last 12 months."
           },
-          "pre_existing_conditions": {
+          "chronic_diseases": {
             "type": "string",
             "enum": [
               "Yes",
               "No"
-            ]
+            ],
+            "description": "Diagnosed with one of the chronic diseases the form lists."
           },
-          "past_surgeries": {
+          "hereditary_diseases": {
             "type": "string",
             "enum": [
               "Yes",
               "No"
-            ]
+            ],
+            "description": "Diagnosed with one of the congenital or hereditary diseases the form lists."
           },
-          "surgery_complications": {
+          "eye_diseases": {
             "type": "string",
             "enum": [
               "Yes",
               "No"
-            ]
+            ],
+            "description": "Diagnosed with one of the eye diseases the form lists."
           },
-          "chest_pain_or_breathlessness": {
+          "bone_diseases": {
             "type": "string",
             "enum": [
               "Yes",
               "No"
-            ]
+            ],
+            "description": "Diagnosed with one of the bone diseases the form lists."
           },
-          "heart_procedures": {
+          "pregnancy": {
             "type": "string",
             "enum": [
-              "Yes",
-              "No"
-            ]
+              "Current single pregnancy",
+              "Current single pregnancy with previous CS delivery",
+              "Current multiple pregnancy"
+            ],
+            "description": "For a pregnant member only. Leave out otherwise."
           },
-          "smoking": {
+          "expected_delivery_date": {
             "type": "string",
-            "enum": [
-              "Yes",
-              "No"
-            ]
-          },
-          "alcohol_consumption": {
-            "type": "string",
-            "enum": [
-              "Yes",
-              "No"
-            ]
-          },
-          "physical_activity": {
-            "type": "string",
-            "enum": [
-              "Yes",
-              "No"
-            ]
-          },
-          "family_history": {
-            "type": "string",
-            "enum": [
-              "Yes",
-              "No"
-            ]
-          },
-          "chronic_disease": {
-            "type": "array",
-            "description": "Optional. Chronic conditions the employee has.",
-            "items": {
-              "type": "string",
-              "enum": [
-                "Diabetes",
-                "Asthma",
-                "Chronic Kidney Disease",
-                "Liver Disease",
-                "Cancer",
-                "None of the above"
-              ]
-            }
+            "format": "date",
+            "description": "For a pregnant member only, as YYYY-MM-DD.",
+            "example": "2027-03-01"
           }
-        }
+        },
+        "description": "One person's answers to the unified medical declaration form, keyed as the Medical form questions API lists them. The five yes/no questions are all answered; weight, height and the pregnancy details are given when they apply."
       },
       "Dependent": {
         "type": "object",
@@ -1358,12 +1561,22 @@
       "MedicalPolicy": {
         "type": "object",
         "properties": {
-          "id": { "type": "integer" },
-          "status": { "type": "integer", "description": "0 pending payment, 1 active, 2 cancelled." },
-          "price": { "type": "number", "description": "The premium for everyone on the policy, for a year." },
+          "id": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "integer",
+            "description": "0 pending payment, 1 active, 2 cancelled."
+          },
+          "price": {
+            "type": "number",
+            "description": "The premium for everyone on the policy, for a year."
+          },
           "pending_declarations": {
             "type": "array",
-            "items": { "type": "string" },
+            "items": {
+              "type": "string"
+            },
             "description": "Employees who still have to declare their medical history. Empty once everyone has."
           },
           "payment_link": {
@@ -1371,9 +1584,21 @@
             "nullable": true,
             "description": "Where the company pays. A fresh signed link on every read, valid 15 minutes. Null while anyone is in pending_declarations, and once the policy is issued."
           },
-          "provider_policy_id": { "type": "string", "nullable": true, "description": "The insurer's policy number, once issued." },
-          "policy_url": { "type": "string", "nullable": true, "description": "The policy schedule listing every member, once the company has paid. Null before that." },
-          "invoice_url": { "type": "string", "nullable": true, "description": "The invoice for the premium the company paid, one line per package tier, once the company has paid. Null before that. On sandbox the document is watermarked SANDBOX and is not a tax invoice." },
+          "provider_policy_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "The insurer's policy number, once issued."
+          },
+          "policy_url": {
+            "type": "string",
+            "nullable": true,
+            "description": "The policy schedule listing every member, once the company has paid. Null before that."
+          },
+          "invoice_url": {
+            "type": "string",
+            "nullable": true,
+            "description": "The invoice for the premium the company paid, one line per package tier, once the company has paid. Null before that. On sandbox the document is watermarked SANDBOX and is not a tax invoice."
+          },
           "additions": {
             "type": "array",
             "items": {
@@ -1381,73 +1606,190 @@
             },
             "description": "People added to the policy after it was paid for, oldest first. At most one is pending"
           },
-          "redirect_url": { "type": "string", "nullable": true },
+          "redirect_url": {
+            "type": "string",
+            "nullable": true
+          },
           "meta_data": {
             "type": "object",
             "properties": {
-              "company_id": { "type": "integer" },
-              "insurance_provider": { "type": "string" },
-              "quote_request_id": { "type": "string", "format": "uuid" },
-              "quote_price_id": { "type": "string", "format": "uuid" },
-              "iban": { "type": "string", "nullable": true, "description": "The company's IBAN, as sent when issuing the policy. Null if none was sent." },
-              "insured": { "type": "array", "items": { "$ref": "#/components/schemas/Insured" } }
+              "company_id": {
+                "type": "integer"
+              },
+              "insurance_provider": {
+                "type": "string"
+              },
+              "quote_request_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "quote_price_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "iban": {
+                "type": "string",
+                "nullable": true,
+                "description": "The company's IBAN, as sent when issuing the policy. Null if none was sent."
+              },
+              "insured": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Insured"
+                }
+              }
             }
           }
         }
       },
       "DeclarationAnswers": {
         "type": "object",
-        "description": "Yes or No for each question, and the list of chronic diseases.",
+        "description": "One person's answers to the unified medical declaration form, keyed as the Medical form questions API lists them. The five yes/no questions are all answered; weight, height and the pregnancy details are given when they apply.",
         "properties": {
-          "allergies": { "type": "string", "enum": ["Yes", "No"] },
-          "current_medications": { "type": "string", "enum": ["Yes", "No"] },
-          "hospitalizations": { "type": "string", "enum": ["Yes", "No"] },
-          "pre_existing_conditions": { "type": "string", "enum": ["Yes", "No"] },
-          "past_surgeries": { "type": "string", "enum": ["Yes", "No"] },
-          "surgery_complications": { "type": "string", "enum": ["Yes", "No"] },
-          "chest_pain_or_breathlessness": { "type": "string", "enum": ["Yes", "No"] },
-          "heart_procedures": { "type": "string", "enum": ["Yes", "No"] },
-          "smoking": { "type": "string", "enum": ["Yes", "No"] },
-          "alcohol_consumption": { "type": "string", "enum": ["Yes", "No"] },
-          "physical_activity": { "type": "string", "enum": ["Yes", "No"] },
-          "family_history": { "type": "string", "enum": ["Yes", "No"] },
-          "chronic_disease": {
-            "type": "array",
-            "items": { "type": "string", "enum": ["Diabetes", "Asthma", "Chronic Kidney Disease", "Liver Disease", "Cancer", "None of the above"] }
+          "weight": {
+            "type": "number",
+            "description": "Weight in kilograms. Optional; without weight and height the cost of obesity surgery is not covered.",
+            "example": 82
+          },
+          "height": {
+            "type": "number",
+            "description": "Height in centimetres. Optional.",
+            "example": 176
+          },
+          "hospitalizations": {
+            "type": "string",
+            "enum": [
+              "Yes",
+              "No"
+            ],
+            "description": "Any hospital admission during the last 12 months."
+          },
+          "chronic_diseases": {
+            "type": "string",
+            "enum": [
+              "Yes",
+              "No"
+            ],
+            "description": "Diagnosed with one of the chronic diseases the form lists."
+          },
+          "hereditary_diseases": {
+            "type": "string",
+            "enum": [
+              "Yes",
+              "No"
+            ],
+            "description": "Diagnosed with one of the congenital or hereditary diseases the form lists."
+          },
+          "eye_diseases": {
+            "type": "string",
+            "enum": [
+              "Yes",
+              "No"
+            ],
+            "description": "Diagnosed with one of the eye diseases the form lists."
+          },
+          "bone_diseases": {
+            "type": "string",
+            "enum": [
+              "Yes",
+              "No"
+            ],
+            "description": "Diagnosed with one of the bone diseases the form lists."
+          },
+          "pregnancy": {
+            "type": "string",
+            "enum": [
+              "Current single pregnancy",
+              "Current single pregnancy with previous CS delivery",
+              "Current multiple pregnancy"
+            ],
+            "description": "For a pregnant member only. Leave out otherwise."
+          },
+          "expected_delivery_date": {
+            "type": "string",
+            "format": "date",
+            "description": "For a pregnant member only, as YYYY-MM-DD.",
+            "example": "2027-03-01"
           }
-        }
+        },
+        "required": [
+          "hospitalizations",
+          "chronic_diseases",
+          "hereditary_diseases",
+          "eye_diseases",
+          "bone_diseases"
+        ]
       },
       "QuoteRequest": {
         "type": "object",
         "properties": {
-          "id": { "type": "string", "format": "uuid", "description": "The quote_request_id." },
-          "company_id": { "type": "integer" },
-          "employees": { "type": "array", "items": { "$ref": "#/components/schemas/Insured" } },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The quote_request_id."
+          },
+          "company_id": {
+            "type": "integer"
+          },
+          "employees": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Insured"
+            }
+          },
           "quotes": {
             "type": "array",
             "items": {
               "type": "object",
               "properties": {
-                "quote_price_id": { "type": "string", "format": "uuid" },
-                "insurance_provider": { "type": "string" },
-                "insurance_provider_name": { "type": "string" },
-                "total_price": { "type": "number", "description": "What the company pays for a year of cover with this provider." },
+                "quote_price_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "insurance_provider": {
+                  "type": "string"
+                },
+                "insurance_provider_name": {
+                  "type": "string"
+                },
+                "insurance_company_agreement": {
+                  "type": "string",
+                  "format": "uri",
+                  "description": "A link to this insurance company's own terms and conditions. Show it beside this offer."
+                },
+                "total_price": {
+                  "type": "number",
+                  "description": "What the company pays for a year of cover with this provider."
+                },
                 "price_per_employee": {
                   "type": "number",
                   "description": "total_price divided by the number of employees.",
                   "example": 800
                 },
-                "currency": { "type": "string", "example": "SAR" },
+                "currency": {
+                  "type": "string",
+                  "example": "SAR"
+                },
                 "employees": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "name": { "type": "string" },
-                      "identifier": { "type": "string" },
-                      "category": { "type": "string" },
-                      "dependents": { "type": "integer" },
-                      "price": { "type": "number" }
+                      "name": {
+                        "type": "string"
+                      },
+                      "identifier": {
+                        "type": "string"
+                      },
+                      "category": {
+                        "type": "string"
+                      },
+                      "dependents": {
+                        "type": "integer"
+                      },
+                      "price": {
+                        "type": "number"
+                      }
                     }
                   }
                 },
@@ -1457,7 +1799,10 @@
                   "additionalProperties": {
                     "type": "object",
                     "properties": {
-                      "name": { "type": "string", "example": "Basic" },
+                      "name": {
+                        "type": "string",
+                        "example": "Basic"
+                      },
                       "price": {
                         "type": "number",
                         "description": "The yearly price per employee on this tier.",
@@ -1490,7 +1835,12 @@
           },
           "category": {
             "type": "string",
-            "enum": ["basic", "standard", "premium", "executive"],
+            "enum": [
+              "basic",
+              "standard",
+              "premium",
+              "executive"
+            ],
             "description": "The tier this employee picked. Every provider sells all four, so the quote request can price it with each of them."
           },
           "nationality_id": {
@@ -1517,7 +1867,11 @@
             "pattern": "^[0-9]{10}$",
             "example": "1000000001"
           },
-          "is_married": { "type": "boolean", "description": "Whether the employee is married. Optional.", "example": true },
+          "is_married": {
+            "type": "boolean",
+            "description": "Whether the employee is married. Optional.",
+            "example": true
+          },
           "mobile_number": {
             "type": "string",
             "description": "The employee's mobile number.",
@@ -1539,9 +1893,19 @@
             "readOnly": true,
             "description": "The employee's declaration, on the employees of a quote request and a policy. Set through Submit the declarations; ignored when sent in.",
             "properties": {
-              "answers": { "$ref": "#/components/schemas/DeclarationAnswers" },
-              "consent": { "type": "boolean", "enum": [true] },
-              "filled_at": { "type": "string", "format": "date-time" }
+              "answers": {
+                "$ref": "#/components/schemas/DeclarationAnswers"
+              },
+              "consent": {
+                "type": "boolean",
+                "enum": [
+                  true
+                ]
+              },
+              "filled_at": {
+                "type": "string",
+                "format": "date-time"
+              }
             }
           }
         },
