@@ -15,7 +15,7 @@ Each kind has its own bucket, so a burst of quote requests never slows your read
 
 Calls the customer's browser makes from the Yasmina iframe (`/car-comp/embed/*`) are counted against the customer's IP address instead, so your customers never share one bucket.
 
-Two endpoints have a stricter, per-customer limit on top. `POST /car-comp/quote-otp` and `POST /car-comp/issue-otp` accept one request per phone number every three minutes, and answer `429` with code `42902` and the seconds left otherwise. The OTP already sent stays valid meanwhile.
+Two endpoints have a stricter, per-customer limit on top. `POST /car-comp/quote-otp` and `POST /car-comp/issue-otp` accept one request per phone number every three minutes, and answer `429` with code `42902` and the seconds left otherwise. The OTP already sent stays valid meanwhile. The insurer has its own limit on how often it sends a new code to the same number; when that is what refused the request, the answer is the same `429` / `42902` with the message "A verification code was requested for this number recently. Please try again later." and no seconds, because the insurer does not give a reliable wait time.
 
 `POST /oauth/token` is limited to 60 requests per minute per IP address. Cache the token: it is valid for the `expires_in` it comes with.
 
