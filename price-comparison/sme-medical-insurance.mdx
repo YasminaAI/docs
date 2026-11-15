@@ -63,7 +63,7 @@ The <a href="/medical-api-reference/company/create-company" target="_blank">The 
 **Production only: each company is registered once.** Creating a company whose `unified_national_number` you already registered answers `400` with code `40025` and the existing `company_id`; carry on with that company instead. Sandbox does not check this, so you can register the same company again and re-run your tests.
 </Info>
 
-It will return a response with a unique identifier (id). Here is an example of the response from the POST companies API.
+It will return a response with a unique identifier (ID). Here is an example of the response from the POST companies API.
 ```
 {
   "name": "Example company name",
@@ -181,47 +181,94 @@ Employees can also carry `sponsor_id` (10 digits) and `is_married` (`true` or `f
 An employee can bring family members onto the policy through the `dependents` array. Each dependent needs a `name`, a `relationship` to the employee (`spouse`, `child` or `parent`), a `nationality_iso`, a `date_of_birth`, and the same identifier rule as the employee: a 10-digit `nationality_id` for Saudis, a 10-digit `iqama_id` for everyone else. Dependents do not carry their own mobile number. Dependents are covered under the employee's tier; they cannot have one of their own. Leave the array out, or send it empty, for an employee with no dependents.
 
 #### Dates of birth
-Send every `date_of_birth` as `YYYY-MM-DD`. Saudi nationals whose national id starts with `1` give the Hijri (Umm al-Qura) date printed on their id, as John and his family do above; everyone else gives a Gregorian date. Employees must be between 18 and 110 years old; dependents can be any age.
+Send every `date_of_birth` as `YYYY-MM-DD`. Saudi nationals whose national ID starts with `1` give the Hijri (Umm al-Qura) date printed on their ID, as John and his family do above; everyone else gives a Gregorian date. Employees must be between 18 and 110 years old; dependents can be any age.
 
 ### Health declaration forms
-Insurers require a past medical history from every employee before they will price them, so every employee declares before you ask for prices. Yasmina publishes the questions and prints the form; each employee answers for themselves, on paper or inside your own platform.
 
-1. **The questions**: the [Medical form API](/medical-api-reference/medical-forms/get-the-medical-form-questions) returns the questions of the unified medical declaration form every insurance company uses, so you can build your own screen for it. Send `Accept-Language: ar` for the Arabic wording. A question with `choices` takes one of them, one with `options` takes one of those, and one with neither takes a free value: a number for `weight` (kg) and `height` (cm), a date for `expected_delivery_date`. Each key is a key of `answers` when you submit.
+Insurers price a company on its members' health, so the declarations are submitted before you ask for prices.
 
-2. **The printable form**: the [Download declaration form API](/medical-api-reference/medical-forms/download-the-declaration-form) returns the same declaration as a PDF. Pass the `policy_id` and the file carries one page per employee on the policy, with their name, id and package filled in, ready to print or email. Leave `policy_id` out for a single blank form.
+**How it works, in short**
 
-3. **Submitting the declarations**: send them in one call with the [Submit the declarations API](/medical-api-reference/medical-forms/submit-the-declarations). One `consent` covers everyone on the employee list, employees and dependents alike, and must be `true`, confirming they have stated that their answers are true and complete and agreed to share them with the insurance provider. Show `declaration_terms` from the [Terms and consent API](/medical-api-reference/medical-forms/get-the-terms-and-consent) in the step before, and `consent` beside the checkbox.
+- The employer gives **one consent** for the whole company.
+- You send answers **only for the people who have something to declare**. Everyone else is covered by the consent, with nothing to send.
+- If nobody has anything to declare, the consent alone is enough.
 
-	Add an entry only for someone with something to declare. It names them by their own id as `employee_id`: an employee's `nationality_id`, `iqama_id` or `border_number`, or a dependent's `nationality_id` or `iqama_id`. It carries their answers: the five yes/no questions are all answered; `weight`, `height`, `pregnancy` and `expected_delivery_date` are given when they apply. Without weight and height, the cost of obesity surgery is not covered. Everyone else is declared by the consent alone, so `{"consent": true}` is enough when nobody has anything to declare.
+#### Step 1: Show the two texts
 
-	The declarations are kept by id, apart from the employee list, so editing the list leaves them alone; each call replaces them, so send every entry each time. Someone added to the list afterwards is not covered: prices are refused (`40023`, naming them) until you submit the declarations again.
+The [Terms and consent API](/medical-api-reference/medical-forms/get-the-terms-and-consent) returns two texts for this step. Show both, as they are:
 
-	In this example, John and his son Jack have something to declare; Jane and Richard are declared by the consent.
+| Text | What it is | Where to show it |
+| --- | --- | --- |
+| `declaration_terms` | The full declaration and its terms | On the screen before the checkbox, so the employer reads it first |
+| `consent` | The short consent | Beside the checkbox the employer ticks |
 
-	```
-	PUT /medical/companies/42/declarations
-	{
-	    "consent": true,
-	    "employees": [
-	        {
-	            "employee_id": "1111111111",
-	            "answers": {
-	                "weight": 82,
-	                "height": 176,
-	                "hospitalizations": "No",
-	                "chronic_diseases": "Yes",
-	                "hereditary_diseases": "No",
-	                "eye_diseases": "No",
-	                "bone_diseases": "No"
-	            }
-	        },
-	        {
-	            "employee_id": "1111111113",
-	            "answers": { ... "eye_diseases": "Yes" }
-	        }
-	    ]
-	}
-	```
+The employer ticks one checkbox. That tick is the `consent: true` you send in Step 3.
+
+#### Step 2: Collect answers from anyone with something to declare
+
+The [Medical form API](/medical-api-reference/medical-forms/get-the-medical-form-questions) returns the questions of the unified medical declaration form that every insurance company uses. Send `Accept-Language: ar` for the Arabic wording.
+
+| Question key | Answer |
+| --- | --- |
+| `hospitalizations` | `Yes` or `No` |
+| `chronic_diseases` | `Yes` or `No` |
+| `hereditary_diseases` | `Yes` or `No` |
+| `eye_diseases` | `Yes` or `No` |
+| `bone_diseases` | `Yes` or `No` |
+| `weight` | Number, in kg. Optional |
+| `height` | Number, in cm. Optional |
+| `pregnancy` | One of the listed options. Pregnant members only |
+| `expected_delivery_date` | Date, `YYYY-MM-DD`. Pregnant members only |
+
+When a person sends answers, all five Yes/No questions must be answered. Without weight and height, the cost of obesity surgery is not covered.
+
+If the employer wants the form on paper, the [Download declaration form API](/medical-api-reference/medical-forms/download-the-declaration-form) returns the same questions as a PDF.
+
+#### Step 3: Submit
+
+Send everything in one call with the [Submit the declarations API](/medical-api-reference/medical-forms/submit-the-declarations).
+
+- `consent` must be `true`. It covers everyone on the employee list, employees and dependents alike.
+- `employees` holds one entry per person with something to declare. Leave everyone else out.
+- `employee_id` is that person's own ID number: an employee's `nationality_id`, `iqama_id` or `border_number`, or a dependent's `nationality_id` or `iqama_id`.
+
+Nobody has anything to declare:
+
+```
+PUT /medical/companies/42/declarations
+{
+    "consent": true
+}
+```
+
+One employee has something to declare; everyone else is covered by the consent:
+
+```
+PUT /medical/companies/42/declarations
+{
+    "consent": true,
+    "employees": [
+        {
+            "employee_id": "1111111111",
+            "answers": {
+                "weight": 82,
+                "height": 176,
+                "hospitalizations": "No",
+                "chronic_diseases": "Yes",
+                "hereditary_diseases": "No",
+                "eye_diseases": "No",
+                "bone_diseases": "No"
+            }
+        }
+    ]
+}
+```
+
+#### Things to know
+
+- **Each call replaces the previous one.** Send every entry again each time.
+- **Editing the employee list does not change the declarations.** They are stored by ID number, separately from the list.
+- **Someone added to the list later is not covered by the earlier consent.** Prices are refused with `40023`, naming them, until you submit the declarations again.
 
 ## Prices
 
