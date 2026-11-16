@@ -245,7 +245,7 @@
       },
       "put": {
         "summary": "Save the employees",
-        "description": "Replaces the company's employee list with the one given: who is covered, their dependents, and the tier each has picked (`basic`, `standard`, `premium` or `executive`). Use it to edit or remove employees after fetching the list. An employee who stays on the list keeps their health declaration. Nothing is priced here; see Get prices from every provider.",
+        "description": "Replaces the company's employee list with the one given: who is covered, their dependents, and the class each has picked (`C`, `B`, `A` or `VIP`; the former names `basic`, `standard`, `premium` and `executive` are still accepted and read as those classes). Use it to edit or remove employees after fetching the list. An employee who stays on the list keeps their health declaration. Nothing is priced here; see Get prices from every provider.",
         "tags": [
           "Employees"
         ],
