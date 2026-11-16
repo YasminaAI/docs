@@ -87,7 +87,11 @@ You can also visit the [List companies API](/medical-api-reference/company/list-
 ## Packages
 
 ### Compare the packages
-Every insurance provider sells the same four tiers, so an employee's choice can be priced by all of them: `basic`, `standard`, `premium` and `executive`. What each provider puts inside a tier is its own; what it charges for it only appears on the [quote request](#get-prices-from-every-provider), for the company's own employees. The [Categories API](/medical-api-reference/products/list-categories) shows one provider's tiers at a time; call it once per provider, passing `insurance_provider` as one of the values below, or omit it for MedGulf.
+Every insurance provider sells the same four classes, so an employee's choice can be priced by all of them. From the lowest premium to the highest they are `C`, `B`, `A` and `VIP`, the names the insurance companies themselves use. What each provider puts inside a class is its own; what it charges for it only appears on the [quote request](#get-prices-from-every-provider), for the company's own employees. The [Categories API](/medical-api-reference/products/list-categories) shows one provider's classes at a time; call it once per provider, passing `insurance_provider` as one of the values below, or omit it for MedGulf.
+
+<Note>
+Until November 2026 the classes were called `basic`, `standard`, `premium` and `executive`. They are the same four classes under new names: `basic` is `C`, `standard` is `B`, `premium` is `A` and `executive` is `VIP`. A request that still sends a former name is accepted and read as the class it means, but every response uses the new names, so update any code that reads or compares them.
+</Note>
 
 | Insurance provider | `insurance_provider` |
 | ------------------ | -------------------- |
@@ -114,9 +118,9 @@ Coverage values can either be a number (the amount), or a boolean (whether it's 
     "medgulf_pdf": "https://...",
     "translations": { ... },
     "categories": {
-        "basic": {
-            "name": "Basic",
-            "category": "basic",
+        "C": {
+            "name": "Class C",
+            "category": "C",
             "insurance_provider": "medgulf",
             "maximum_annual_benefit_limit_per_person": 500000,
             "geography": "Saudi Arabia",
@@ -130,7 +134,7 @@ Coverage values can either be a number (the amount), or a boolean (whether it's 
 ## Employees
 
 ### Fetch the employees
-The [Fetch employees API](/medical-api-reference/employees/fetch-the-employees) fills the company's employee list with the employees registered under the company, each on the `basic` tier. It replaces the list, so fetch first and edit afterwards.
+The [Fetch employees API](/medical-api-reference/employees/fetch-the-employees) fills the company's employee list with the employees registered under the company, each on class `C`. It replaces the list, so fetch first and edit afterwards.
 
 ### Edit the employees
 The [Employees API](/medical-api-reference/employees/save-the-employees) holds the company's employee list: who is covered, their dependents, and the tier each has picked. It prices nothing. Send the whole list; each call replaces the one before, and you can read it back at any time. A company can have up to 250 employees; their dependents do not count. A longer list is refused with `40024`.
@@ -141,7 +145,7 @@ The [Employees API](/medical-api-reference/employees/save-the-employees) holds t
     {
         "name": "John Doe",
         "nationality_iso": "SA",
-        "category": "basic",
+        "category": "C",
         "nationality_id": "1111111111",
         "mobile_number": "0500000001",
         "date_of_birth": "1409-09-14",
@@ -165,7 +169,7 @@ The [Employees API](/medical-api-reference/employees/save-the-employees) holds t
     {
         "name": "Richard Roe",
         "nationality_iso": "JO",
-        "category": "executive",
+        "category": "VIP",
         "iqama_id": "2222222222",
         "mobile_number": "0500000002",
         "date_of_birth": "1988-04-20",
@@ -287,22 +291,22 @@ Call the [Quote request API](/medical-api-reference/quotes/get-prices-from-every
       "price_per_employee": 800,
       "currency": "SAR",
       "employees": [
-        { "name": "John Doe", "identifier": "1111111111", "category": "basic", "dependents": 2, "price": 300 },
-        { "name": "Richard Roe", "identifier": "2222222222", "category": "executive", "dependents": 0, "price": 1300 }
+        { "name": "John Doe", "identifier": "1111111111", "category": "C", "dependents": 2, "price": 300 },
+        { "name": "Richard Roe", "identifier": "2222222222", "category": "VIP", "dependents": 0, "price": 1300 }
       ],
       "packages": {
-        "basic": {
-          "name": "Basic",
+        "C": {
+          "name": "Class C",
           "price": 300,
           "benefits": { "maximum_annual_benefit_limit_per_person": 500000, "general_coverage": { ... }, ... },
           "network": {
             "name": "MG6",
             "total": 1132,
             "facilities": { "hospital": 230, "pharmacy": 4, "clinic": 611, "optical": 24, "other": 263 },
-            "provider_list_url": "https://api.yasmina.ai/api/v1/medical/products/networks?insurance_provider=medgulf&category=basic"
+            "provider_list_url": "https://api.yasmina.ai/api/v1/medical/products/networks?insurance_provider=medgulf&category=C"
           }
         },
-        "executive": { ... }
+        "VIP": { ... }
       }
     },
     { "quote_price_id": "...", "insurance_provider": "walaa", "total_price": 1700, ... },
@@ -356,7 +360,7 @@ Also `provider_policy_id`, `policy_url` and `invoice_url` will all be `null`.
 In order for the policy to be activated, the customer needs to make the purchase from the payment link. Once the customer successfully pays, the policy is activated and the `status` becomes `1`. [Read the policy](/medical-api-reference/policies/read-the-policy) or [list policies](/medical-api-reference/policies/list-policies) and you get two documents:
 
 - `policy_url`: the policy schedule, listing every member and their package.
-- `invoice_url`: the invoice for the premium the company paid, one line per package tier, carrying the policy number.
+- `invoice_url`: the invoice for the premium the company paid, one line per class, carrying the policy number.
 
 On sandbox the invoice is watermarked SANDBOX and says that the premiums are placeholder figures: it is not a tax invoice. Production invoices carry no such marks.
 
@@ -381,8 +385,8 @@ New employees, and new dependents of employees already covered, join the company
   "ends_on": "2026-12-31",
   "days": 183,
   "members": [
-    { "name": "Sam New", "identifier": "1333333333", "type": "employee", "category": "premium", "price": 451.23 },
-    { "name": "Sara New", "identifier": "1333333334", "type": "dependent", "category": "premium", "price": 0 }
+    { "name": "Sam New", "identifier": "1333333333", "type": "employee", "category": "A", "price": 451.23 },
+    { "name": "Sara New", "identifier": "1333333334", "type": "dependent", "category": "A", "price": 0 }
   ],
   "total_price": 451.23,
   "currency": "SAR",
