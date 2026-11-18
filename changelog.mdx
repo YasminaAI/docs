@@ -4,7 +4,7 @@ icon: 'clock-rotate-left'
 ---
 
 <Update label="18th November 2026" tags={["SME Medical", "APIs", "Docs"]}>
-	**The terms and consent include the licence line.** [Get the terms and consent](/medical-api-reference/medical-forms/get-the-terms-and-consent) (`GET /api/v1/medical/texts`) now also returns `license`: one sentence naming who provides the quotes, with its Insurance Authority licence number. Show it with the prices, exactly as returned. The licence number is wrapped in Unicode isolate characters so it reads correctly in both English and Arabic. The other texts are unchanged. The [SME Medical Insurance guide](/price-comparison/sme-medical-insurance#terms-and-consent) has the detail.
+	**The terms and consent include the licence number.** [Get the terms and consent](/medical-api-reference/medical-forms/get-the-terms-and-consent) (`GET /api/v1/medical/texts`) now also returns `license`, the aggregator's Insurance Authority licence number on its own. Show it as returned. The other texts are unchanged. The [SME Medical Insurance guide](/price-comparison/sme-medical-insurance#terms-and-consent) lists it with the other texts.
 </Update>
 
 <Update label="16th November 2026" tags={["Portal", "APIs", "Docs"]}>

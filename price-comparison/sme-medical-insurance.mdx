@@ -52,7 +52,7 @@ Where each text comes from:
 - `declaration_terms`, `aggregator_agreement` and `consent` come from the [Terms and consent API](/medical-api-reference/medical-forms/get-the-terms-and-consent). Send `Accept-Language: ar` for Arabic; anything else returns English.
 - `insurance_company_agreement` is a link to the insurer's own terms and conditions. It comes with each quote (see [Prices](#prices)). Show the link of the insurer the employer chose.
 - `privacy_policy`, also from the Terms and consent API, is a link to Yasmina's privacy policy. Show it next to the agreements.
-- `license`, also from the Terms and consent API, names who provides the quotes, with its Insurance Authority licence number. Show it with the prices, so the employer sees it next to the offers.
+- `license`, also from the Terms and consent API, is the aggregator's Insurance Authority licence number. Show it as returned.
 
 Show the texts exactly as the API returns them. Fetch them each time instead of copying them into your platform, so a change of wording reaches your users without a release on your side.
 
