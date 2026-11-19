@@ -3,6 +3,13 @@ title: 'Changelog'
 icon: 'clock-rotate-left'
 ---
 
+<Update label="19th November 2026" tags={["SME Medical", "Motor", "Docs"]}>
+	**Docs corrections; the APIs are unchanged.** Three places in the docs did not match how the APIs already behave:
+	* **Motor OTP is 4 digits.** The SDK examples and the single-provider [Motor guide](/single-provider-integrations/motor-insurance) sent `"123456"` as the `otp`; the Request Quotes and Issue Policy APIs accept a 4-digit OTP.
+	* **The SME Medical `payment_link` stays valid for 24 hours, not 15 minutes.** Reading the policy again returns the same link, and a new one replaces it when less than an hour is left. See [Payment](/price-comparison/sme-medical-insurance#payment).
+	* **The single-provider [SME Medical guide](/single-provider-integrations/sme-medical-insurance) follows the current flow.** Issuing a policy takes three calls: save the employees, get the prices, then issue the policy with the `quote_request_id` and `quote_price_id`. Every employee needs a `mobile_number`, and the declaration form download takes `policy_id`, not `company_id`.
+</Update>
+
 <Update label="16th November 2026" tags={["Portal", "APIs", "Docs"]}>
 	**Sandbox and Live in the portal.** Where both environments are enabled for your account, you sign in to the portal once and switch between **Sandbox** and **Live** at the top of the page. In the portal your client id is the same on both sides; each side has its own client secret, generated on that side's API Management page, and its own policies and settings. The switch is available to users with the API management permission, and access to each environment is enabled by your account manager. Nothing changes for existing integrations: accounts that already use production keep it, with the same client id and secret, and existing sandbox credentials keep working. API Management now states which host your client id and secret are valid for. **New error `40302`:** if Production is not enabled for your client, `POST /oauth/token` on production answers `403` / `40302` "Production access is not enabled for this client. Use the Sandbox environment, or contact your account manager to request approval." Sandbox is unaffected. The portal also asks you to confirm before replacing a client secret that already exists, since the current one stops working at once. The [Errors](/api-resources/errors) page lists the new code.
 </Update>

@@ -3,7 +3,9 @@ title: 'Environments'
 icon: 'server'
 ---
 
-Yasmina provides three separate environments to support your full development and integration lifecycle — from internal testing, to integration validation, to going live with real customers
+Yasmina has three separate environments: Staging, where our team tests changes before they are released; Sandbox, where you build and test your integration; and Production, where you go live with real customers.
+
+Sandbox and Production each have their own client secret, so generate the secret for the environment you are calling. See [Authentication](/authentication).
 
 ***
 
@@ -23,10 +25,17 @@ The Sandbox environment behaves just like Production — same APIs, same flows �
 
 * Simulating real-world scenarios
 
-* Internal QA or demos
+* QA or demos on your side
 
 Although the flows mirror Production, no real policies are issued and no live data is processed.
 
 Base URL: https://sandbox.yasmina.ai
+
+***
+
+### Staging
+Staging is where our team tests new features and fixes before they reach Sandbox and Production. It is used only by the Yasmina team and is not part of your integration: build and test against Sandbox.
+
+Base URL: https://staging.yasmina.ai
 
 ***

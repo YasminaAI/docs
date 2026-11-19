@@ -87,18 +87,19 @@ Each employee can have a separate package. Coverage values can either be a numbe
 ```
 
 ### Issue insurance policies
-To issue policies, you need to execute the [Issue policy API](/medical-api-reference/policies/issue-the-policy).
-The API takes three fields. The company_id as referenced above, the insurance_provider (`medgulf` for this integration), and an array called insured. The insured are the employees that the company wants to issue insurance for.
-Here is an example of a payload you would send
+Issuing a policy takes three calls.
+
+**1. Save the employees.** Send the employees that the company wants to issue insurance for with the [Save the employees API](/medical-api-reference/employees/save-the-employees). Here is an example of a payload you would send
 ```
+PUT /api/v1/medical/companies/1/employees
 {
-  "insurance_provider": "medgulf",
-  "insured": [
+  "employees": [
     {
         "name": "John Doe",
         "nationality_iso": "SA",
         "category": "basic",
         "nationality_id": "1111111111",
+        "mobile_number": "0500000001",
         "date_of_birth": "1409-09-14",
         "dependents": [
             {
@@ -122,15 +123,15 @@ Here is an example of a payload you would send
         "nationality_iso": "JO",
         "category": "standard",
         "iqama_id": "2222222222",
+        "mobile_number": "0500000002",
         "date_of_birth": "1988-04-20",
         "dependents": []
     }
-  ],
-  "company_id": 1
+  ]
 }
 ```
 
-<Note>Notice in the above, there are two employees within the company. John is Saudi (`nationality_iso` is `SA`), so we supply his `nationality_id`. Richard is not Saudi, so we supply his `iqama_id` instead. The API rejects the request if a Saudi employee has no `nationality_id` or a non-Saudi employee has no `iqama_id`.</Note>
+<Note>Notice in the above, there are two employees within the company. John is Saudi (`nationality_iso` is `SA`), so we supply his `nationality_id`. Richard is not Saudi, so we supply his `iqama_id` instead. The API rejects the request if a Saudi employee has no `nationality_id` or a non-Saudi employee has no `iqama_id`, and every employee needs a `mobile_number`.</Note>
 The `category` that we are supplying is what was returned from the [Categories API](/medical-api-reference/products/list-categories)
 
 #### Dependents
@@ -139,6 +140,23 @@ An employee can bring family members onto the policy through the `dependents` ar
 #### Dates of birth
 Send every `date_of_birth` as `YYYY-MM-DD`. Saudi nationals whose national id starts with `1` give the Hijri (Umm al-Qura) date printed on their id, as John and his family do above; everyone else gives a Gregorian date. Employees must be between 18 and 110 years old; dependents can be any age.
 
+**2. Get the prices.** Once the employees have submitted their [health declarations](#hr-declaration-forms), call the [Quote request API](/medical-api-reference/quotes/get-prices-from-every-provider) with the `company_id`. The response `id` is the `quote_request_id`, and each quote in `quotes` carries a `quote_price_id`.
+```
+POST /api/v1/medical/quote-requests
+{
+  "company_id": 1
+}
+```
+
+**3. Issue the policy.** Call the [Issue policy API](/medical-api-reference/policies/issue-the-policy) with the `quote_request_id` and the `quote_price_id` of your insurance provider's quote.
+```
+POST /api/v1/medical/policies
+{
+  "quote_request_id": "a2bc93db-131e-4726-8a0a-0fed1da5ac0f",
+  "quote_price_id": "3fb4e3bb-6c7e-4a8f-9d2a-1b3c5d7e9f01"
+}
+```
+
 ### HR declaration forms
 The companies that have requested insurance needs to be supply the insurance provider with Medical forms. These are mandatory for insurance providers to know past medical histories.
 
@@ -146,7 +164,7 @@ Submit them with the [Submit the declarations API](/medical-api-reference/medica
 
 <AccordionGroup>
   <Accordion title="Download the form" icon="file-arrow-down">
-  	The [Download declaration form API](/medical-api-reference/medical-forms/download-the-declaration-form) returns the declaration as a PDF. Pass the `company_id` and the file carries one page per employee you have already enrolled, with their name, id and package filled in, so the company can print it or email it on. Leave `company_id` out and you get a single blank form.
+  	The [Download declaration form API](/medical-api-reference/medical-forms/download-the-declaration-form) returns the declaration as a PDF. Pass the `policy_id` and the file carries one page per employee on that policy, with their name, id and package filled in, so the company can print it or email it on. Leave `policy_id` out and you get a single blank form.
   </Accordion>
 </AccordionGroup>
 
