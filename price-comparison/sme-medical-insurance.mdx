@@ -187,7 +187,7 @@ Each employee's `category` is one of the four tiers. Employees can be on differe
 Employees can also carry `sponsor_id` (10 digits) and `is_married` (`true` or `false`), both optional. A non-Saudi whose iqama has not been issued yet sends a 10-digit `border_number` in place of `iqama_id`.
 
 #### Dependents
-An employee can bring family members onto the policy through the `dependents` array. Each dependent needs a `name`, a `relationship` to the employee (`spouse`, `child` or `parent`), a `nationality_iso`, a `date_of_birth`, and the same identifier rule as the employee: a 10-digit `nationality_id` for Saudis, a 10-digit `iqama_id` for everyone else. Dependents do not carry their own mobile number. Dependents are covered under the employee's tier; they cannot have one of their own. Leave the array out, or send it empty, for an employee with no dependents.
+An employee can bring family members onto the policy through the `dependents` array. Each dependent needs a `name`, a `relationship` to the employee (`spouse` or `child`; parents cannot be added), a `nationality_iso`, a `date_of_birth`, and the same identifier rule as the employee: a 10-digit `nationality_id` for Saudis, a 10-digit `iqama_id` for everyone else. Dependents do not carry their own mobile number. Dependents are covered under the employee's tier; they cannot have one of their own. Leave the array out, or send it empty, for an employee with no dependents.
 
 #### Dates of birth
 Send every `date_of_birth` as `YYYY-MM-DD`. Saudi nationals whose national ID starts with `1` give the Hijri (Umm al-Qura) date printed on their ID, as John and his family do above; everyone else gives a Gregorian date. Employees must be between 18 and 110 years old; dependents can be any age.
@@ -337,9 +337,7 @@ A company buys one policy, and its employees are the members on it, which is how
 }
 ```
 
-The insurance provider transfers refunds to the `iban`, and the account is never charged. It must be a valid Saudi IBAN (SA followed by 22 characters, with correct check digits); spaces are removed and letters capitalised.
-
-<Warning>`iban` is optional for now and becomes required on **19 November 2026**. From that date, issuing a policy without it is rejected, so start collecting the company's IBAN and sending it now.</Warning>
+The insurance provider transfers refunds to the `iban`, and the account is never charged. It is required: a request without it is rejected with `422`. It must be a valid Saudi IBAN (SA followed by 22 characters, with correct check digits); spaces are removed and letters capitalised.
 
 A company has one policy waiting to be paid for at a time. Issue again before payment, from a different quote if you like, and it is replaced. Once it is paid for, issuing again is refused with `40026` for as long as the policy is in force: new employees join it through an [addition](#add-employees-after-purchase) instead. A cancelled or expired policy no longer blocks a new one.
 
