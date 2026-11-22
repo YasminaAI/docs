@@ -3,6 +3,10 @@ title: 'Changelog'
 icon: 'clock-rotate-left'
 ---
 
+<Update label="22nd November 2026" tags={["SME Medical", "APIs", "Docs"]}>
+	**The SME medical classes are named `C`, `B`, `A` and `VIP`.** The four classes every insurance company sells now carry the names the insurance companies use: `basic` is `C`, `standard` is `B`, `premium` is `A` and `executive` is `VIP`. Only the names change; each class keeps its price, benefits and hospital network. **Every response uses the new names:** the keys of `categories` in the [Categories API](/medical-api-reference/products/list-categories), each employee's `category`, the keys of `packages` on a quote, the network list and the policy documents. Companies, quotes and policies you already created have been renamed the same way. **Requests that still send a former name keep working:** `category` is read as the class it means when you save employees or ask for a network list. If your code reads these values back, shows them, or compares them to the former names, update it to the new ones. The [SME Medical Insurance guide](/price-comparison/sme-medical-insurance#compare-the-packages) has the mapping.
+</Update>
+
 <Update label="22nd November 2026" tags={["Property", "APIs", "Docs"]}>
 	**List Prices returns only insurers you can issue with, at the price the policy is issued at.** In Sandbox, [List Prices](/property-api-reference/prices/list-prices) (`GET /api/v1/property/prices`) no longer returns Tawuniya and Wataniyeh: [Issue Policy](/property-api-reference/policies/issue-policy) never accepted them, so a customer who chose one was refused with `422`. Sandbox now returns Walaa, Medgulf and Takaful Al-Rajhi; Production returns Walaa, as before. Medgulf policies are now issued at the quoted price when contents are insured; until now the contents were charged at a lower rate than quoted. The [Property Insurance guide](/price-comparison/property#get-prices) lists the insurers in each environment.
 </Update>
