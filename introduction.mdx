@@ -1,6 +1,6 @@
 ---
 title: Getting Started
-description: 'Welcome to Yasmina integration. Pioneering embedded insurance in Saudi Arabia  and the region by offering seamless coverage, delivered at the perfect moment to protect your customers.'
+description: 'Welcome to Yasmina integration. Pioneering embedded insurance in Saudi Arabia and the region by offering seamless coverage, delivered at the perfect moment to protect your customers.'
 icon: 'file-lines'
 ---
 
@@ -14,67 +14,54 @@ Our platform sits in the middle of Insurance Providers and Businesses.
 
 <img
   src="/images/insurance-flow.png"
-  alt="Insurance flow"
+  alt="Diagram: your customers use your website or app, which calls the Yasmina RESTful APIs, which exchange requests with the insurance providers"
   width="600"
   className="rounded-lg"
 />
-💡 Yasmina is fully self-service, which means you can go live without waiting for manual onboarding or lengthy setup processes.
+💡 Sign up yourself, with no sales call needed. Our team reviews every application, usually within 24 hours.
 
 ### Onboarding
 
 <Steps>
-  <Step icon="user-plus" title="Signup">
-  	Signing up is quick. Just head up to https://portal.yasmina.ai/register and fill in the sign up form
+  <Step icon="user-plus" title="Create your account">
+	Head over to https://portal.yasmina.ai/signup and fill in your full name, work email, Saudi mobile number and a password.
 	<img
-	  src="/images/signup5.png"
-	  alt="Insurance flow"
+	  src="/images/signup-account.png"
+	  alt="Step 1 of the Yasmina sign-up, Account, with full name, work email, mobile number and password fields and a Continue button"
 	  width="600"
 	  className="rounded-lg"
 	/>
   </Step>
-  <Step icon="clipboard-list" title="Enrollment process">
-	  Once you sign up, you need to click Enrollment from the sidebar.
-
-	<img
-	  src="/images/enrollment2.png"
-	  alt="Insurance flow"
-	  width="600"
-	  className="rounded-lg"
-	/>
-	 Once you click, you go through a simple guided wizard where you'll tell us more about your business and how you will use Yasmina. You should also let us know what Products you are planning to use. Here are the products that Yasmina provides:
-	 - Single Insurance Provider (In this model you get insurance from a pre-defined insurance company.)
-	 	- SME Medical Insurance
-	 	- Comprehensive Motor Insurance
-	 	- TPL Motor Insurance
-	 	- Property Insurance
-	 	- Travel Insurance
-	 	- Life Insurance (S&P)
-	 	- Horse Insurance
-	 - Price Comparison (In this model, you can show your customer insurance from multiple companies and your they get to choose one.)
-	 	- Comprehensive Motor Insurance
-	 	- TPL Motor Insurance
-	 	- Property Insurance
-
-At the end of the process, you need to carefully review and accept our service agreement to complete your enrollment.
-
-<Tip>Made a mistake or missed something after submission? You can reset your submission and update the details anytime.</Tip>
-
+  <Step icon="shield-check" title="Verify your identity">
+	Confirm your email and mobile number with the codes we send you, and enter the National ID or Iqama number of the authorized signatory: you sign the agreement on behalf of your company.
   </Step>
-
-	<Step icon="clock" title="Wait for approval">
-	  <Note>Waiting for approval is only required in **Production** environment. Your account will be auto-approved on **Sandbox**.</Note>
-
-Once submitted, our team will review your details and usually approve your account within 24 hours. After approval, your business will have full access to Yasmina, and you’ll be ready to start offering insurance services through your own platform.
+  <Step icon="building" title="Tell us about your company and products">
+	Enter your company's details and pick the products you want to offer. You can choose as many as you like.
 	<img
-	  src="/images/approval.png"
-	  alt="Insurance flow"
+	  src="/images/signup-company-products.png"
+	  alt="Step 3 of the Yasmina sign-up, Company & products, with organization name, website, commercial registration number, industry and country fields, and the products to choose from"
 	  width="600"
 	  className="rounded-lg"
 	/>
-	</Step>
+  </Step>
+  <Step icon="building-columns" title="Add your payout details">
+	Add the IBAN where your revenue share is paid, and your Zakat number if you have one. This step is optional: you can skip it and add your IBAN later under **Earnings**.
+  </Step>
+  <Step icon="file-signature" title="Sign the agreement">
+	Review the service agreement, sign it, upload your company stamp and accept the terms of service, then click **Submit for approval**. You can download your copy of the signed agreement.
+	<img
+	  src="/images/signup-sign.png"
+	  alt="Step 5 of the Yasmina sign-up, Sign, with the service agreement to review, a signature pad, a company stamp upload, a Download draft button and the Submit for approval button"
+	  width="600"
+	  className="rounded-lg"
+	/>
+	<Tip>Made a mistake or missed something after submission? You can reset your submission and update the details anytime.</Tip>
+  </Step>
+  <Step icon="clock" title="Wait for approval">
+	Our team reviews every application, usually within 24 hours, and emails you once you're approved. Access to each environment, Sandbox and Live, is enabled by your account manager.
+  </Step>
   <Step icon="plug" title="Start developing the integration">
-   You can learn how to integrate with our products from our Insurance Integrations Guides.
-
+	Get your Client ID and Client Secret from API Management, as described in [Authentication](/authentication), then follow the guide for your product below.
   </Step>
 </Steps>
 
@@ -88,5 +75,6 @@ Once submitted, our team will review your details and usually approve your accou
   - [Life Insurance (S&P)](/single-provider-integrations/life)
   - [Horse Insurance](/single-provider-integrations/horse)
 - **Price Comparison**
+  - [SME Medical Insurance](/price-comparison/sme-medical-insurance)
   - [Motor Insurance](/price-comparison/motor-insurance)
   - [Property Insurance](/price-comparison/property)

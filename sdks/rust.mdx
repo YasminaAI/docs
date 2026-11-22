@@ -57,7 +57,7 @@ async fn main() {
         .quotes
         .request_quotes(
             &PostQuoteRequestsRequest {
-                otp: "123456".to_string(),
+                otp: "1234".to_string(),
                 owner_id: "owner_id".to_string(),
                 phone: "phone".to_string(),
                 birthdate: NaiveDate::parse_from_str("2023-01-15", "%Y-%m-%d").unwrap(),

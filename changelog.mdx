@@ -3,6 +3,12 @@ title: 'Changelog'
 icon: 'clock-rotate-left'
 ---
 
+<Update label="22nd November 2026" tags={["SME Medical", "Motor", "Docs"]}>
+	**Docs corrections; the APIs are unchanged.** Two places in the docs did not match how the APIs already behave:
+	* **Motor OTP is 4 digits.** The SDK examples and the single-provider [Motor guide](/single-provider-integrations/motor-insurance) sent `"123456"` as the `otp`; the Request Quotes and Issue Policy APIs accept a 4-digit OTP.
+	* **The single-provider [SME Medical guide](/single-provider-integrations/sme-medical-insurance) follows the current flow.** Issuing a policy takes three calls: save the employees, get the prices, then issue the policy with the `quote_request_id` and `quote_price_id`. Every employee needs a `mobile_number`, and the declaration form download takes `policy_id`, not `company_id`.
+</Update>
+
 <Update label="22nd November 2026" tags={["Property", "APIs", "Docs"]}>
 	**List Prices returns only insurers you can issue with, at the price the policy is issued at.** In Sandbox, [List Prices](/property-api-reference/prices/list-prices) (`GET /api/v1/property/prices`) no longer returns Tawuniya and Wataniyeh: [Issue Policy](/property-api-reference/policies/issue-policy) never accepted them, so a customer who chose one was refused with `422`. Sandbox now returns Walaa, Medgulf and Takaful Al-Rajhi; Production returns Walaa, as before. Medgulf policies are now issued at the quoted price when contents are insured; until now the contents were charged at a lower rate than quoted. The [Property Insurance guide](/price-comparison/property#get-prices) lists the insurers in each environment.
 </Update>
