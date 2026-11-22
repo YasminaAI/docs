@@ -245,7 +245,7 @@
       },
       "put": {
         "summary": "Save the employees",
-        "description": "Replaces the company's employee list with the one given: who is covered, their dependents, and the tier each has picked (`basic`, `standard`, `premium` or `executive`). Use it to edit or remove employees after fetching the list. An employee who stays on the list keeps their health declaration. Nothing is priced here; see Get prices from every provider.",
+        "description": "Replaces the company's employee list with the one given: who is covered, their dependents, and the class each has picked (`C`, `B`, `A` or `VIP`; the former names `basic`, `standard`, `premium` and `executive` are still accepted and read as those classes). Use it to edit or remove employees after fetching the list. An employee who stays on the list keeps their health declaration. Nothing is priced here; see Get prices from every provider.",
         "tags": [
           "Employees"
         ],
@@ -594,7 +594,8 @@
                 "type": "object",
                 "required": [
                   "quote_request_id",
-                  "quote_price_id"
+                  "quote_price_id",
+                  "iban"
                 ],
                 "properties": {
                   "quote_request_id": {
@@ -615,7 +616,7 @@
                   "iban": {
                     "type": "string",
                     "pattern": "^SA\\d{4}[A-Z0-9]{18}$",
-                    "description": "The company's Saudi IBAN: SA followed by 22 alphanumeric characters, no spaces. It must be a valid Saudi IBAN (correct check digits), so made-up values are rejected. It is kept on the policy and used by the insurance provider to transfer refunds to the company; the account is never charged. Optional for now: it becomes required on 19 November 2026, so start sending it.",
+                    "description": "The company's Saudi IBAN: SA followed by 22 alphanumeric characters, no spaces. It must be a valid Saudi IBAN (correct check digits), so made-up values are rejected. It is kept on the policy and used by the insurance provider to transfer refunds to the company; the account is never charged.",
                     "example": "SA0380000000608010167519"
                   }
                 }
@@ -1536,10 +1537,9 @@
             "type": "string",
             "enum": [
               "spouse",
-              "child",
-              "parent"
+              "child"
             ],
-            "description": "How the dependent is related to the employee"
+            "description": "How the dependent is related to the employee. Parents cannot be added as dependents."
           },
           "nationality_iso": {
             "type": "string",
