@@ -1132,7 +1132,7 @@
         "tags": [
           "Policies"
         ],
-        "description": "Cancel a policy. Important if, for example, someone resigns",
+        "description": "Cancels the whole policy: cover ends for every employee and dependent on it. It cannot remove a single employee.",
         "parameters": [
           {
             "name": "policyId",
@@ -1152,7 +1152,7 @@
                 "properties": {
                   "cancellation_document": {
                     "type": "string",
-                    "description": "Supporting document of why policy was deleted. Could be resignation document.",
+                    "description": "Optional supporting document explaining why the policy is cancelled.",
                     "format": "binary"
                   }
                 }

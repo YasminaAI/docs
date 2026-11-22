@@ -3,6 +3,10 @@ title: 'Changelog'
 icon: 'clock-rotate-left'
 ---
 
+<Update label="22nd November 2026" tags={["SME Medical", "Docs"]}>
+	**Cancel a policy cancels the whole SME medical policy.** The [Cancel a policy](/medical-api-reference/policies/cancel-a-policy) page (`POST /api/v1/medical/policies/{id}/deletion`) suggested the call could be used when one employee resigns. It cancels the whole policy: cover ends for every employee and dependent on it, and it cannot remove a single employee. `cancellation_document` is optional. The API itself has not changed; only the description is corrected.
+</Update>
+
 <Update label="22nd November 2026" tags={["SME Medical", "APIs", "Docs"]}>
 	**The company's IBAN is now required to issue an SME medical policy.** [Issue the policy](/medical-api-reference/policies/issue-the-policy) (`POST /api/v1/medical/policies`) answers `422` / `42201` on `iban` when the field is missing. This is the change announced on 5 November. The rules for the value are unchanged: the company's Saudi IBAN, `SA` followed by 22 characters with correct check digits, which the insurance provider uses to transfer refunds; the account is never charged. The [SME Medical Insurance guide](/price-comparison/sme-medical-insurance#issue-the-policy) shows it in the example.
 </Update>
