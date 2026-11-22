@@ -97,23 +97,6 @@
                     }
                   },
                   "example": {
-                    "tawuniya": {
-                      "name": "Tawuniya",
-                      "name_ar": "التعاونية",
-                      "logo": "https://sandbox.yasmina.ai/images/tawuniya-logo.png",
-                      "coverages": [
-                        "fires",
-                        "explosion",
-                        "storms",
-                        "floods",
-                        "maintenance",
-                        "ac_repair",
-                        "emergency_repairs",
-                        "theft",
-                        "earthquakes"
-                      ],
-                      "price": 476.1
-                    },
                     "medgulf": {
                       "name": "Medgulf",
                       "name_ar": "ميدغلف",
@@ -164,23 +147,6 @@
                         "business_interruption"
                       ],
                       "price": 399.05
-                    },
-                    "wataniyeh": {
-                      "name": "Wataniyeh",
-                      "name_ar": "الوطنية",
-                      "logo": "https://www.jordanfinancialservices.com/sites/default/files/images/logos/nic-01.jpg",
-                      "benefits": [
-                        "fires",
-                        "explosion",
-                        "storms",
-                        "floods",
-                        "maintenance",
-                        "emergency_repairs",
-                        "theft",
-                        "earthquakes",
-                        "accidental_home_damage"
-                      ],
-                      "price": 632.5
                     }
                   }
                 }
