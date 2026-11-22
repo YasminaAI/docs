@@ -4,9 +4,8 @@ icon: 'clock-rotate-left'
 ---
 
 <Update label="19th November 2026" tags={["SME Medical", "Motor", "Docs"]}>
-	**Docs corrections; the APIs are unchanged.** Three places in the docs did not match how the APIs already behave:
+	**Docs corrections; the APIs are unchanged.** Two places in the docs did not match how the APIs already behave:
 	* **Motor OTP is 4 digits.** The SDK examples and the single-provider [Motor guide](/single-provider-integrations/motor-insurance) sent `"123456"` as the `otp`; the Request Quotes and Issue Policy APIs accept a 4-digit OTP.
-	* **The SME Medical `payment_link` stays valid for 24 hours, not 15 minutes.** Reading the policy again returns the same link, and a new one replaces it when less than an hour is left. See [Payment](/price-comparison/sme-medical-insurance#payment).
 	* **The single-provider [SME Medical guide](/single-provider-integrations/sme-medical-insurance) follows the current flow.** Issuing a policy takes three calls: save the employees, get the prices, then issue the policy with the `quote_request_id` and `quote_price_id`. Every employee needs a `mobile_number`, and the declaration form download takes `policy_id`, not `company_id`.
 </Update>
 
