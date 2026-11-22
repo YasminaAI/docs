@@ -3,6 +3,10 @@ title: 'Changelog'
 icon: 'clock-rotate-left'
 ---
 
+<Update label="22nd November 2026" tags={["Property", "APIs", "Docs"]}>
+	**List Prices returns only insurers you can issue with, at the price the policy is issued at.** In Sandbox, [List Prices](/property-api-reference/prices/list-prices) (`GET /api/v1/property/prices`) no longer returns Tawuniya and Wataniyeh: [Issue Policy](/property-api-reference/policies/issue-policy) never accepted them, so a customer who chose one was refused with `422`. Sandbox now returns Walaa, Medgulf and Takaful Al-Rajhi; Production returns Walaa, as before. Medgulf policies are now issued at the quoted price when contents are insured; until now the contents were charged at a lower rate than quoted. The [Property Insurance guide](/price-comparison/property#get-prices) lists the insurers in each environment.
+</Update>
+
 <Update label="16th November 2026" tags={["Portal", "APIs", "Docs"]}>
 	**Sandbox and Live in the portal.** Where both environments are enabled for your account, you sign in to the portal once and switch between **Sandbox** and **Live** at the top of the page. In the portal your client id is the same on both sides; each side has its own client secret, generated on that side's API Management page, and its own policies and settings. The switch is available to users with the API management permission, and access to each environment is enabled by your account manager. Nothing changes for existing integrations: accounts that already use production keep it, with the same client id and secret, and existing sandbox credentials keep working. API Management now states which host your client id and secret are valid for. **New error `40302`:** if Production is not enabled for your client, `POST /oauth/token` on production answers `403` / `40302` "Production access is not enabled for this client. Use the Sandbox environment, or contact your account manager to request approval." Sandbox is unaffected. The portal also asks you to confirm before replacing a client secret that already exists, since the current one stops working at once. The [Errors](/api-resources/errors) page lists the new code.
 </Update>
