@@ -62,7 +62,7 @@ Follows the same structure as Comprehensive Motor Insurance for both the single-
 
 ### Property Insurance
 
-The flow is: optionally resolve a short address code via `GET /api/v1/property/address-from-short`, then issue a policy via `POST /api/v1/property/policies` with personal details, building details (type, age, apartment size), full address, property cost or contents cost, and terms acceptance. In the multiple-provider mode, prices from five insurers (Walaa, Medgulf, Tawuniya, Takaful Al-Rajhi, Wataniya) are retrieved first via the List Prices API. Cancellation status is checked via `GET /api/v1/property/policies/{id}/cancellation-status`. Supporting images are uploaded via the Upload Document API.
+The flow is: optionally resolve a short address code via `GET /api/v1/property/address-from-short`, then issue a policy via `POST /api/v1/property/policies` with personal details, building details (type, age, apartment size), full address, property cost or contents cost, and terms acceptance. In the multiple-provider mode, prices are retrieved first via the List Prices API, which returns only insurers that can be issued (production: Walaa; sandbox: Walaa, Medgulf, Takaful Al-Rajhi). Cancellation status is checked via `GET /api/v1/property/policies/{id}/cancellation-status`. Supporting images are uploaded via the Upload Document API.
 
 ### Travel Insurance (Schengen)
 
