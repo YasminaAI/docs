@@ -2170,6 +2170,16 @@
                 "description": "The vehicle, when identified by customs card number.",
                 "example": null
               },
+              "phone": {
+                "type": "string",
+                "description": "The customer's mobile number, from the quote request.",
+                "example": "05xxxxxxxx"
+              },
+              "email": {
+                "type": "string",
+                "description": "The customer's email, from the quote request.",
+                "example": "customer@example.com"
+              },
               "iban": {
                 "type": "string",
                 "description": "The customer's payout account. Refunds are transferred to it; it is never charged.",
