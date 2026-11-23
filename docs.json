@@ -68,6 +68,7 @@
                   "single-provider-integrations/sme-medical-insurance",
                   "single-provider-integrations/motor-insurance",
                   "single-provider-integrations/property",
+                  "single-provider-integrations/cargo-insurance",
                   "single-provider-integrations/travel",
                   "single-provider-integrations/life",
                   "single-provider-integrations/horse"
@@ -136,6 +137,13 @@
             "openapi": {
               "source": "property-api-reference/openapi.json",
               "directory": "property-api-reference"
+            }
+          },
+          {
+            "group": "Cargo Insurance APIs",
+            "openapi": {
+              "source": "cargo-api-reference/openapi.json",
+              "directory": "cargo-api-reference"
             }
           },
           {
