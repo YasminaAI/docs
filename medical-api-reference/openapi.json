@@ -1757,6 +1757,16 @@
                 "insurance_provider_name": {
                   "type": "string"
                 },
+                "insurance_provider_logo": {
+                  "type": "string",
+                  "format": "uri",
+                  "description": "The insurance company's logo."
+                },
+                "insurance_provider_square_logo": {
+                  "type": "string",
+                  "format": "uri",
+                  "description": "The insurance company's logo in a square format."
+                },
                 "insurance_company_agreement": {
                   "type": "string",
                   "format": "uri",
