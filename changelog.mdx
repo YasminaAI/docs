@@ -3,6 +3,10 @@ title: 'Changelog'
 icon: 'clock-rotate-left'
 ---
 
+<Update label="23rd November 2026" tags={["Motor", "APIs", "Docs"]}>
+	**The motor policy's `meta_data` carries the customer's `phone` and `email`.** Both are copied from the quote request when the policy is created, and policies created before this change have them too. They are returned wherever the policy is: [Issue policy](/car-api-reference/policies/issue-policy), [Show policy](/car-api-reference/policies/show-policy), [List policies](/car-api-reference/policies/list-policies) and the policy webhooks. `email` is new; `phone` has been returned since October but was missing from these docs. Nothing else in the policy changes. The [Webhooks guide](/webhooks/guide) shows them in the example.
+</Update>
+
 <Update label="22nd November 2026" tags={["SME Medical", "Docs"]}>
 	**Cancel a policy cancels the whole SME medical policy.** The [Cancel a policy](/medical-api-reference/policies/cancel-a-policy) page (`POST /api/v1/medical/policies/{id}/deletion`) suggested the call could be used when one employee resigns. It cancels the whole policy: cover ends for every employee and dependent on it, and it cannot remove a single employee. `cancellation_document` is optional. The API itself has not changed; only the description is corrected.
 </Update>
