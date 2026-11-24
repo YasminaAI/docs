@@ -1022,7 +1022,7 @@
     "/texts": {
       "get": {
         "summary": "Get the terms and consent",
-        "description": "The texts to show the employer, exactly as returned. Before prices: `declaration_terms`, with one checkbox; that tick is the `consent: true` sent in Submit the declarations. Before payment: `aggregator_agreement` (the aggregator's terms and conditions) and `consent` (the employer confirms they hold the signed declaration forms), each with its own checkbox, next to the chosen insurer's `insurance_company_agreement` link from its quote. `license` is the aggregator's Insurance Authority licence number. `privacy_policy` is a link to Yasmina's privacy policy. `service_provider_logo` and `insurance_authority_logo` are links to the aggregator's logo and the Insurance Authority logo, to show with the licence number. One language per request, picked by the `Accept-Language` header: `ar` for Arabic, English otherwise.",
+        "description": "The texts to show the employer, exactly as returned. Before prices: `declaration_terms`, with one checkbox; that tick is the `consent: true` sent in Submit the declarations. Before payment: `aggregator_agreement` (the aggregator's terms and conditions) and `consent` (the employer confirms they hold the signed declaration forms), each with its own checkbox, next to the chosen insurer's `insurance_company_agreement` link from its quote. `license` is the aggregator's Insurance Authority licence number. `privacy_policy` is a link to Yasmina's privacy policy. `service_provider_logo`, `insurance_authority_logo_dark` and `insurance_authority_logo_white` are links to the aggregator's logo and the Insurance Authority logo (dark for light backgrounds, white for dark ones), to show with the licence number. One language per request, picked by the `Accept-Language` header: `ar` for Arabic, English otherwise.",
         "tags": [
           "Medical Forms"
         ],
@@ -1076,10 +1076,15 @@
                       "format": "uri",
                       "description": "A link to the aggregator's logo. Show it with `license`."
                     },
-                    "insurance_authority_logo": {
+                    "insurance_authority_logo_dark": {
                       "type": "string",
                       "format": "uri",
-                      "description": "A link to the Insurance Authority logo. Show it next to the aggregator's logo."
+                      "description": "A link to the Insurance Authority logo for light backgrounds. Show it next to the aggregator's logo."
+                    },
+                    "insurance_authority_logo_white": {
+                      "type": "string",
+                      "format": "uri",
+                      "description": "A link to the same logo in white, for dark backgrounds."
                     }
                   },
                   "example": {
@@ -1089,7 +1094,8 @@
                     "license": "<license number>",
                     "privacy_policy": "https://www.yasmina.ai/privacy",
                     "service_provider_logo": "https://.../branding/service-provider-logo.png",
-                    "insurance_authority_logo": "https://.../branding/insurance-authority-logo.svg"
+                    "insurance_authority_logo_dark": "https://.../branding/insurance-authority-logo-dark.svg",
+                    "insurance_authority_logo_white": "https://.../branding/insurance-authority-logo-white.svg"
                   }
                 }
               }
