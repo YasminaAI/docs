@@ -425,3 +425,13 @@ Will become on the response
 ```
 And the customer that purchased the policy will be redirected to
 https://www.example.com?yasmina_policy_id=123
+
+## Branding guidelines
+
+As a last step, show the aggregator behind the quotes and its licence in your UI, wherever the employer sees the prices and pays. They all come from the [Terms and consent API](/medical-api-reference/medical-forms/get-the-terms-and-consent):
+
+- `service_provider_logo`: the aggregator's logo.
+- `license`: the aggregator's Insurance Authority licence number.
+- `insurance_authority_logo_dark` or `insurance_authority_logo_white`: the Insurance Authority logo. Use the dark one on a light background and the white one on a dark background.
+
+Use the links and the number as returned instead of saving them in your platform, so a change reaches your users without a release on your side.

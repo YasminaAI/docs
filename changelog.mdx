@@ -3,6 +3,10 @@ title: 'Changelog'
 icon: 'clock-rotate-left'
 ---
 
+<Update label="24th November 2026" tags={["SME Medical", "APIs", "Docs"]}>
+	**The Terms and consent API serves the aggregator's logo and the Insurance Authority logo.** [Get the terms and consent](/medical-api-reference/medical-forms/get-the-terms-and-consent) now returns `service_provider_logo`, `insurance_authority_logo_dark` and `insurance_authority_logo_white`, links to show in your UI together with `license`. See the new [Branding guidelines](/price-comparison/sme-medical-insurance#branding-guidelines) step of the guide.
+</Update>
+
 <Update label="23rd November 2026" tags={["SME Medical", "APIs", "Docs"]}>
 	**Each medical quote carries its insurance company's logo.** Every quote from [Get prices from every provider](/medical-api-reference/quotes/get-prices-from-every-provider) now carries `insurance_provider_logo` and `insurance_provider_square_logo`, links to the insurance company's logo in its regular and square formats, to show beside that offer. Quote requests made before this change return without them.
 </Update>
