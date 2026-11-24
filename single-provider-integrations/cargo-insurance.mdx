@@ -1,6 +1,6 @@
 ---
 title: 'Cargo Insurance'
-description: 'Insure a single shipment, or run a marine open cover that your customers declare their shipments under.'
+description: 'Run a marine open cover: one annual policy that your customers declare their shipments under.'
 icon: 'ship'
 ---
 
@@ -9,21 +9,16 @@ icon: 'ship'
 </Info>
 
 ## Introduction
-This guide walks you through the Cargo Insurance APIs. They cover goods in transit by sea, air or road for a business, in two ways:
-
-- **Single shipment**: quote one shipment, pay for it, and get its certificate.
-- **Open cover**: a one-year policy for a business that ships regularly. The business pays a deposit once, then declares each shipment under the policy and gets a certificate for it straight away.
-
-Both start from the same customer record and end on the same policy object.
+This guide walks you through the Cargo Insurance APIs. They cover a business's goods in transit by sea, air or land under a **marine open cover**: a one-year policy for a business that ships regularly. The business answers the insurance company's questions once, pays a deposit to start the policy, then declares each shipment under it and gets a certificate for it straight away.
 
 ### Basic Journey
 1. **Authorize**: Get an access token to authenticate all API requests.
-2. **Get the options**: Fetch the values your forms offer: goods categories, transport modes, coverages and the rest.
+2. **Get the options**: Fetch the values your forms offer: transport modes, currencies, countries and the rest.
 3. **Register the customer**: Register the business by its commercial registration (CR) number.
-4. **Get a decision**: [Quote a shipment](#quote-a-shipment), or [apply for open cover](#apply-for-open-cover). The answer is approved, referred or rejected.
-5. **Issue the policy**: Accept an approved quote. The policy comes back with a payment link.
-6. **Payment**: The customer pays, and the policy is issued with its certificate and tax invoice.
-7. **Declare shipments** (open cover only): Declare each shipment under the policy and get its certificate.
+4. **Apply for open cover**: Send the business's answers. The decision is approved, referred or rejected.
+5. **Issue the policy**: Accept the approved quote. The policy comes back with a payment link.
+6. **Payment**: The customer pays the deposit, and the policy is issued with its schedule and tax invoice.
+7. **Declare shipments**: Declare each shipment under the policy and get its certificate.
 
 ## Prerequisites
 1. **Account in Yasmina** - See the <a href="/introduction#onboarding" target="_blank">Onboarding section</a> for details.
@@ -36,15 +31,9 @@ Every path below is under `https://sandbox.yasmina.ai/api/v1/cargo`.
 
 The [Get the options API](/cargo-api-reference/options/get-the-options) returns every list of values the other endpoints accept, each entry with the `value` to send and a `label` to show:
 
-`customer_roles`, `transport_modes`, `goods_categories`, `packaging`, `conditions`, `characteristics`, `coverages`, `extensions`, `valuation_bases`, `incoterms`, `insurance_arranged_by`, `currencies` and `countries`.
+`customer_roles`, `transport_modes`, `goods_categories`, `packaging`, `conditions`, `characteristics`, `incoterms`, `insurance_arranged_by`, `currencies` and `countries`.
 
 Build your dropdowns from this response instead of hard-coding them, so a new value reaches your users without a release on your side.
-
-| `coverages` | Meaning |
-| --- | --- |
-| `icc_a` | All risks (Institute Cargo Clauses A) |
-| `icc_b` | Named perils (Institute Cargo Clauses B) |
-| `icc_c` | Basic perils (Institute Cargo Clauses C) |
 
 ## Customers
 
@@ -70,48 +59,43 @@ The CR number is checked against the commercial registry:
 - **The registry knows the business.** Its legal name and address come from the registry, and the customer's `verification.status` is `verified`. You do not need to ask your user for them.
 - **The registry has no record.** The call answers `400` with code `40031`. Ask your user for the legal name and address and send the call again with `legal_name` and `address` (`street` and `city` at least). The customer is kept as entered, with `verification.status` `unverified`.
 
-Registering a CR number you already registered updates that customer and answers `200` instead of `201`. Keep the customer's `id`: every quote and application names it as `customer_id`.
+Registering a CR number you already registered updates that customer and answers `200` instead of `201`. Keep the customer's `id`: every application names it as `customer_id`.
 
-## Single shipment
+## Apply for open cover
 
-### Quote a shipment
+The [Apply for open cover API](/cargo-api-reference/open-cover/apply-for-open-cover) asks for the policy. It carries the business's answers to the insurance company's questions:
 
-The [Quote a shipment API](/cargo-api-reference/single-shipment/quote-a-shipment) prices one shipment. It needs what sets the price: the goods, the route, the value and the cover wanted.
+| Question | Field | Value |
+| --- | --- | --- |
+| What does the business do? | `business_activities` | Text |
+| How much will it ship in the year? | `estimated_annual_value` | An amount, in `currency` |
+| What goods are to be insured? | `goods_description` | Text, as detailed as the customer can make it |
+| Where do the goods come from? | `origin_countries` | A list of `countries` values |
+| Where do they go? | `destination_countries` | A list of `countries` values |
+| How do they travel? | `transport_modes` | A list of `sea`, `air`, `land` |
+| How many shipments in the year? | `estimated_annual_shipments` | A whole number |
+| What is the most one shipment will be worth? | `max_value_per_shipment` | An amount, in `currency` |
+| What claims were made in the last five years? | `claims_history` | A list of `year`, `amount` and an optional `description`; an empty list when there were none |
+
+Every question has to be answered. `currency` is one of the `currencies` values and applies to every amount in the application.
 
 ```json
 {
   "customer_id": 2,
-  "shipment": {
-    "goods": {
-      "description": "Consumer electronics, 400 cartons",
-      "category": "electronics",
-      "packaging": "cartons",
-      "quantity": 400,
-      "characteristics": ["fragile"]
-    },
-    "transport_mode": "sea",
-    "origin": { "country": "CN", "city": "Shanghai" },
-    "destination": { "country": "SA", "city": "Jeddah" },
-    "invoice_value": 250000,
-    "currency": "USD",
-    "freight": 12000,
-    "other_costs": 1500,
-    "incoterm": "FOB",
-    "coverage": "icc_a",
-    "extensions": ["war", "strikes"]
-  }
+  "business_activities": "Import and wholesale of consumer electronics",
+  "estimated_annual_value": 20000000,
+  "currency": "SAR",
+  "goods_description": "Televisions, monitors and home audio, new, in cartons in full containers",
+  "origin_countries": ["CN"],
+  "destination_countries": ["SA"],
+  "transport_modes": ["sea"],
+  "estimated_annual_shipments": 40,
+  "max_value_per_shipment": 1500000,
+  "claims_history": [
+    { "year": 2024, "amount": 42000, "description": "Water damage to one container" }
+  ]
 }
 ```
-
-**The insured amount.** Leave `insured_amount` out and the shipment is insured for its value on the `valuation_basis`:
-
-| `valuation_basis` | The shipment is valued at |
-| --- | --- |
-| `invoice_value` | `invoice_value` |
-| `cif` | `invoice_value` + `freight` + `other_costs` |
-| `cif_plus_10` (default) | `cif` plus 10% |
-
-The invoice can be in any of the `currencies`. The price is always in SAR.
 
 ### Approved, referred or rejected
 
@@ -119,134 +103,72 @@ The call always answers `201`. What happened is in `status`:
 
 | `status` | Meaning | What to do |
 | --- | --- | --- |
-| `approved` | `quote` holds the price, valid until `quote.valid_until`. | Show the price and [issue the policy](#issue-the-policy). |
-| `referred` | An underwriter has to review the request. `quote` is `null` and `reasons` says why. | Tell the customer it is under review, and [read the request](/cargo-api-reference/single-shipment/read-a-quote-request) again until the status changes. |
-| `rejected` | The shipment cannot be insured. `reasons` says why. | Show the reasons. Nothing can be issued from this request. |
+| `approved` | `quote` holds the terms, valid until `quote.valid_until`. | Show the terms and [issue the policy](#issue-the-policy). |
+| `referred` | An underwriter has to review the application. `quote` is `null` and `reasons` says why. | Tell the customer it is under review, and [read the application](/cargo-api-reference/open-cover/read-an-open-cover-application) again until the status changes. |
+| `rejected` | The business cannot be insured. `reasons` says why. | Show the reasons. Nothing can be issued from this application. |
 
 `reasons` are plain sentences you can show as they are. A referral that ends well turns `approved` and its `quote` is filled; its `reasons` stay, so you can still say why it was reviewed.
 
-An approved quote looks like this:
+An approved application looks like this:
 
 ```json
 {
-  "id": "a34af107-128e-4c87-934f-5658d04f5870",
-  "type": "single_shipment",
+  "id": "a34cf832-34e2-41a9-971f-46d2a0da3f57",
   "status": "approved",
   "customer_id": 2,
-  "shipment": { "…": "as you sent it" },
+  "application": { "…": "as you sent it" },
   "quote": {
     "insurance_provider": "walaa",
     "insurance_provider_name": "Walaa Cooperative Insurance",
-    "coverage": "icc_a",
-    "extensions": ["war", "strikes"],
     "valuation_basis": "cif_plus_10",
-    "insured_amount": 289850,
-    "currency": "USD",
-    "insured_amount_sar": 1086937.5,
-    "rate_percent": 0.45,
-    "premium": 4891.22,
-    "vat": 733.68,
-    "total_price": 5624.9,
+    "estimated_annual_value_sar": 20000000,
+    "max_value_per_shipment": 1500000,
+    "currency": "SAR",
+    "max_value_per_shipment_sar": 1500000,
+    "declaration_rate_percent": 0.3,
+    "estimated_annual_premium": 60000,
+    "deposit_premium": 15000,
+    "premium": 15000,
+    "vat": 2250,
+    "total_price": 17250,
     "price_currency": "SAR",
-    "valid_until": "2026-12-23"
+    "valid_until": "2026-12-24"
   },
   "reasons": [],
-  "missing_to_issue": [
-    "departure_date",
-    "conveyance.carrier_name",
-    "references.invoice_number"
-  ],
   "policy_id": null
 }
 ```
 
-`total_price` is what the customer pays, VAT included.
-
-### What is needed to issue
-
-A shipment can be quoted before everything about it is known. Three details are needed before its policy can be issued, though none of them changes the price:
-
-- `departure_date`
-- `conveyance.carrier_name`
-- `references.invoice_number`
-
-Send them with the quote request if you have them, or later with [Issue a policy](#issue-the-policy). `missing_to_issue` on the quote request lists the ones still missing.
-
-## Open cover
-
-### Apply for open cover
-
-The [Apply for open cover API](/cargo-api-reference/open-cover/apply-for-open-cover) asks for a one-year policy. Instead of one shipment, the application describes the business's trade: the goods it ships, its routes, the value it expects to ship in the year and the most any one shipment will be worth.
-
-```json
-{
-  "customer_id": 2,
-  "policy_period": { "start_date": "2026-12-03" },
-  "goods": [
-    {
-      "description": "Consumer electronics",
-      "category": "electronics",
-      "packaging": "cartons",
-      "characteristics": ["fragile"]
-    }
-  ],
-  "estimated_annual_value": { "import": 12000000 },
-  "currency": "SAR",
-  "routes": [
-    { "origin_country": "CN", "destination_country": "SA", "transport_mode": "sea" }
-  ],
-  "max_value_per_shipment": 1500000,
-  "coverage": "icc_a",
-  "extensions": ["war"],
-  "insurance_history": { "first_policy": true }
-}
-```
-
-The answer has the same three statuses as a single shipment; follow a referral with [Read an open-cover application](/cargo-api-reference/open-cover/read-an-open-cover-application). When it is `approved`, `quote` holds the terms of the cover:
-
 | Field | Meaning |
 | --- | --- |
-| `cover_start`, `cover_end` | The policy period: one year from `policy_period.start_date`. |
 | `declaration_rate_percent` | The rate every declared shipment is charged at, as a percentage of its insured amount. |
 | `max_value_per_shipment` | The limit per shipment. A declared shipment above it is referred. |
+| `valuation_basis` | What a declared shipment is insured for when it names no amount. `cif_plus_10` is the invoice value plus freight and other costs, plus 10%. |
 | `estimated_annual_premium` | What the estimated annual value would cost at that rate, in SAR. |
 | `deposit_premium` | The part of it paid up front to start the policy. |
 | `premium`, `vat`, `total_price` | The deposit, its VAT, and what the customer pays now. |
 
 ## Issue the policy
 
-The [Issue a policy API](/cargo-api-reference/policies/issue-a-policy) accepts an approved quote, for a single shipment or for open cover:
+The [Issue a policy API](/cargo-api-reference/policies/issue-a-policy) accepts the quote of an approved application:
 
 ```json
 {
-  "quote_request_id": "a34af107-128e-4c87-934f-5658d04f5870",
-  "redirect_url": "https://partner.example.com/cargo/policies/policyID",
-  "shipment": {
-    "departure_date": "2026-12-03",
-    "arrival_date": "2026-12-28",
-    "conveyance": {
-      "carrier_name": "Bahri Logistics",
-      "vessel_name": "MV Example",
-      "voyage_or_flight_number": "V123"
-    },
-    "references": {
-      "invoice_number": "INV-2026-0142",
-      "bill_of_lading": "BL-778812"
-    }
-  }
+  "quote_request_id": "a34cf832-34e2-41a9-971f-46d2a0da3f57",
+  "redirect_url": "https://partner.example.com/cargo/policies/policyID"
 }
 ```
 
-- `shipment` is for a single shipment only, and carries the [details that were not on the quote request](#what-is-needed-to-issue). While any is missing the call answers `40033`, and `missing_fields` names them. An open cover needs only `quote_request_id`.
+- `quote_request_id` is the application's `id`.
 - `redirect_url` is where the customer is sent after paying. `policyID` anywhere in it is replaced with the policy's id.
 
 The policy comes back **unpaid**: `status` is `0`, `coverage_confirmed` is `false` and `payment_link` is where the customer pays. Nothing is covered yet.
 
-Calling Issue a policy again for the same quote before it is paid returns the same policy, updated. Once it is paid, the call answers `40026` with that `policy_id`.
+Calling Issue a policy again for the same application before it is paid returns the same policy, updated. Once it is paid, the call answers `40026` with that `policy_id`.
 
 ### Payment
 
-Send the customer to the policy's `payment_link`. It opens Yasmina's secure card page, which shows the premium, the VAT and the total.
+Send the customer to the policy's `payment_link`. It opens Yasmina's secure card page, which shows the deposit, the VAT and the total.
 
 - The link is valid for 24 hours. [Read the policy](/cargo-api-reference/policies/read-a-policy) to get the current one; it is renewed when it is about to expire.
 - When the payment succeeds, the policy is issued and the customer is sent to your `redirect_url`.
@@ -259,38 +181,41 @@ After payment, [Read the policy](/cargo-api-reference/policies/read-a-policy):
 ```json
 {
   "id": 4,
-  "type": "single_shipment",
   "status": 1,
   "coverage_confirmed": true,
   "payment_link": null,
-  "price": 5624.9,
-  "start_date": "2026-12-03",
-  "provider_policy_id": "WAL/GIT/8854487",
+  "price": 17250,
+  "start_date": "2026-11-24",
+  "provider_policy_id": "WAL/MOC/5015742",
   "policy_url": "https://sandbox.yasmina.ai/storage/generated-pdfs/cargo/policies/….pdf",
   "invoice_url": "https://sandbox.yasmina.ai/storage/generated-pdfs/cargo/invoices/….pdf",
-  "purchased_at": "2026-11-23T08:40:12.000000Z",
-  "meta_data": { "…": "the customer, the shipment and the quote the policy was issued from" }
+  "purchased_at": "2026-11-24T08:42:48.000000Z",
+  "meta_data": {
+    "cover_start": "2026-11-24",
+    "cover_end": "2027-11-23",
+    "…": "the customer, the application and the quote the policy was issued from"
+  },
+  "declarations": { "count": 0, "insured_amount_sar": 0, "premium": 0 }
 }
 ```
 
 | Field | Meaning |
 | --- | --- |
-| `coverage_confirmed` | `true` once the policy is paid for and issued. **Tell the customer the cargo is covered only when this is `true`.** |
+| `coverage_confirmed` | `true` once the policy is paid for and issued. **Tell the customer the cover is in place only when this is `true`.** |
 | `provider_policy_id` | The insurance company's policy number. |
-| `policy_url` | The policy certificate (PDF). |
+| `meta_data.cover_start`, `meta_data.cover_end` | The policy period: one year from the day the policy is issued. Both are `null` until then. |
+| `policy_url` | The policy schedule (PDF). |
 | `invoice_url` | The tax invoice (PDF). |
 | `payment_link` | `null` once the policy is issued. |
+| `declarations` | The shipments covered under the policy so far: how many, their total insured amount and their total premium, in SAR. |
 
-The [List policies API](/cargo-api-reference/policies/list-policies) returns all your cargo policies, and filters by `type` (`single_shipment` or `open_cover`) and `customer_id`.
+The [List policies API](/cargo-api-reference/policies/list-policies) returns all your cargo policies, and filters by `customer_id`.
 
-## Declare shipments under an open cover
+## Declare shipments
 
-Once an open-cover policy is paid for and issued, the business declares each shipment with the [Declare a shipment API](/cargo-api-reference/open-cover/declare-a-shipment) (`POST /policies/{id}/declarations`).
+Once the policy is paid for and issued, the business declares each shipment with the [Declare a shipment API](/cargo-api-reference/open-cover/declare-a-shipment) (`POST /policies/{id}/declarations`).
 
-A declared shipment looks like the shipment of a quote request, with two differences:
-
-- It does not name `coverage`, `extensions` or `valuation_basis`. Those are the policy's.
-- It is covered straight away, so `departure_date`, `conveyance.carrier_name` and `references.invoice_number` are required, and `departure_date` has to fall within the policy period.
+A declaration describes one shipment: the goods, the route, the value and the documents it travels under. It is covered straight away, so `departure_date`, `conveyance.carrier_name` and `references.invoice_number` are required, and `departure_date` has to fall within the policy period.
 
 ```json
 {
@@ -314,15 +239,17 @@ A declared shipment looks like the shipment of a quote request, with two differe
 }
 ```
 
+**The insured amount.** Leave `insured_amount` out and the shipment is insured on the policy's `valuation_basis`: the invoice value plus `freight` and `other_costs`, plus 10%. Send `insured_amount` to insure a different amount. The invoice can be in any of the `currencies`; the premium is always in SAR.
+
 The declaration's `status` says what happened:
 
 | `status` | Meaning |
 | --- | --- |
 | `issued` | The shipment is inside the policy's terms and is covered. `certificate_number` and `certificate_url` are its certificate. |
-| `referred` | The shipment is outside the policy's terms: above the limit per shipment, goods or a route the policy was not written for, or hazardous goods. `reasons` says which. [Read the declaration](/cargo-api-reference/open-cover/read-a-declaration) again until the status changes. |
+| `referred` | The shipment is outside the policy's terms: above the limit per shipment, a country or transport mode the policy was not written for, or hazardous goods. `reasons` says which. [Read the declaration](/cargo-api-reference/open-cover/read-a-declaration) again until the status changes. |
 | `rejected` | The shipment cannot be covered. `reasons` says why. |
 
-`premium` is what the shipment costs at the policy's `declaration_rate_percent`. Declared premiums are reported on each declaration and totalled on the policy under `declarations` (`count`, `insured_amount_sar`, `premium`); they are not paid through a payment link.
+`premium` is what the shipment costs at the policy's `declaration_rate_percent`. Declared premiums are reported on each declaration and totalled on the policy under `declarations`; they are not paid through a payment link.
 
 Declaring under a policy that is not paid for yet, or is past its last day, answers `40027`.
 
@@ -334,23 +261,22 @@ In Sandbox the commercial registry and the insurance company are simulated, so y
 | --- | --- |
 | A verified customer | Any 10-digit `cr_number` that does not end in `000`. The legal name and address are sample values. |
 | `40031`, the registry has no record | A `cr_number` ending in `000`, without `legal_name` and `address`. |
-| An approved quote | A shipment with none of the conditions below. |
-| A referred quote | `hazardous` among `goods.characteristics`, an insured amount above 5,000,000 SAR, or an `insured_amount` above the shipment's value plus 10%. |
-| A rejected quote | `KP` as the origin or destination country, or `arms_and_ammunition` as the goods category. |
-| A referred open-cover application | Hazardous goods, an estimated annual value above 100,000,000 SAR, a `max_value_per_shipment` above 5,000,000 SAR, or three or more past claims. |
-| A referred declaration | A shipment above the policy's limit per shipment, a goods category or a route that is not on the policy, or hazardous goods. |
+| An approved application | An application with none of the conditions below. |
+| A referred application | An `estimated_annual_value` above 100,000,000 SAR, a `max_value_per_shipment` above 5,000,000 SAR, or three or more entries in `claims_history`. |
+| A rejected application | `KP` among `origin_countries` or `destination_countries`. |
+| A referred declaration | A shipment above the policy's limit per shipment, an origin country, destination country or transport mode that is not on the policy, or `hazardous` among `goods.characteristics`. |
+| A rejected declaration | `KP` as the origin or destination country, or `arms_and_ammunition` as the goods category. |
 
-A referral is decided about 20 seconds after it was made: read the request or the declaration again after that and it is approved.
+A referral is decided about 20 seconds after it was made: read the application or the declaration again after that and it is approved.
 
 ## Errors
 
 | Endpoint | Code | When |
 | --- | --- | --- |
 | `POST /cargo/customers` | `40031` | The commercial registry has no record of the CR number, and `legal_name` or `address` is missing. |
-| `POST /cargo/policies` | `40032` | The quote request or application is referred or rejected. |
-| | `40030` | The quote is past `valid_until`. Ask for a new one. |
-| | `40033` | A single shipment still lacks details. `missing_fields` lists them. |
+| `POST /cargo/policies` | `40032` | The application is referred or rejected. |
+| | `40030` | The quote is past `valid_until`. Apply again. |
 | | `40026` | The quote was already issued and paid for. `policy_id` is that policy. |
-| `POST /cargo/policies/{id}/declarations` | `40027` | The open-cover policy is not paid for and issued, or is past its last day. |
+| `POST /cargo/policies/{id}/declarations` | `40027` | The policy is not paid for and issued, or is past its last day. |
 
 A field that is missing or not valid answers `422` with code `42201`, and `details` names each field. The [Errors](/api-resources/errors#cargo-insurance) page has every code.
