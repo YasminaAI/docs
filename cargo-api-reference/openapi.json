@@ -2,7 +2,7 @@
   "openapi": "3.0.1",
   "info": {
     "title": "OpenAPI For Cargo Insurance",
-    "description": "APIs to insure a single shipment or run a marine open cover for your customers",
+    "description": "APIs to run a marine open cover for your customers: apply for the policy, issue it, and declare shipments under it",
     "license": {
       "name": "MIT"
     },
@@ -25,7 +25,7 @@
         "tags": [
           "Options"
         ],
-        "description": "Every list of values the cargo endpoints accept: customer roles, transport modes, goods categories, packaging, conditions, characteristics, coverages, extensions, valuation bases, Incoterms, currencies and countries. Each entry has the `value` to send and a `label` to show. Build your dropdowns from this response instead of hard-coding them, so a new value reaches your users without a release on your side.",
+        "description": "Every list of values the cargo endpoints accept: customer roles, transport modes, goods categories, packaging, conditions, characteristics, Incoterms, currencies and countries. Each entry has the `value` to send and a `label` to show. Build your dropdowns from this response instead of hard-coding them, so a new value reaches your users without a release on your side.",
         "responses": {
           "200": {
             "description": "The options, one list per key",
@@ -77,12 +77,8 @@
                       "label": "Air"
                     },
                     {
-                      "value": "road",
-                      "label": "Road"
-                    },
-                    {
-                      "value": "combined",
-                      "label": "Combined (more than one mode)"
+                      "value": "land",
+                      "label": "Land"
                     }
                   ],
                   "goods_categories": [
@@ -199,48 +195,6 @@
                     {
                       "value": "high_value",
                       "label": "High value"
-                    }
-                  ],
-                  "coverages": [
-                    {
-                      "value": "icc_a",
-                      "label": "All risks (Institute Cargo Clauses A)"
-                    },
-                    {
-                      "value": "icc_b",
-                      "label": "Named perils (Institute Cargo Clauses B)"
-                    },
-                    {
-                      "value": "icc_c",
-                      "label": "Basic perils (Institute Cargo Clauses C)"
-                    }
-                  ],
-                  "extensions": [
-                    {
-                      "value": "war",
-                      "label": "War risks"
-                    },
-                    {
-                      "value": "strikes",
-                      "label": "Strikes, riots and civil commotion"
-                    },
-                    {
-                      "value": "warehouse_to_warehouse",
-                      "label": "Warehouse to warehouse"
-                    }
-                  ],
-                  "valuation_bases": [
-                    {
-                      "value": "invoice_value",
-                      "label": "Invoice value"
-                    },
-                    {
-                      "value": "cif",
-                      "label": "Invoice value plus freight and other costs (CIF)"
-                    },
-                    {
-                      "value": "cif_plus_10",
-                      "label": "CIF plus 10%"
                     }
                   ],
                   "incoterms": [
@@ -646,372 +600,13 @@
         }
       }
     },
-    "/quote-requests": {
-      "post": {
-        "summary": "Quote a shipment",
-        "tags": [
-          "Single shipment"
-        ],
-        "description": "Asks for a price to insure one shipment. The answer is always `201`; read its `status`:\n\n- `approved`: `quote` holds the price, valid until `quote.valid_until`. Issue the policy from it.\n- `referred`: an underwriter has to review the shipment, and `reasons` says why. Read the request again until it is `approved` or `rejected`.\n- `rejected`: the shipment cannot be insured, and `reasons` says why.\n\nA quote needs the goods, the route, the value and the cover. The departure date, the carrier and the invoice number are needed to issue a policy but not to quote: send them now if you have them, or later with Issue a policy. `missing_to_issue` lists the ones still missing.",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "customer_id": {
-                    "type": "integer",
-                    "description": "A customer you registered."
-                  },
-                  "shipment": {
-                    "$ref": "#/components/schemas/Shipment"
-                  }
-                },
-                "required": [
-                  "customer_id",
-                  "shipment"
-                ]
-              },
-              "example": {
-                "customer_id": 2,
-                "shipment": {
-                  "goods": {
-                    "description": "Consumer electronics, 400 cartons",
-                    "category": "electronics",
-                    "packaging": "cartons",
-                    "quantity": 400,
-                    "characteristics": [
-                      "fragile"
-                    ]
-                  },
-                  "transport_mode": "sea",
-                  "origin": {
-                    "country": "CN",
-                    "city": "Shanghai"
-                  },
-                  "destination": {
-                    "country": "SA",
-                    "city": "Jeddah"
-                  },
-                  "invoice_value": 250000,
-                  "currency": "USD",
-                  "freight": 12000,
-                  "other_costs": 1500,
-                  "incoterm": "FOB",
-                  "coverage": "icc_a",
-                  "extensions": [
-                    "war",
-                    "strikes"
-                  ]
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "The quote request, with its decision",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/QuoteRequest"
-                },
-                "examples": {
-                  "approved": {
-                    "summary": "Approved",
-                    "value": {
-                      "id": "a34af107-128e-4c87-934f-5658d04f5870",
-                      "type": "single_shipment",
-                      "status": "approved",
-                      "customer_id": 2,
-                      "shipment": {
-                        "goods": {
-                          "description": "Consumer electronics, 400 cartons",
-                          "category": "electronics",
-                          "packaging": "cartons",
-                          "quantity": 400,
-                          "characteristics": [
-                            "fragile"
-                          ]
-                        },
-                        "transport_mode": "sea",
-                        "origin": {
-                          "country": "CN",
-                          "city": "Shanghai"
-                        },
-                        "destination": {
-                          "country": "SA",
-                          "city": "Jeddah"
-                        },
-                        "invoice_value": 250000,
-                        "currency": "USD",
-                        "freight": 12000,
-                        "other_costs": 1500,
-                        "incoterm": "FOB",
-                        "coverage": "icc_a",
-                        "extensions": [
-                          "war",
-                          "strikes"
-                        ]
-                      },
-                      "quote": {
-                        "insurance_provider": "walaa",
-                        "insurance_provider_name": "Walaa Cooperative Insurance",
-                        "coverage": "icc_a",
-                        "extensions": [
-                          "war",
-                          "strikes"
-                        ],
-                        "valuation_basis": "cif_plus_10",
-                        "insured_amount": 289850,
-                        "currency": "USD",
-                        "insured_amount_sar": 1086937.5,
-                        "rate_percent": 0.45,
-                        "premium": 4891.22,
-                        "vat": 733.68,
-                        "total_price": 5624.9,
-                        "price_currency": "SAR",
-                        "valid_until": "2026-12-23"
-                      },
-                      "reasons": [],
-                      "missing_to_issue": [
-                        "departure_date",
-                        "conveyance.carrier_name",
-                        "references.invoice_number"
-                      ],
-                      "policy_id": null,
-                      "decided_at": "2026-11-23T08:31:06.000000Z",
-                      "created_at": "2026-11-23T08:31:06.000000Z",
-                      "updated_at": "2026-11-23T08:31:06.000000Z"
-                    }
-                  },
-                  "referred": {
-                    "summary": "Referred to an underwriter",
-                    "value": {
-                      "id": "a34af107-9cae-4c87-a179-2423e81d00af",
-                      "type": "single_shipment",
-                      "status": "referred",
-                      "customer_id": 2,
-                      "shipment": {
-                        "goods": {
-                          "description": "Consumer electronics, 400 cartons",
-                          "category": "electronics",
-                          "packaging": "cartons",
-                          "quantity": 400,
-                          "characteristics": [
-                            "hazardous"
-                          ]
-                        },
-                        "transport_mode": "sea",
-                        "origin": {
-                          "country": "CN",
-                          "city": "Shanghai"
-                        },
-                        "destination": {
-                          "country": "SA",
-                          "city": "Jeddah"
-                        },
-                        "invoice_value": 250000,
-                        "currency": "USD",
-                        "freight": 12000,
-                        "other_costs": 1500,
-                        "incoterm": "FOB",
-                        "coverage": "icc_a",
-                        "extensions": [
-                          "war",
-                          "strikes"
-                        ]
-                      },
-                      "quote": null,
-                      "reasons": [
-                        "Hazardous goods need an underwriter's review."
-                      ],
-                      "missing_to_issue": [
-                        "departure_date",
-                        "conveyance.carrier_name",
-                        "references.invoice_number"
-                      ],
-                      "policy_id": null,
-                      "decided_at": null,
-                      "created_at": "2026-11-23T08:31:07.000000Z",
-                      "updated_at": "2026-11-23T08:31:07.000000Z"
-                    }
-                  },
-                  "rejected": {
-                    "summary": "Rejected",
-                    "value": {
-                      "id": "a34af108-2143-4865-9069-2c2b05a618dd",
-                      "type": "single_shipment",
-                      "status": "rejected",
-                      "customer_id": 2,
-                      "shipment": {
-                        "goods": {
-                          "description": "Consumer electronics, 400 cartons",
-                          "category": "electronics",
-                          "packaging": "cartons",
-                          "quantity": 400,
-                          "characteristics": [
-                            "fragile"
-                          ]
-                        },
-                        "transport_mode": "sea",
-                        "origin": {
-                          "country": "KP"
-                        },
-                        "destination": {
-                          "country": "SA",
-                          "city": "Jeddah"
-                        },
-                        "invoice_value": 250000,
-                        "currency": "USD",
-                        "freight": 12000,
-                        "other_costs": 1500,
-                        "incoterm": "FOB",
-                        "coverage": "icc_a",
-                        "extensions": [
-                          "war",
-                          "strikes"
-                        ]
-                      },
-                      "quote": null,
-                      "reasons": [
-                        "Shipments to or from North Korea cannot be insured."
-                      ],
-                      "missing_to_issue": [
-                        "departure_date",
-                        "conveyance.carrier_name",
-                        "references.invoice_number"
-                      ],
-                      "policy_id": null,
-                      "decided_at": "2026-11-23T08:31:07.000000Z",
-                      "created_at": "2026-11-23T08:31:07.000000Z",
-                      "updated_at": "2026-11-23T08:31:07.000000Z"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "422": {
-            "$ref": "#/components/responses/UnprocessableEntity"
-          }
-        }
-      }
-    },
-    "/quote-requests/{quoteRequestId}": {
-      "get": {
-        "summary": "Read a quote request",
-        "tags": [
-          "Single shipment"
-        ],
-        "parameters": [
-          {
-            "name": "quoteRequestId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "description": "The quote request as it stands now. Use it to follow a referral: once the underwriter has decided, `status` turns `approved` (and `quote` is filled) or `rejected`.",
-        "responses": {
-          "200": {
-            "description": "The quote request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/QuoteRequest"
-                },
-                "example": {
-                  "id": "a34af107-128e-4c87-934f-5658d04f5870",
-                  "type": "single_shipment",
-                  "status": "approved",
-                  "customer_id": 2,
-                  "shipment": {
-                    "goods": {
-                      "description": "Consumer electronics, 400 cartons",
-                      "category": "electronics",
-                      "packaging": "cartons",
-                      "quantity": 400,
-                      "characteristics": [
-                        "fragile"
-                      ]
-                    },
-                    "transport_mode": "sea",
-                    "origin": {
-                      "country": "CN",
-                      "city": "Shanghai"
-                    },
-                    "destination": {
-                      "country": "SA",
-                      "city": "Jeddah"
-                    },
-                    "invoice_value": 250000,
-                    "currency": "USD",
-                    "freight": 12000,
-                    "other_costs": 1500,
-                    "incoterm": "FOB",
-                    "coverage": "icc_a",
-                    "extensions": [
-                      "war",
-                      "strikes"
-                    ]
-                  },
-                  "quote": {
-                    "insurance_provider": "walaa",
-                    "insurance_provider_name": "Walaa Cooperative Insurance",
-                    "coverage": "icc_a",
-                    "extensions": [
-                      "war",
-                      "strikes"
-                    ],
-                    "valuation_basis": "cif_plus_10",
-                    "insured_amount": 289850,
-                    "currency": "USD",
-                    "insured_amount_sar": 1086937.5,
-                    "rate_percent": 0.45,
-                    "premium": 4891.22,
-                    "vat": 733.68,
-                    "total_price": 5624.9,
-                    "price_currency": "SAR",
-                    "valid_until": "2026-12-23"
-                  },
-                  "reasons": [],
-                  "missing_to_issue": [
-                    "departure_date",
-                    "conveyance.carrier_name",
-                    "references.invoice_number"
-                  ],
-                  "policy_id": null,
-                  "decided_at": "2026-11-23T08:31:06.000000Z",
-                  "created_at": "2026-11-23T08:31:06.000000Z",
-                  "updated_at": "2026-11-23T08:31:06.000000Z"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          }
-        }
-      }
-    },
     "/open-cover-applications": {
       "post": {
         "summary": "Apply for open cover",
         "tags": [
           "Open cover"
         ],
-        "description": "Applies for a marine open cover: a one-year policy that the business declares its shipments under, instead of insuring each on its own. The application describes the goods it ships, the routes, the value it expects to ship in the year and the most any one shipment will be worth.\n\nThe answer is always `201`; read its `status`, which works as it does for a single shipment. When it is `approved`, `quote` holds the terms: the rate every declared shipment is charged at (`declaration_rate_percent`) and the deposit paid up front to start the policy (`total_price`, VAT included).",
+        "description": "Applies for a marine open cover: a one-year policy that the business declares its shipments under. The application answers the insurance company's proposal questions: what the business does, what it ships, from where to where and how, how much it expects to ship in the year, the most any one shipment will be worth, and its claims of the last five years.\n\nThe answer is always `201`; read its `status`. `approved`: `quote` holds the terms and a policy can be issued. `referred`: an underwriter is reviewing it; read the application again until the status changes. `rejected`: it cannot be insured, and `reasons` says why.\n\nWhen it is `approved`, `quote` holds the rate every declared shipment is charged at (`declaration_rate_percent`) and the deposit paid up front to start the policy (`total_price`, VAT included).",
         "requestBody": {
           "required": true,
           "content": {
@@ -1023,223 +618,130 @@
                     "type": "integer",
                     "description": "A customer you registered."
                   },
-                  "policy_period": {
-                    "type": "object",
-                    "properties": {
-                      "start_date": {
-                        "type": "string",
-                        "description": "The first day of cover, today or later. The policy runs for one year from this day.",
-                        "format": "date"
-                      }
-                    },
-                    "required": [
-                      "start_date"
-                    ]
-                  },
-                  "goods": {
-                    "type": "array",
-                    "description": "The kinds of goods the business ships.",
-                    "minItems": 1,
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "description": {
-                          "type": "string",
-                          "description": "What the goods are, in plain words.",
-                          "maxLength": 500
-                        },
-                        "category": {
-                          "type": "string",
-                          "description": "The kind of goods. One of the `goods_categories` values from Get the options."
-                        },
-                        "packaging": {
-                          "type": "string",
-                          "description": "How the goods are packed. One of the `packaging` values from Get the options."
-                        },
-                        "characteristics": {
-                          "type": "array",
-                          "description": "Anything about the goods that changes the risk. Each one of the `characteristics` values from Get the options.",
-                          "items": {
-                            "type": "string"
-                          }
-                        }
-                      },
-                      "required": [
-                        "description",
-                        "category",
-                        "packaging"
-                      ]
-                    }
+                  "business_activities": {
+                    "type": "string",
+                    "description": "What the business does.",
+                    "maxLength": 1000
                   },
                   "estimated_annual_value": {
-                    "type": "object",
-                    "properties": {
-                      "import": {
-                        "type": "number"
-                      },
-                      "export": {
-                        "type": "number"
-                      },
-                      "domestic": {
-                        "type": "number"
-                      }
-                    },
-                    "description": "The value the business expects to ship in the year, in `currency`. At least one of the three must be above zero."
+                    "type": "number",
+                    "description": "The total value the business expects to ship in the year, in `currency`. Above zero."
                   },
                   "currency": {
                     "type": "string",
-                    "description": "The currency of the values in the application. One of the `currencies` values from Get the options."
+                    "description": "The currency of every amount in the application. One of the `currencies` values from Get the options."
                   },
-                  "routes": {
+                  "goods_description": {
+                    "type": "string",
+                    "description": "A detailed description of the goods to be insured.",
+                    "maxLength": 2000
+                  },
+                  "origin_countries": {
                     "type": "array",
-                    "description": "The routes the business ships on.",
+                    "description": "The countries the goods are shipped from.",
                     "minItems": 1,
                     "items": {
-                      "type": "object",
-                      "properties": {
-                        "origin_country": {
-                          "type": "string",
-                          "example": "CN"
-                        },
-                        "destination_country": {
-                          "type": "string",
-                          "example": "SA"
-                        },
-                        "transport_mode": {
-                          "type": "string",
-                          "description": "How the goods travel on this route. One of the `transport_modes` values from Get the options."
-                        }
-                      },
-                      "required": [
-                        "origin_country",
-                        "destination_country",
-                        "transport_mode"
+                      "type": "string",
+                      "description": "Two-letter country code, one of the `countries` values from Get the options.",
+                      "example": "CN"
+                    }
+                  },
+                  "destination_countries": {
+                    "type": "array",
+                    "description": "The countries the goods are shipped to.",
+                    "minItems": 1,
+                    "items": {
+                      "type": "string",
+                      "description": "Two-letter country code, one of the `countries` values from Get the options.",
+                      "example": "SA"
+                    }
+                  },
+                  "transport_modes": {
+                    "type": "array",
+                    "description": "How the goods travel. Each one of the `transport_modes` values from Get the options.",
+                    "minItems": 1,
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "sea",
+                        "air",
+                        "land"
                       ]
                     }
                   },
-                  "storage_locations": {
-                    "type": "array",
-                    "description": "Where goods are stored along the way.",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "country": {
-                          "type": "string"
-                        },
-                        "city": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "country"
-                      ]
-                    }
+                  "estimated_annual_shipments": {
+                    "type": "integer",
+                    "description": "How many shipments the business expects to make in the year.",
+                    "minimum": 1
                   },
                   "max_value_per_shipment": {
                     "type": "number",
-                    "description": "The most any one shipment will be worth, in `currency`. A declared shipment above it is referred."
+                    "description": "The most any one shipment will be worth, in `currency`. It becomes the policy's limit per shipment."
                   },
-                  "coverage": {
-                    "type": "string",
-                    "description": "The cover wanted. One of the `coverages` values from Get the options."
-                  },
-                  "extensions": {
+                  "claims_history": {
                     "type": "array",
-                    "description": "Extra cover on top. Each one of the `extensions` values from Get the options.",
+                    "description": "The cargo claims of the last five years. Send an empty list when there were none.",
                     "items": {
-                      "type": "string"
-                    }
-                  },
-                  "valuation_basis": {
-                    "type": "string",
-                    "description": "How the shipment is valued. Defaults to `cif_plus_10`. One of the `valuation_bases` values from Get the options."
-                  },
-                  "insurance_history": {
-                    "type": "object",
-                    "properties": {
-                      "first_policy": {
-                        "type": "boolean",
-                        "description": "`true` when the business has never held cargo insurance."
-                      },
-                      "previous_insurer": {
-                        "type": "string",
-                        "description": "Required when `first_policy` is `false`."
-                      },
-                      "claims": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "year": {
-                              "type": "integer"
-                            },
-                            "amount": {
-                              "type": "number"
-                            },
-                            "description": {
-                              "type": "string"
-                            }
-                          },
-                          "required": [
-                            "year",
-                            "amount"
-                          ]
+                      "type": "object",
+                      "properties": {
+                        "year": {
+                          "type": "integer",
+                          "description": "The year of the claim, within the last five years."
+                        },
+                        "amount": {
+                          "type": "number",
+                          "description": "The amount claimed, in `currency`."
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "What happened.",
+                          "maxLength": 500
                         }
-                      }
-                    },
-                    "required": [
-                      "first_policy"
-                    ]
+                      },
+                      "required": [
+                        "year",
+                        "amount"
+                      ]
+                    }
                   }
                 },
                 "required": [
                   "customer_id",
-                  "policy_period",
-                  "goods",
+                  "business_activities",
                   "estimated_annual_value",
                   "currency",
-                  "routes",
+                  "goods_description",
+                  "origin_countries",
+                  "destination_countries",
+                  "transport_modes",
+                  "estimated_annual_shipments",
                   "max_value_per_shipment",
-                  "coverage",
-                  "insurance_history"
+                  "claims_history"
                 ]
               },
               "example": {
                 "customer_id": 2,
-                "policy_period": {
-                  "start_date": "2026-12-03"
-                },
-                "estimated_annual_value": {
-                  "import": 12000000
-                },
+                "business_activities": "Import and wholesale of consumer electronics",
+                "estimated_annual_value": 20000000,
                 "currency": "SAR",
+                "goods_description": "Televisions, monitors and home audio, new, in cartons in full containers",
+                "origin_countries": [
+                  "CN"
+                ],
+                "destination_countries": [
+                  "SA"
+                ],
+                "transport_modes": [
+                  "sea"
+                ],
+                "estimated_annual_shipments": 40,
                 "max_value_per_shipment": 1500000,
-                "coverage": "icc_a",
-                "insurance_history": {
-                  "first_policy": true
-                },
-                "goods": [
+                "claims_history": [
                   {
-                    "description": "Consumer electronics",
-                    "category": "electronics",
-                    "packaging": "cartons",
-                    "characteristics": [
-                      "fragile"
-                    ]
+                    "year": 2024,
+                    "amount": 42000,
+                    "description": "Water damage to one container"
                   }
-                ],
-                "routes": [
-                  {
-                    "origin_country": "CN",
-                    "destination_country": "SA",
-                    "transport_mode": "sea"
-                  }
-                ],
-                "extensions": [
-                  "war"
                 ]
               }
             }
@@ -1253,75 +755,143 @@
                 "schema": {
                   "$ref": "#/components/schemas/OpenCoverApplication"
                 },
-                "example": {
-                  "id": "a34af109-af12-46b9-bef6-ecb2e9137510",
-                  "type": "open_cover",
-                  "status": "approved",
-                  "customer_id": 2,
-                  "application": {
-                    "policy_period": {
-                      "start_date": "2026-12-03"
-                    },
-                    "estimated_annual_value": {
-                      "import": 12000000,
-                      "export": 0,
-                      "domestic": 0
-                    },
-                    "currency": "SAR",
-                    "max_value_per_shipment": 1500000,
-                    "coverage": "icc_a",
-                    "insurance_history": {
-                      "first_policy": true
-                    },
-                    "goods": [
-                      {
-                        "description": "Consumer electronics",
-                        "category": "electronics",
-                        "packaging": "cartons",
-                        "characteristics": [
-                          "fragile"
+                "examples": {
+                  "approved": {
+                    "summary": "Approved",
+                    "value": {
+                      "id": "a34cf832-34e2-41a9-971f-46d2a0da3f57",
+                      "status": "approved",
+                      "customer_id": 2,
+                      "application": {
+                        "business_activities": "Import and wholesale of consumer electronics",
+                        "estimated_annual_value": 20000000,
+                        "currency": "SAR",
+                        "goods_description": "Televisions, monitors and home audio, new, in cartons in full containers",
+                        "estimated_annual_shipments": 40,
+                        "max_value_per_shipment": 1500000,
+                        "origin_countries": [
+                          "CN"
+                        ],
+                        "destination_countries": [
+                          "SA"
+                        ],
+                        "transport_modes": [
+                          "sea"
+                        ],
+                        "claims_history": [
+                          {
+                            "year": 2024,
+                            "amount": 42000,
+                            "description": "Water damage to one container"
+                          }
                         ]
-                      }
-                    ],
-                    "routes": [
-                      {
-                        "origin_country": "CN",
-                        "destination_country": "SA",
-                        "transport_mode": "sea"
-                      }
-                    ],
-                    "extensions": [
-                      "war"
-                    ]
+                      },
+                      "quote": {
+                        "insurance_provider": "walaa",
+                        "insurance_provider_name": "Walaa Cooperative Insurance",
+                        "valuation_basis": "cif_plus_10",
+                        "estimated_annual_value_sar": 20000000,
+                        "max_value_per_shipment": 1500000,
+                        "currency": "SAR",
+                        "max_value_per_shipment_sar": 1500000,
+                        "declaration_rate_percent": 0.3,
+                        "estimated_annual_premium": 60000,
+                        "deposit_premium": 15000,
+                        "premium": 15000,
+                        "vat": 2250,
+                        "total_price": 17250,
+                        "price_currency": "SAR",
+                        "valid_until": "2026-12-24"
+                      },
+                      "reasons": [],
+                      "policy_id": null,
+                      "decided_at": "2026-11-24T08:42:48.000000Z",
+                      "created_at": "2026-11-24T08:42:48.000000Z",
+                      "updated_at": "2026-11-24T08:42:48.000000Z"
+                    }
                   },
-                  "quote": {
-                    "insurance_provider": "walaa",
-                    "insurance_provider_name": "Walaa Cooperative Insurance",
-                    "coverage": "icc_a",
-                    "extensions": [
-                      "war"
-                    ],
-                    "valuation_basis": "cif_plus_10",
-                    "cover_start": "2026-12-03",
-                    "cover_end": "2027-12-02",
-                    "estimated_annual_value_sar": 12000000,
-                    "max_value_per_shipment": 1500000,
-                    "currency": "SAR",
-                    "max_value_per_shipment_sar": 1500000,
-                    "declaration_rate_percent": 0.425,
-                    "estimated_annual_premium": 51000,
-                    "deposit_premium": 12750,
-                    "premium": 12750,
-                    "vat": 1912.5,
-                    "total_price": 14662.5,
-                    "price_currency": "SAR",
-                    "valid_until": "2026-12-23"
+                  "referred": {
+                    "summary": "Referred to an underwriter",
+                    "value": {
+                      "id": "a34cf832-3657-4e3e-8f6e-6c0a71c23492",
+                      "status": "referred",
+                      "customer_id": 2,
+                      "application": {
+                        "business_activities": "Import and wholesale of consumer electronics",
+                        "estimated_annual_value": 20000000,
+                        "currency": "SAR",
+                        "goods_description": "Televisions, monitors and home audio, new, in cartons in full containers",
+                        "estimated_annual_shipments": 40,
+                        "max_value_per_shipment": 1500000,
+                        "origin_countries": [
+                          "CN"
+                        ],
+                        "destination_countries": [
+                          "SA"
+                        ],
+                        "transport_modes": [
+                          "sea"
+                        ],
+                        "claims_history": [
+                          {
+                            "year": 2025,
+                            "amount": 10000
+                          },
+                          {
+                            "year": 2025,
+                            "amount": 10000
+                          },
+                          {
+                            "year": 2025,
+                            "amount": 10000
+                          }
+                        ]
+                      },
+                      "quote": null,
+                      "reasons": [
+                        "Three or more claims in the last five years need an underwriter's review."
+                      ],
+                      "policy_id": null,
+                      "decided_at": null,
+                      "created_at": "2026-11-24T08:42:48.000000Z",
+                      "updated_at": "2026-11-24T08:42:48.000000Z"
+                    }
                   },
-                  "reasons": [],
-                  "policy_id": null,
-                  "decided_at": "2026-11-23T08:31:08.000000Z",
-                  "created_at": "2026-11-23T08:31:08.000000Z",
-                  "updated_at": "2026-11-23T08:31:08.000000Z"
+                  "rejected": {
+                    "summary": "Rejected",
+                    "value": {
+                      "id": "a34cf832-375b-4ab0-82c0-20dd33440c4e",
+                      "status": "rejected",
+                      "customer_id": 2,
+                      "application": {
+                        "business_activities": "Import and wholesale of consumer electronics",
+                        "estimated_annual_value": 20000000,
+                        "currency": "SAR",
+                        "goods_description": "Televisions, monitors and home audio, new, in cartons in full containers",
+                        "estimated_annual_shipments": 40,
+                        "max_value_per_shipment": 1500000,
+                        "claims_history": [],
+                        "origin_countries": [
+                          "CN",
+                          "KP"
+                        ],
+                        "destination_countries": [
+                          "SA"
+                        ],
+                        "transport_modes": [
+                          "sea"
+                        ]
+                      },
+                      "quote": null,
+                      "reasons": [
+                        "Shipments to or from North Korea cannot be insured."
+                      ],
+                      "policy_id": null,
+                      "decided_at": "2026-11-24T08:42:48.000000Z",
+                      "created_at": "2026-11-24T08:42:48.000000Z",
+                      "updated_at": "2026-11-24T08:42:48.000000Z"
+                    }
+                  }
                 }
               }
             }
@@ -1362,74 +932,55 @@
                   "$ref": "#/components/schemas/OpenCoverApplication"
                 },
                 "example": {
-                  "id": "a34af109-af12-46b9-bef6-ecb2e9137510",
-                  "type": "open_cover",
+                  "id": "a34cf832-34e2-41a9-971f-46d2a0da3f57",
                   "status": "approved",
                   "customer_id": 2,
                   "application": {
-                    "policy_period": {
-                      "start_date": "2026-12-03"
-                    },
-                    "estimated_annual_value": {
-                      "import": 12000000,
-                      "export": 0,
-                      "domestic": 0
-                    },
+                    "business_activities": "Import and wholesale of consumer electronics",
+                    "estimated_annual_value": 20000000,
                     "currency": "SAR",
+                    "goods_description": "Televisions, monitors and home audio, new, in cartons in full containers",
+                    "estimated_annual_shipments": 40,
                     "max_value_per_shipment": 1500000,
-                    "coverage": "icc_a",
-                    "insurance_history": {
-                      "first_policy": true
-                    },
-                    "goods": [
-                      {
-                        "description": "Consumer electronics",
-                        "category": "electronics",
-                        "packaging": "cartons",
-                        "characteristics": [
-                          "fragile"
-                        ]
-                      }
+                    "origin_countries": [
+                      "CN"
                     ],
-                    "routes": [
-                      {
-                        "origin_country": "CN",
-                        "destination_country": "SA",
-                        "transport_mode": "sea"
-                      }
+                    "destination_countries": [
+                      "SA"
                     ],
-                    "extensions": [
-                      "war"
+                    "transport_modes": [
+                      "sea"
+                    ],
+                    "claims_history": [
+                      {
+                        "year": 2024,
+                        "amount": 42000,
+                        "description": "Water damage to one container"
+                      }
                     ]
                   },
                   "quote": {
                     "insurance_provider": "walaa",
                     "insurance_provider_name": "Walaa Cooperative Insurance",
-                    "coverage": "icc_a",
-                    "extensions": [
-                      "war"
-                    ],
                     "valuation_basis": "cif_plus_10",
-                    "cover_start": "2026-12-03",
-                    "cover_end": "2027-12-02",
-                    "estimated_annual_value_sar": 12000000,
+                    "estimated_annual_value_sar": 20000000,
                     "max_value_per_shipment": 1500000,
                     "currency": "SAR",
                     "max_value_per_shipment_sar": 1500000,
-                    "declaration_rate_percent": 0.425,
-                    "estimated_annual_premium": 51000,
-                    "deposit_premium": 12750,
-                    "premium": 12750,
-                    "vat": 1912.5,
-                    "total_price": 14662.5,
+                    "declaration_rate_percent": 0.3,
+                    "estimated_annual_premium": 60000,
+                    "deposit_premium": 15000,
+                    "premium": 15000,
+                    "vat": 2250,
+                    "total_price": 17250,
                     "price_currency": "SAR",
-                    "valid_until": "2026-12-23"
+                    "valid_until": "2026-12-24"
                   },
                   "reasons": [],
                   "policy_id": null,
-                  "decided_at": "2026-11-23T08:31:08.000000Z",
-                  "created_at": "2026-11-23T08:31:08.000000Z",
-                  "updated_at": "2026-11-23T08:31:08.000000Z"
+                  "decided_at": "2026-11-24T08:42:48.000000Z",
+                  "created_at": "2026-11-24T08:42:48.000000Z",
+                  "updated_at": "2026-11-24T08:42:48.000000Z"
                 }
               }
             }
@@ -1449,7 +1000,7 @@
         "tags": [
           "Policies"
         ],
-        "description": "Accepts an approved quote, for a single shipment or for open cover. The policy comes back unpaid (`status` `0`, `coverage_confirmed` `false`) with a `payment_link`. Send the customer to that page to pay. Once the payment succeeds the policy is issued: it gets its policy number, certificate and tax invoice, and the customer is sent on to your `redirect_url`.\n\nFor a single shipment, send in `shipment` whichever of the departure date, the carrier and the invoice number were not on the quote request; the call answers `40033` while any is missing. An open cover needs nothing more than `quote_request_id`.\n\nCalling this again for the same quote before it is paid returns the same policy, updated.",
+        "description": "Accepts the quote of an approved open-cover application. The policy comes back unpaid (`status` `0`, `coverage_confirmed` `false`) with a `payment_link`. Send the customer to that page to pay the deposit. Once the payment succeeds the policy is issued: it gets its policy number, schedule and tax invoice, its year of cover starts that day, and the customer is sent on to your `redirect_url`.\n\nCalling this again for the same application before it is paid returns the same policy, updated.",
         "requestBody": {
           "required": true,
           "content": {
@@ -1459,16 +1010,13 @@
                 "properties": {
                   "quote_request_id": {
                     "type": "string",
-                    "description": "The `id` of an approved quote request or open-cover application.",
+                    "description": "The `id` of an approved open-cover application.",
                     "format": "uuid"
                   },
                   "redirect_url": {
                     "type": "string",
                     "description": "Where to send the customer after they pay. `policyID` anywhere in it is replaced with the policy's id.",
                     "format": "uri"
-                  },
-                  "shipment": {
-                    "$ref": "#/components/schemas/IssuanceDetails"
                   }
                 },
                 "required": [
@@ -1476,21 +1024,8 @@
                 ]
               },
               "example": {
-                "quote_request_id": "a34af107-128e-4c87-934f-5658d04f5870",
-                "redirect_url": "https://partner.example.com/cargo/policies/policyID",
-                "shipment": {
-                  "departure_date": "2026-12-03",
-                  "arrival_date": "2026-12-28",
-                  "conveyance": {
-                    "vessel_name": "MV Example",
-                    "carrier_name": "Bahri Logistics",
-                    "voyage_or_flight_number": "V123"
-                  },
-                  "references": {
-                    "bill_of_lading": "BL-778812",
-                    "invoice_number": "INV-2026-0142"
-                  }
-                }
+                "quote_request_id": "a34cf832-34e2-41a9-971f-46d2a0da3f57",
+                "redirect_url": "https://partner.example.com/cargo/policies/policyID"
               }
             }
           }
@@ -1505,38 +1040,20 @@
                 },
                 "example": {
                   "id": 4,
-                  "type": "single_shipment",
                   "status": 0,
                   "coverage_confirmed": false,
                   "payment_link": "https://sandbox.yasmina.ai/short/Ab3xK9",
-                  "price": 5624.9,
-                  "start_date": "2026-12-03",
+                  "price": 17250,
+                  "start_date": "2026-11-24",
                   "provider_policy_id": null,
                   "policy_url": null,
                   "invoice_url": null,
                   "purchased_at": null,
                   "redirect_url": "https://partner.example.com/cargo/policies/4",
                   "meta_data": {
-                    "type": "single_shipment",
-                    "quote": {
-                      "vat": 733.68,
-                      "premium": 4891.22,
-                      "coverage": "icc_a",
-                      "currency": "USD",
-                      "extensions": [
-                        "war",
-                        "strikes"
-                      ],
-                      "total_price": 5624.9,
-                      "valid_until": "2026-12-23",
-                      "rate_percent": 0.45,
-                      "insured_amount": 289850,
-                      "price_currency": "SAR",
-                      "valuation_basis": "cif_plus_10",
-                      "insurance_provider": "walaa",
-                      "insured_amount_sar": 1086937.5,
-                      "insurance_provider_name": "Walaa Cooperative Insurance"
-                    },
+                    "insurance_provider": "walaa",
+                    "customer_id": 2,
+                    "quote_request_id": "a34cf832-34e2-41a9-971f-46d2a0da3f57",
                     "customer": {
                       "role": "importer",
                       "address": {
@@ -1544,74 +1061,74 @@
                         "street": "King Fahd Road",
                         "country": "SA",
                         "district": "Al Olaya",
-                        "postal_code": "16789",
-                        "building_number": "6789"
+                        "postal_code": "13456",
+                        "building_number": "3456"
                       },
                       "contact": {
-                        "name": "Sara Alharbi",
+                        "name": "Sara Trader",
                         "email": "sara@example.com",
-                        "mobile": "+966500000001"
+                        "mobile": "+966512345678"
                       },
-                      "cr_number": "1010456789",
-                      "legal_name": "Sample Trading Company 6789",
-                      "vat_number": "310123456700003",
-                      "legal_name_ar": "شركة التجارة النموذجية 6789"
+                      "cr_number": "1010123456",
+                      "legal_name": "Sample Trading Company 3456",
+                      "vat_number": null,
+                      "legal_name_ar": "شركة التجارة النموذجية 3456"
                     },
-                    "shipment": {
-                      "goods": {
-                        "category": "electronics",
-                        "quantity": 400,
-                        "packaging": "cartons",
-                        "description": "Consumer electronics, 400 cartons",
-                        "characteristics": [
-                          "fragile"
-                        ]
-                      },
-                      "origin": {
-                        "city": "Shanghai",
-                        "country": "CN"
-                      },
-                      "freight": 12000,
-                      "coverage": "icc_a",
-                      "currency": "USD",
-                      "incoterm": "FOB",
-                      "conveyance": {
-                        "vessel_name": "MV Example",
-                        "carrier_name": "Bahri Logistics",
-                        "voyage_or_flight_number": "V123"
-                      },
-                      "extensions": [
-                        "war",
-                        "strikes"
+                    "application": {
+                      "currency": "SAR",
+                      "claims_history": [
+                        {
+                          "year": 2024,
+                          "amount": 42000,
+                          "description": "Water damage to one container"
+                        }
                       ],
-                      "references": {
-                        "bill_of_lading": "BL-778812",
-                        "invoice_number": "INV-2026-0142"
-                      },
-                      "destination": {
-                        "city": "Jeddah",
-                        "country": "SA"
-                      },
-                      "other_costs": 1500,
-                      "arrival_date": "2026-12-28",
-                      "invoice_value": 250000,
-                      "departure_date": "2026-12-03",
-                      "transport_mode": "sea"
+                      "transport_modes": [
+                        "sea"
+                      ],
+                      "origin_countries": [
+                        "CN"
+                      ],
+                      "goods_description": "Televisions, monitors and home audio, new, in cartons in full containers",
+                      "business_activities": "Import and wholesale of consumer electronics",
+                      "destination_countries": [
+                        "SA"
+                      ],
+                      "estimated_annual_value": 20000000,
+                      "max_value_per_shipment": 1500000,
+                      "estimated_annual_shipments": 40
                     },
-                    "cover_end": "2026-12-28",
-                    "cover_start": "2026-12-03",
-                    "customer_id": 2,
-                    "quote_request_id": "a34af107-128e-4c87-934f-5658d04f5870",
-                    "insurance_provider": "walaa"
+                    "quote": {
+                      "vat": 2250,
+                      "premium": 15000,
+                      "currency": "SAR",
+                      "total_price": 17250,
+                      "valid_until": "2026-12-24",
+                      "price_currency": "SAR",
+                      "deposit_premium": 15000,
+                      "valuation_basis": "cif_plus_10",
+                      "insurance_provider": "walaa",
+                      "max_value_per_shipment": 1500000,
+                      "insurance_provider_name": "Walaa Cooperative Insurance",
+                      "declaration_rate_percent": 0.3,
+                      "estimated_annual_premium": 60000,
+                      "estimated_annual_value_sar": 20000000,
+                      "max_value_per_shipment_sar": 1500000
+                    },
+                    "cover_start": null,
+                    "cover_end": null
                   },
-                  "created_at": "2026-11-23T08:31:07.000000Z",
-                  "updated_at": "2026-11-23T08:31:07.000000Z"
+                  "declarations": {
+                    "count": 0,
+                    "insured_amount_sar": 0,
+                    "premium": 0
+                  }
                 }
               }
             }
           },
           "400": {
-            "description": "`40032` when the request is referred or rejected. `40030` when the quote is past `valid_until`. `40033` when a single shipment still lacks details, listed in `missing_fields`. `40026` when the quote was already issued and paid for; `policy_id` is that policy.",
+            "description": "`40032` when the application is referred or rejected. `40030` when the quote is past `valid_until`. `40026` when the quote was already issued and paid for; `policy_id` is that policy.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1622,19 +1139,7 @@
                     "summary": "Not approved",
                     "value": {
                       "code": "40032",
-                      "message": "This request is with an underwriter. Read it again until its status is approved."
-                    }
-                  },
-                  "40033": {
-                    "summary": "Details missing",
-                    "value": {
-                      "code": "40033",
-                      "message": "The shipment needs these details before it can be issued: departure_date, conveyance.carrier_name, references.invoice_number.",
-                      "missing_fields": [
-                        "departure_date",
-                        "conveyance.carrier_name",
-                        "references.invoice_number"
-                      ]
+                      "message": "This application is with an underwriter. Read it again until its status is approved."
                     }
                   },
                   "40030": {
@@ -1672,18 +1177,6 @@
         "description": "Your cargo policies, newest first.",
         "parameters": [
           {
-            "name": "type",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "single_shipment",
-                "open_cover"
-              ]
-            },
-            "description": "Only policies of this type."
-          },
-          {
             "name": "customer_id",
             "in": "query",
             "schema": {
@@ -1705,43 +1198,21 @@
                 },
                 "example": [
                   {
-                    "id": 2,
-                    "type": "open_cover",
+                    "id": 4,
                     "status": 1,
                     "coverage_confirmed": true,
                     "payment_link": null,
-                    "price": 18400,
-                    "start_date": "2026-11-22",
-                    "provider_policy_id": "WAL/MOC/7845407",
-                    "policy_url": "https://sandbox.yasmina.ai/storage/generated-pdfs/cargo/policies/bf0fb065-b93e-4965-b119-14998f1b8446.pdf",
-                    "invoice_url": "https://sandbox.yasmina.ai/storage/generated-pdfs/cargo/invoices/b4f6d7f1-913c-48cb-bfa4-fd7f6d255e05.pdf",
-                    "purchased_at": "2026-11-22T12:02:01.000000Z",
-                    "redirect_url": "https://partner.example.com/cargo/policies/2",
+                    "price": 17250,
+                    "start_date": "2026-11-24",
+                    "provider_policy_id": "WAL/MOC/5015742",
+                    "policy_url": "https://sandbox.yasmina.ai/storage/generated-pdfs/cargo/policies/cf96155d-f00a-4a86-a01d-152138f37002.pdf",
+                    "invoice_url": "https://sandbox.yasmina.ai/storage/generated-pdfs/cargo/invoices/b9cd93a4-06ba-4380-b6d7-d90ce0942049.pdf",
+                    "purchased_at": "2026-11-24T08:42:48.000000Z",
+                    "redirect_url": "https://partner.example.com/cargo/policies/4",
                     "meta_data": {
-                      "type": "open_cover",
-                      "quote": {
-                        "vat": 2400,
-                        "premium": 16000,
-                        "coverage": "icc_a",
-                        "currency": "SAR",
-                        "cover_end": "2027-11-21",
-                        "extensions": [
-                          "warehouse_to_warehouse"
-                        ],
-                        "cover_start": "2026-11-22",
-                        "total_price": 18400,
-                        "valid_until": "2026-12-22",
-                        "price_currency": "SAR",
-                        "deposit_premium": 16000,
-                        "valuation_basis": "cif_plus_10",
-                        "insurance_provider": "walaa",
-                        "max_value_per_shipment": 1500000,
-                        "insurance_provider_name": "Walaa Cooperative Insurance",
-                        "declaration_rate_percent": 0.32,
-                        "estimated_annual_premium": 64000,
-                        "estimated_annual_value_sar": 20000000,
-                        "max_value_per_shipment_sar": 1500000
-                      },
+                      "insurance_provider": "walaa",
+                      "customer_id": 2,
+                      "quote_request_id": "a34cf832-34e2-41a9-971f-46d2a0da3f57",
                       "customer": {
                         "role": "importer",
                         "address": {
@@ -1753,7 +1224,7 @@
                           "building_number": "3456"
                         },
                         "contact": {
-                          "name": "Sara Al-Harbi",
+                          "name": "Sara Trader",
                           "email": "sara@example.com",
                           "mobile": "+966512345678"
                         },
@@ -1762,61 +1233,55 @@
                         "vat_number": null,
                         "legal_name_ar": "شركة التجارة النموذجية 3456"
                       },
-                      "cover_end": "2027-11-21",
                       "application": {
-                        "goods": [
-                          {
-                            "category": "electronics",
-                            "packaging": "container_fcl",
-                            "description": "Consumer electronics",
-                            "characteristics": []
-                          }
-                        ],
-                        "routes": [
-                          {
-                            "origin_country": "CN",
-                            "transport_mode": "sea",
-                            "destination_country": "SA"
-                          }
-                        ],
-                        "coverage": "icc_a",
                         "currency": "SAR",
-                        "extensions": [
-                          "warehouse_to_warehouse"
-                        ],
-                        "policy_period": {
-                          "start_date": "2026-11-22"
-                        },
-                        "valuation_basis": "cif_plus_10",
-                        "insurance_history": {
-                          "claims": [],
-                          "first_policy": true
-                        },
-                        "storage_locations": [
+                        "claims_history": [
                           {
-                            "city": "Jeddah",
-                            "country": "SA"
+                            "year": 2024,
+                            "amount": 42000,
+                            "description": "Water damage to one container"
                           }
                         ],
-                        "estimated_annual_value": {
-                          "export": 0,
-                          "import": 20000000,
-                          "domestic": 0
-                        },
-                        "max_value_per_shipment": 1500000
+                        "transport_modes": [
+                          "sea"
+                        ],
+                        "origin_countries": [
+                          "CN"
+                        ],
+                        "goods_description": "Televisions, monitors and home audio, new, in cartons in full containers",
+                        "business_activities": "Import and wholesale of consumer electronics",
+                        "destination_countries": [
+                          "SA"
+                        ],
+                        "estimated_annual_value": 20000000,
+                        "max_value_per_shipment": 1500000,
+                        "estimated_annual_shipments": 40
                       },
-                      "cover_start": "2026-11-22",
-                      "customer_id": 1,
-                      "quote_request_id": "a349393d-185c-4688-9345-c6cdcbc52aa3",
-                      "insurance_provider": "walaa"
+                      "quote": {
+                        "vat": 2250,
+                        "premium": 15000,
+                        "currency": "SAR",
+                        "total_price": 17250,
+                        "valid_until": "2026-12-24",
+                        "price_currency": "SAR",
+                        "deposit_premium": 15000,
+                        "valuation_basis": "cif_plus_10",
+                        "insurance_provider": "walaa",
+                        "max_value_per_shipment": 1500000,
+                        "insurance_provider_name": "Walaa Cooperative Insurance",
+                        "declaration_rate_percent": 0.3,
+                        "estimated_annual_premium": 60000,
+                        "estimated_annual_value_sar": 20000000,
+                        "max_value_per_shipment_sar": 1500000
+                      },
+                      "cover_start": "2026-11-24",
+                      "cover_end": "2027-11-23"
                     },
                     "declarations": {
-                      "count": 3,
-                      "insured_amount_sar": 4067800,
-                      "premium": 15155.36
-                    },
-                    "created_at": "2026-11-22T12:01:27.000000Z",
-                    "updated_at": "2026-11-22T12:02:01.000000Z"
+                      "count": 1,
+                      "insured_amount_sar": 220000,
+                      "premium": 660
+                    }
                   }
                 ]
               }
@@ -1844,7 +1309,7 @@
             }
           }
         ],
-        "description": "The policy as it stands now. While it is unpaid it carries the `payment_link`. Once it is paid for and issued, `coverage_confirmed` is `true`, `provider_policy_id` is the policy number, and `policy_url` and `invoice_url` are the certificate and the tax invoice. An open cover also totals the shipments covered under it in `declarations`.",
+        "description": "The policy as it stands now. While it is unpaid it carries the `payment_link`. Once it is paid for and issued, `coverage_confirmed` is `true`, `provider_policy_id` is the policy number, `policy_url` and `invoice_url` are the policy schedule and the tax invoice, and `meta_data.cover_start` and `meta_data.cover_end` are the year it runs for. `declarations` totals the shipments covered under it.",
         "responses": {
           "200": {
             "description": "The policy",
@@ -1854,43 +1319,21 @@
                   "$ref": "#/components/schemas/Policy"
                 },
                 "example": {
-                  "id": 2,
-                  "type": "open_cover",
+                  "id": 4,
                   "status": 1,
                   "coverage_confirmed": true,
                   "payment_link": null,
-                  "price": 18400,
-                  "start_date": "2026-11-22",
-                  "provider_policy_id": "WAL/MOC/7845407",
-                  "policy_url": "https://sandbox.yasmina.ai/storage/generated-pdfs/cargo/policies/bf0fb065-b93e-4965-b119-14998f1b8446.pdf",
-                  "invoice_url": "https://sandbox.yasmina.ai/storage/generated-pdfs/cargo/invoices/b4f6d7f1-913c-48cb-bfa4-fd7f6d255e05.pdf",
-                  "purchased_at": "2026-11-22T12:02:01.000000Z",
-                  "redirect_url": "https://partner.example.com/cargo/policies/2",
+                  "price": 17250,
+                  "start_date": "2026-11-24",
+                  "provider_policy_id": "WAL/MOC/5015742",
+                  "policy_url": "https://sandbox.yasmina.ai/storage/generated-pdfs/cargo/policies/cf96155d-f00a-4a86-a01d-152138f37002.pdf",
+                  "invoice_url": "https://sandbox.yasmina.ai/storage/generated-pdfs/cargo/invoices/b9cd93a4-06ba-4380-b6d7-d90ce0942049.pdf",
+                  "purchased_at": "2026-11-24T08:42:48.000000Z",
+                  "redirect_url": "https://partner.example.com/cargo/policies/4",
                   "meta_data": {
-                    "type": "open_cover",
-                    "quote": {
-                      "vat": 2400,
-                      "premium": 16000,
-                      "coverage": "icc_a",
-                      "currency": "SAR",
-                      "cover_end": "2027-11-21",
-                      "extensions": [
-                        "warehouse_to_warehouse"
-                      ],
-                      "cover_start": "2026-11-22",
-                      "total_price": 18400,
-                      "valid_until": "2026-12-22",
-                      "price_currency": "SAR",
-                      "deposit_premium": 16000,
-                      "valuation_basis": "cif_plus_10",
-                      "insurance_provider": "walaa",
-                      "max_value_per_shipment": 1500000,
-                      "insurance_provider_name": "Walaa Cooperative Insurance",
-                      "declaration_rate_percent": 0.32,
-                      "estimated_annual_premium": 64000,
-                      "estimated_annual_value_sar": 20000000,
-                      "max_value_per_shipment_sar": 1500000
-                    },
+                    "insurance_provider": "walaa",
+                    "customer_id": 2,
+                    "quote_request_id": "a34cf832-34e2-41a9-971f-46d2a0da3f57",
                     "customer": {
                       "role": "importer",
                       "address": {
@@ -1902,7 +1345,7 @@
                         "building_number": "3456"
                       },
                       "contact": {
-                        "name": "Sara Al-Harbi",
+                        "name": "Sara Trader",
                         "email": "sara@example.com",
                         "mobile": "+966512345678"
                       },
@@ -1911,61 +1354,55 @@
                       "vat_number": null,
                       "legal_name_ar": "شركة التجارة النموذجية 3456"
                     },
-                    "cover_end": "2027-11-21",
                     "application": {
-                      "goods": [
-                        {
-                          "category": "electronics",
-                          "packaging": "container_fcl",
-                          "description": "Consumer electronics",
-                          "characteristics": []
-                        }
-                      ],
-                      "routes": [
-                        {
-                          "origin_country": "CN",
-                          "transport_mode": "sea",
-                          "destination_country": "SA"
-                        }
-                      ],
-                      "coverage": "icc_a",
                       "currency": "SAR",
-                      "extensions": [
-                        "warehouse_to_warehouse"
-                      ],
-                      "policy_period": {
-                        "start_date": "2026-11-22"
-                      },
-                      "valuation_basis": "cif_plus_10",
-                      "insurance_history": {
-                        "claims": [],
-                        "first_policy": true
-                      },
-                      "storage_locations": [
+                      "claims_history": [
                         {
-                          "city": "Jeddah",
-                          "country": "SA"
+                          "year": 2024,
+                          "amount": 42000,
+                          "description": "Water damage to one container"
                         }
                       ],
-                      "estimated_annual_value": {
-                        "export": 0,
-                        "import": 20000000,
-                        "domestic": 0
-                      },
-                      "max_value_per_shipment": 1500000
+                      "transport_modes": [
+                        "sea"
+                      ],
+                      "origin_countries": [
+                        "CN"
+                      ],
+                      "goods_description": "Televisions, monitors and home audio, new, in cartons in full containers",
+                      "business_activities": "Import and wholesale of consumer electronics",
+                      "destination_countries": [
+                        "SA"
+                      ],
+                      "estimated_annual_value": 20000000,
+                      "max_value_per_shipment": 1500000,
+                      "estimated_annual_shipments": 40
                     },
-                    "cover_start": "2026-11-22",
-                    "customer_id": 1,
-                    "quote_request_id": "a349393d-185c-4688-9345-c6cdcbc52aa3",
-                    "insurance_provider": "walaa"
+                    "quote": {
+                      "vat": 2250,
+                      "premium": 15000,
+                      "currency": "SAR",
+                      "total_price": 17250,
+                      "valid_until": "2026-12-24",
+                      "price_currency": "SAR",
+                      "deposit_premium": 15000,
+                      "valuation_basis": "cif_plus_10",
+                      "insurance_provider": "walaa",
+                      "max_value_per_shipment": 1500000,
+                      "insurance_provider_name": "Walaa Cooperative Insurance",
+                      "declaration_rate_percent": 0.3,
+                      "estimated_annual_premium": 60000,
+                      "estimated_annual_value_sar": 20000000,
+                      "max_value_per_shipment_sar": 1500000
+                    },
+                    "cover_start": "2026-11-24",
+                    "cover_end": "2027-11-23"
                   },
                   "declarations": {
-                    "count": 3,
-                    "insured_amount_sar": 4067800,
-                    "premium": 15155.36
-                  },
-                  "created_at": "2026-11-22T12:01:27.000000Z",
-                  "updated_at": "2026-11-22T12:02:01.000000Z"
+                    "count": 1,
+                    "insured_amount_sar": 220000,
+                    "premium": 660
+                  }
                 }
               }
             }
@@ -1996,7 +1433,7 @@
             "description": "An open-cover policy that is paid for and issued."
           }
         ],
-        "description": "Declares one shipment under an open-cover policy. A shipment inside the policy's terms (its goods, its routes and its limit per shipment) is covered at once: `status` is `issued` and `certificate_url` is its certificate. A shipment outside them is `referred` to an underwriter, and `reasons` says why; read the declaration again until it is `issued` or `rejected`.\n\n`premium` is what the shipment costs at the policy's rate. Declared premiums are reported here and totalled on the policy; they are not paid through a payment link.\n\n`shipment.departure_date` has to fall within the policy period.",
+        "description": "Declares one shipment under an open-cover policy. A shipment inside the policy's terms (its countries of origin and destination, its transport modes and its limit per shipment) is covered at once: `status` is `issued` and `certificate_url` is its certificate. A shipment outside them is `referred` to an underwriter, and `reasons` says why; read the declaration again until it is `issued` or `rejected`.\n\n`premium` is what the shipment costs at the policy's rate. Declared premiums are reported here and totalled on the policy; they are not paid through a payment link.\n\n`shipment.departure_date` has to fall within the policy period.",
         "requestBody": {
           "required": true,
           "content": {
@@ -2398,13 +1835,6 @@
             "type": "object",
             "description": "On `42201`, the messages for each field that failed, keyed by the field's path."
           },
-          "missing_fields": {
-            "type": "array",
-            "description": "On `40033`, the shipment details still needed.",
-            "items": {
-              "type": "string"
-            }
-          },
           "policy_id": {
             "type": "integer",
             "description": "On `40026`, the policy the quote was already issued as."
@@ -2533,256 +1963,6 @@
           }
         }
       },
-      "Shipment": {
-        "type": "object",
-        "properties": {
-          "goods": {
-            "type": "object",
-            "properties": {
-              "description": {
-                "type": "string",
-                "description": "What the goods are, in plain words.",
-                "maxLength": 500
-              },
-              "category": {
-                "type": "string",
-                "description": "The kind of goods. One of the `goods_categories` values from Get the options."
-              },
-              "packaging": {
-                "type": "string",
-                "description": "How the goods are packed. One of the `packaging` values from Get the options."
-              },
-              "characteristics": {
-                "type": "array",
-                "description": "Anything about the goods that changes the risk. Each one of the `characteristics` values from Get the options.",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "quantity": {
-                "type": "integer",
-                "description": "Number of packages.",
-                "minimum": 1
-              },
-              "condition": {
-                "type": "string",
-                "description": "New or used. One of the `conditions` values from Get the options."
-              }
-            },
-            "required": [
-              "description",
-              "category",
-              "packaging"
-            ]
-          },
-          "transport_mode": {
-            "type": "string",
-            "description": "How the goods travel. One of the `transport_modes` values from Get the options."
-          },
-          "origin": {
-            "type": "object",
-            "properties": {
-              "country": {
-                "type": "string",
-                "description": "Two-letter country code.",
-                "example": "CN"
-              },
-              "city": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "country"
-            ]
-          },
-          "destination": {
-            "type": "object",
-            "properties": {
-              "country": {
-                "type": "string",
-                "description": "Two-letter country code.",
-                "example": "SA"
-              },
-              "city": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "country"
-            ]
-          },
-          "invoice_value": {
-            "type": "number",
-            "description": "The value of the goods on the commercial invoice, in `currency`.",
-            "example": 250000
-          },
-          "currency": {
-            "type": "string",
-            "description": "The currency of the invoice, freight and other costs. One of the `currencies` values from Get the options."
-          },
-          "freight": {
-            "type": "number",
-            "description": "Freight cost, in `currency`."
-          },
-          "other_costs": {
-            "type": "number",
-            "description": "Other costs to deliver the goods, in `currency`."
-          },
-          "insured_amount": {
-            "type": "number",
-            "description": "The amount to insure, in `currency`. Leave it out to insure the shipment's value on the valuation basis."
-          },
-          "incoterm": {
-            "type": "string",
-            "description": "The Incoterm the goods are sold under. One of the `incoterms` values from Get the options."
-          },
-          "insurance_arranged_by": {
-            "type": "string",
-            "description": "Which side of the sale arranges the insurance. One of the `insurance_arranged_by` values from Get the options."
-          },
-          "coverage": {
-            "type": "string",
-            "description": "The cover wanted. One of the `coverages` values from Get the options."
-          },
-          "extensions": {
-            "type": "array",
-            "description": "Extra cover on top. Each one of the `extensions` values from Get the options.",
-            "items": {
-              "type": "string"
-            }
-          },
-          "valuation_basis": {
-            "type": "string",
-            "description": "How the shipment is valued. Defaults to `cif_plus_10`. One of the `valuation_bases` values from Get the options."
-          },
-          "departure_date": {
-            "type": "string",
-            "description": "The day the shipment leaves, `YYYY-MM-DD`. Needed before a policy can be issued.",
-            "format": "date"
-          },
-          "arrival_date": {
-            "type": "string",
-            "description": "The day it is expected to arrive, on or after `departure_date`.",
-            "format": "date"
-          },
-          "conveyance": {
-            "type": "object",
-            "properties": {
-              "carrier_name": {
-                "type": "string",
-                "description": "Who carries the shipment. Needed before a policy can be issued."
-              },
-              "vessel_name": {
-                "type": "string"
-              },
-              "voyage_or_flight_number": {
-                "type": "string"
-              }
-            }
-          },
-          "references": {
-            "type": "object",
-            "properties": {
-              "invoice_number": {
-                "type": "string",
-                "description": "The commercial invoice the shipment travels under. Needed before a policy can be issued."
-              },
-              "bill_of_lading": {
-                "type": "string"
-              },
-              "airway_bill": {
-                "type": "string"
-              },
-              "customs_declaration": {
-                "type": "string"
-              }
-            }
-          },
-          "beneficiary": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string"
-              },
-              "address": {
-                "type": "string"
-              }
-            },
-            "description": "Who a claim is paid to, when that is not the customer (a bank, for example)."
-          }
-        },
-        "required": [
-          "goods",
-          "transport_mode",
-          "origin",
-          "destination",
-          "invoice_value",
-          "currency",
-          "coverage"
-        ],
-        "description": "One shipment to quote. The goods, route, value and cover set the price and are fixed once quoted; the departure date, carrier, references and beneficiary can be sent now or when the policy is issued."
-      },
-      "IssuanceDetails": {
-        "type": "object",
-        "properties": {
-          "departure_date": {
-            "type": "string",
-            "description": "The day the shipment leaves, `YYYY-MM-DD`. Needed before a policy can be issued.",
-            "format": "date"
-          },
-          "arrival_date": {
-            "type": "string",
-            "description": "The day it is expected to arrive, on or after `departure_date`.",
-            "format": "date"
-          },
-          "conveyance": {
-            "type": "object",
-            "properties": {
-              "carrier_name": {
-                "type": "string",
-                "description": "Who carries the shipment. Needed before a policy can be issued."
-              },
-              "vessel_name": {
-                "type": "string"
-              },
-              "voyage_or_flight_number": {
-                "type": "string"
-              }
-            }
-          },
-          "references": {
-            "type": "object",
-            "properties": {
-              "invoice_number": {
-                "type": "string",
-                "description": "The commercial invoice the shipment travels under. Needed before a policy can be issued."
-              },
-              "bill_of_lading": {
-                "type": "string"
-              },
-              "airway_bill": {
-                "type": "string"
-              },
-              "customs_declaration": {
-                "type": "string"
-              }
-            }
-          },
-          "beneficiary": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string"
-              },
-              "address": {
-                "type": "string"
-              }
-            },
-            "description": "Who a claim is paid to, when that is not the customer (a bank, for example)."
-          }
-        },
-        "description": "The shipment details that may be added or corrected when the policy is issued. None of them changes the price."
-      },
       "DeclaredShipment": {
         "type": "object",
         "properties": {
@@ -2880,7 +2060,7 @@
           },
           "insured_amount": {
             "type": "number",
-            "description": "The amount to insure, in `currency`. Leave it out to insure the shipment's value on the valuation basis."
+            "description": "The amount to insure, in `currency`. Leave it out to insure the shipment's value on the policy's `valuation_basis`."
           },
           "incoterm": {
             "type": "string",
@@ -2892,7 +2072,7 @@
           },
           "departure_date": {
             "type": "string",
-            "description": "The day the shipment leaves, `YYYY-MM-DD`. Needed before a policy can be issued.",
+            "description": "The day the shipment leaves, `YYYY-MM-DD`.",
             "format": "date"
           },
           "arrival_date": {
@@ -2905,7 +2085,7 @@
             "properties": {
               "carrier_name": {
                 "type": "string",
-                "description": "Who carries the shipment. Needed before a policy can be issued."
+                "description": "Who carries the shipment."
               },
               "vessel_name": {
                 "type": "string"
@@ -2920,7 +2100,7 @@
             "properties": {
               "invoice_number": {
                 "type": "string",
-                "description": "The commercial invoice the shipment travels under. Needed before a policy can be issued."
+                "description": "The commercial invoice the shipment travels under."
               },
               "bill_of_lading": {
                 "type": "string"
@@ -2957,70 +2137,7 @@
           "conveyance",
           "references"
         ],
-        "description": "A shipment declared under an open-cover policy. The coverage, extensions and valuation basis are the policy's, so it does not name them. It is covered straight away, so `departure_date`, `conveyance.carrier_name` and `references.invoice_number` are required."
-      },
-      "ShipmentQuote": {
-        "type": "object",
-        "properties": {
-          "insurance_provider": {
-            "type": "string",
-            "description": "The insurance company behind the quote.",
-            "example": "walaa"
-          },
-          "insurance_provider_name": {
-            "type": "string",
-            "example": "Walaa Cooperative Insurance"
-          },
-          "coverage": {
-            "type": "string"
-          },
-          "extensions": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "valuation_basis": {
-            "type": "string"
-          },
-          "insured_amount": {
-            "type": "number",
-            "description": "The amount insured, in `currency`."
-          },
-          "currency": {
-            "type": "string"
-          },
-          "insured_amount_sar": {
-            "type": "number",
-            "description": "The amount insured, in SAR."
-          },
-          "rate_percent": {
-            "type": "number",
-            "description": "The premium rate, as a percentage of the insured amount."
-          },
-          "premium": {
-            "type": "number",
-            "description": "The premium before VAT, in SAR."
-          },
-          "vat": {
-            "type": "number",
-            "description": "15% VAT, in SAR."
-          },
-          "total_price": {
-            "type": "number",
-            "description": "What is paid, in SAR."
-          },
-          "price_currency": {
-            "type": "string",
-            "example": "SAR"
-          },
-          "valid_until": {
-            "type": "string",
-            "description": "The last day a policy can be issued from this quote.",
-            "format": "date"
-          }
-        },
-        "description": "The price of the shipment. `null` unless the request is approved."
+        "description": "A shipment declared under an open-cover policy. It is covered straight away, so `departure_date`, `conveyance.carrier_name` and `references.invoice_number` are required."
       },
       "OpenCoverQuote": {
         "type": "object",
@@ -3034,25 +2151,10 @@
             "type": "string",
             "example": "Walaa Cooperative Insurance"
           },
-          "coverage": {
-            "type": "string"
-          },
-          "extensions": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
           "valuation_basis": {
-            "type": "string"
-          },
-          "cover_start": {
             "type": "string",
-            "format": "date"
-          },
-          "cover_end": {
-            "type": "string",
-            "format": "date"
+            "description": "What a declared shipment is insured for when it names no amount. `cif_plus_10`: the invoice value plus freight and other costs, plus 10%.",
+            "example": "cif_plus_10"
           },
           "estimated_annual_value_sar": {
             "type": "number"
@@ -3096,108 +2198,23 @@
           },
           "valid_until": {
             "type": "string",
-            "format": "date"
+            "format": "date",
+            "description": "The last day the quote can be accepted."
           }
         },
-        "description": "The terms of the open cover. `premium`, `vat` and `total_price` are the deposit paid to start the policy. `null` unless the application is approved."
-      },
-      "QuoteRequest": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "The request's id.",
-            "format": "uuid"
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "single_shipment",
-              "open_cover"
-            ]
-          },
-          "status": {
-            "type": "string",
-            "description": "`approved`: `quote` holds the price and a policy can be issued. `referred`: an underwriter is reviewing it; read the request again until the status changes. `rejected`: it cannot be insured.",
-            "enum": [
-              "approved",
-              "referred",
-              "rejected"
-            ]
-          },
-          "customer_id": {
-            "type": "integer"
-          },
-          "shipment": {
-            "$ref": "#/components/schemas/Shipment"
-          },
-          "quote": {
-            "type": "object",
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ShipmentQuote"
-              }
-            ]
-          },
-          "missing_to_issue": {
-            "type": "array",
-            "description": "The shipment details still needed before a policy can be issued, as paths into `shipment`. Send them with Issue a policy.",
-            "items": {
-              "type": "string"
-            },
-            "example": [
-              "departure_date",
-              "conveyance.carrier_name",
-              "references.invoice_number"
-            ]
-          },
-          "reasons": {
-            "type": "array",
-            "description": "Why the request was referred or rejected, in plain sentences. Stays on a referral after it is approved.",
-            "items": {
-              "type": "string"
-            }
-          },
-          "policy_id": {
-            "type": "integer",
-            "description": "The policy issued from this request, once there is one.",
-            "nullable": true
-          },
-          "decided_at": {
-            "type": "string",
-            "description": "When the request was approved or rejected. `null` while it is referred.",
-            "format": "date-time",
-            "nullable": true
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
+        "description": "The terms of the open cover. `premium`, `vat` and `total_price` are the deposit paid to start the policy. The policy runs for one year from the day it is issued. `null` unless the application is approved."
       },
       "OpenCoverApplication": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "description": "The request's id.",
+            "description": "The application's id.",
             "format": "uuid"
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "single_shipment",
-              "open_cover"
-            ]
           },
           "status": {
             "type": "string",
-            "description": "`approved`: `quote` holds the price and a policy can be issued. `referred`: an underwriter is reviewing it; read the request again until the status changes. `rejected`: it cannot be insured.",
+            "description": "`approved`: `quote` holds the terms and a policy can be issued. `referred`: an underwriter is reviewing it; read the application again until the status changes. `rejected`: it cannot be insured.",
             "enum": [
               "approved",
               "referred",
@@ -3209,177 +2226,93 @@
           },
           "application": {
             "type": "object",
+            "description": "The application as you sent it.",
             "properties": {
-              "policy_period": {
-                "type": "object",
-                "properties": {
-                  "start_date": {
-                    "type": "string",
-                    "description": "The first day of cover, today or later. The policy runs for one year from this day.",
-                    "format": "date"
-                  }
-                },
-                "required": [
-                  "start_date"
-                ]
-              },
-              "goods": {
-                "type": "array",
-                "description": "The kinds of goods the business ships.",
-                "minItems": 1,
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "description": {
-                      "type": "string",
-                      "description": "What the goods are, in plain words.",
-                      "maxLength": 500
-                    },
-                    "category": {
-                      "type": "string",
-                      "description": "The kind of goods. One of the `goods_categories` values from Get the options."
-                    },
-                    "packaging": {
-                      "type": "string",
-                      "description": "How the goods are packed. One of the `packaging` values from Get the options."
-                    },
-                    "characteristics": {
-                      "type": "array",
-                      "description": "Anything about the goods that changes the risk. Each one of the `characteristics` values from Get the options.",
-                      "items": {
-                        "type": "string"
-                      }
-                    }
-                  },
-                  "required": [
-                    "description",
-                    "category",
-                    "packaging"
-                  ]
-                }
+              "business_activities": {
+                "type": "string",
+                "description": "What the business does.",
+                "maxLength": 1000
               },
               "estimated_annual_value": {
-                "type": "object",
-                "properties": {
-                  "import": {
-                    "type": "number"
-                  },
-                  "export": {
-                    "type": "number"
-                  },
-                  "domestic": {
-                    "type": "number"
-                  }
-                },
-                "description": "The value the business expects to ship in the year, in `currency`. At least one of the three must be above zero."
+                "type": "number",
+                "description": "The total value the business expects to ship in the year, in `currency`. Above zero."
               },
               "currency": {
                 "type": "string",
-                "description": "The currency of the values in the application. One of the `currencies` values from Get the options."
+                "description": "The currency of every amount in the application. One of the `currencies` values from Get the options."
               },
-              "routes": {
+              "goods_description": {
+                "type": "string",
+                "description": "A detailed description of the goods to be insured.",
+                "maxLength": 2000
+              },
+              "origin_countries": {
                 "type": "array",
-                "description": "The routes the business ships on.",
+                "description": "The countries the goods are shipped from.",
                 "minItems": 1,
                 "items": {
-                  "type": "object",
-                  "properties": {
-                    "origin_country": {
-                      "type": "string",
-                      "example": "CN"
-                    },
-                    "destination_country": {
-                      "type": "string",
-                      "example": "SA"
-                    },
-                    "transport_mode": {
-                      "type": "string",
-                      "description": "How the goods travel on this route. One of the `transport_modes` values from Get the options."
-                    }
-                  },
-                  "required": [
-                    "origin_country",
-                    "destination_country",
-                    "transport_mode"
+                  "type": "string",
+                  "description": "Two-letter country code, one of the `countries` values from Get the options.",
+                  "example": "CN"
+                }
+              },
+              "destination_countries": {
+                "type": "array",
+                "description": "The countries the goods are shipped to.",
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "description": "Two-letter country code, one of the `countries` values from Get the options.",
+                  "example": "SA"
+                }
+              },
+              "transport_modes": {
+                "type": "array",
+                "description": "How the goods travel. Each one of the `transport_modes` values from Get the options.",
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "sea",
+                    "air",
+                    "land"
                   ]
                 }
               },
-              "storage_locations": {
-                "type": "array",
-                "description": "Where goods are stored along the way.",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "country": {
-                      "type": "string"
-                    },
-                    "city": {
-                      "type": "string"
-                    },
-                    "description": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "country"
-                  ]
-                }
+              "estimated_annual_shipments": {
+                "type": "integer",
+                "description": "How many shipments the business expects to make in the year.",
+                "minimum": 1
               },
               "max_value_per_shipment": {
                 "type": "number",
-                "description": "The most any one shipment will be worth, in `currency`. A declared shipment above it is referred."
+                "description": "The most any one shipment will be worth, in `currency`. It becomes the policy's limit per shipment."
               },
-              "coverage": {
-                "type": "string",
-                "description": "The cover wanted. One of the `coverages` values from Get the options."
-              },
-              "extensions": {
+              "claims_history": {
                 "type": "array",
-                "description": "Extra cover on top. Each one of the `extensions` values from Get the options.",
+                "description": "The cargo claims of the last five years. Send an empty list when there were none.",
                 "items": {
-                  "type": "string"
-                }
-              },
-              "valuation_basis": {
-                "type": "string",
-                "description": "How the shipment is valued. Defaults to `cif_plus_10`. One of the `valuation_bases` values from Get the options."
-              },
-              "insurance_history": {
-                "type": "object",
-                "properties": {
-                  "first_policy": {
-                    "type": "boolean",
-                    "description": "`true` when the business has never held cargo insurance."
-                  },
-                  "previous_insurer": {
-                    "type": "string",
-                    "description": "Required when `first_policy` is `false`."
-                  },
-                  "claims": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "year": {
-                          "type": "integer"
-                        },
-                        "amount": {
-                          "type": "number"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "year",
-                        "amount"
-                      ]
+                  "type": "object",
+                  "properties": {
+                    "year": {
+                      "type": "integer",
+                      "description": "The year of the claim, within the last five years."
+                    },
+                    "amount": {
+                      "type": "number",
+                      "description": "The amount claimed, in `currency`."
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "What happened.",
+                      "maxLength": 500
                     }
-                  }
-                },
-                "required": [
-                  "first_policy"
-                ]
+                  },
+                  "required": [
+                    "year",
+                    "amount"
+                  ]
+                }
               }
             }
           },
@@ -3394,19 +2327,19 @@
           },
           "reasons": {
             "type": "array",
-            "description": "Why the request was referred or rejected, in plain sentences. Stays on a referral after it is approved.",
+            "description": "Why the application was referred or rejected, in plain sentences. Stays on a referral after it is approved.",
             "items": {
               "type": "string"
             }
           },
           "policy_id": {
             "type": "integer",
-            "description": "The policy issued from this request, once there is one.",
+            "description": "The policy issued from this application, once there is one.",
             "nullable": true
           },
           "decided_at": {
             "type": "string",
-            "description": "When the request was approved or rejected. `null` while it is referred.",
+            "description": "When the application was approved or rejected. `null` while it is referred.",
             "format": "date-time",
             "nullable": true
           },
@@ -3425,13 +2358,6 @@
         "properties": {
           "id": {
             "type": "integer"
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "single_shipment",
-              "open_cover"
-            ]
           },
           "status": {
             "type": "integer",
@@ -3456,7 +2382,8 @@
           },
           "start_date": {
             "type": "string",
-            "format": "date"
+            "format": "date",
+            "description": "The first day of cover: the day the policy was issued."
           },
           "provider_policy_id": {
             "type": "string",
@@ -3465,7 +2392,7 @@
           },
           "policy_url": {
             "type": "string",
-            "description": "The policy certificate (PDF). `null` until the policy is issued.",
+            "description": "The policy schedule (PDF). `null` until the policy is issued.",
             "nullable": true
           },
           "invoice_url": {
@@ -3485,9 +2412,6 @@
           "meta_data": {
             "type": "object",
             "properties": {
-              "type": {
-                "type": "string"
-              },
               "insurance_provider": {
                 "type": "string"
               },
@@ -3502,13 +2426,9 @@
                 "type": "object",
                 "description": "The customer as it was when the policy was issued."
               },
-              "shipment": {
-                "type": "object",
-                "description": "The shipment covered. On a `single_shipment` policy."
-              },
               "application": {
                 "type": "object",
-                "description": "The application the open cover was written on. On an `open_cover` policy."
+                "description": "The application the policy was issued from."
               },
               "quote": {
                 "type": "object",
@@ -3516,12 +2436,15 @@
               },
               "cover_start": {
                 "type": "string",
-                "format": "date"
+                "format": "date",
+                "nullable": true,
+                "description": "The first day of cover. `null` until the policy is issued."
               },
               "cover_end": {
                 "type": "string",
                 "format": "date",
-                "nullable": true
+                "nullable": true,
+                "description": "The last day of cover, one year after it starts. `null` until the policy is issued."
               }
             }
           },
@@ -3538,7 +2461,7 @@
                 "type": "number"
               }
             },
-            "description": "On an `open_cover` policy: the shipments covered under it so far, with their total insured amount and premium in SAR."
+            "description": "The shipments covered under the policy so far, with their total insured amount and premium in SAR."
           },
           "created_at": {
             "type": "string",
