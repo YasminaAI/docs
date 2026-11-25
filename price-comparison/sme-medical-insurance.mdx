@@ -286,7 +286,7 @@ PUT /medical/companies/42/declarations
 
 <Info>**Optional for now.** Prices are given without a code too. When you send one, it is checked.</Info>
 
-Before asking for prices, you can send the company a verification code, as in Motor. Call [Send a verification code](/medical-api-reference/quotes/send-a-verification-code) with `email`, `phone` (`05XXXXXXXX`) and the company's own `sponsor_number`. The company receives a 4-digit code by SMS, and the response is `204` with `X-OTP-Expires-In` and `X-OTP-Expires-At`. Ask for the code, then send it as `otp` with the quote request:
+Before asking for prices, you can send the company a verification code. Call [Send a verification code](/medical-api-reference/quotes/send-a-verification-code) with `email`, `phone` (`05XXXXXXXX`) and the company's own `sponsor_number`. The company receives a 4-digit code by SMS, and the response is `204` with `X-OTP-Expires-In` and `X-OTP-Expires-At`. Ask for the code, then send it as `otp` with the quote request:
 
 ```
 POST /medical/quote-otp
