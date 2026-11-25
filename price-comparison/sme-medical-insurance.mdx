@@ -85,6 +85,14 @@ It will return a response with a unique identifier (ID). Here is an example of t
 ```
 You can also visit the [List companies API](/medical-api-reference/company/list-companies) to show all companies you've created
 
+### When cover starts
+
+Send `start_date` (`YYYY-MM-DD`, today or later) on Create Company to say when the company wants its cover to start. The policy starts on that day when it is issued, or on the day it is issued once that day has passed. Left out, the policy starts the day it is issued.
+
+### Update a company
+
+The [Update company API](/medical-api-reference/company/update-company) (`PUT /medical/companies/{id}`) changes a company you registered. Send only the fields to change, for example `{"start_date": "2026-12-01"}`; each follows the same rule as on Create Company, and `"start_date": null` clears the start date. The employees and declarations are not touched. A policy that is waiting for payment takes the new start date when you issue it again; a paid policy keeps its dates.
+
 ## Packages
 
 ### Compare the packages
@@ -273,6 +281,24 @@ PUT /medical/companies/42/declarations
 - **Someone added to the list later is not covered by the earlier consent.** Prices are refused with `40023`, naming them, until you submit the declarations again.
 
 ## Prices
+
+### Verify the phone
+
+<Info>**Optional for now.** Prices are given without a code too. When you send one, it is checked.</Info>
+
+Before asking for prices, you can send the company a verification code, as in Motor. Call [Send a verification code](/medical-api-reference/quotes/send-a-verification-code) with `email`, `phone` (`05XXXXXXXX`) and the company's own `sponsor_number`. The company receives a 4-digit code by SMS, and the response is `204` with `X-OTP-Expires-In` and `X-OTP-Expires-At`. Ask for the code, then send it as `otp` with the quote request:
+
+```
+POST /medical/quote-otp
+{ "email": "hr@example.com", "phone": "0512345678", "sponsor_number": "1000000001" }
+
+POST /medical/quote-requests
+{ "company_id": 42, "otp": "1234" }
+```
+
+- **The code is checked against the company's sponsor number.** `40001` means no code was sent for it; `40012` means the code is wrong or expired.
+- **A code stays valid for 8 hours** and can price the company again within that time. Three wrong codes lock it until you send a new one.
+- **One code per phone every three minutes.** Sooner answers `429` / `42902` with `retry_after_seconds`.
 
 ### Get prices from every provider
 Call the [Quote request API](/medical-api-reference/quotes/get-prices-from-every-provider) with the `company_id` and you get one response with a quote from every insurance provider, each priced for the employees saved above at the tiers they picked. Every quote carries a `quote_price_id` and `insurance_company_agreement`, a link to that insurance company's own terms and conditions to show beside its offer; the response itself carries an `id`, the `quote_request_id`. Keep both for the next step.

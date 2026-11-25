@@ -3,6 +3,14 @@ title: 'Changelog'
 icon: 'clock-rotate-left'
 ---
 
+<Update label="25th November 2026" tags={["SME Medical", "APIs", "Docs"]}>
+	**A company can say when its cover starts, and can be updated.** [Create company](/medical-api-reference/company/create-company) takes an optional `start_date` (`YYYY-MM-DD`, today or later), and the company carries it. Issuing the policy starts it on that day, or on the day it is issued once that day has passed; without a `start_date` the policy starts the day it is issued, as before. The new [Update company](/medical-api-reference/company/update-company) (`PUT /api/v1/medical/companies/{id}`) changes only the fields you send, under the same rules; `"start_date": null` clears it. A policy waiting for payment takes a changed start date when you issue it again. The [SME Medical Insurance guide](/price-comparison/sme-medical-insurance#when-cover-starts) has the details.
+</Update>
+
+<Update label="25th November 2026" tags={["SME Medical", "APIs", "Docs"]}>
+	**A verification code before prices, optional for now.** The new [Send a verification code](/medical-api-reference/quotes/send-a-verification-code) (`POST /api/v1/medical/quote-otp`) sends the company a 4-digit code by SMS for `email`, `phone` (`05XXXXXXXX`) and the company's `sponsor_number`, as Motor's quote OTP does. Send it as `otp` with [Get prices from every provider](/medical-api-reference/quotes/get-prices-from-every-provider). **Prices without a code keep working;** a code that is sent is checked: `40001` when none was sent for the company's sponsor number, `40012` when it is wrong or expired. A code is valid for 8 hours, and one can be sent per phone every three minutes (`42902`). The [Errors](/api-resources/errors) page lists the codes, and the [guide](/price-comparison/sme-medical-insurance#verify-the-phone) shows the two calls.
+</Update>
+
 <Update label="24th November 2026" tags={["SME Medical", "APIs", "Docs"]}>
 	**The Terms and consent API serves the aggregator's logo and the Insurance Authority logo.** [Get the terms and consent](/medical-api-reference/medical-forms/get-the-terms-and-consent) now returns `service_provider_logo`, `insurance_authority_logo_dark` and `insurance_authority_logo_white`, links to show in your UI together with `license`. See the new [Branding guidelines](/price-comparison/sme-medical-insurance#branding-guidelines) step of the guide.
 </Update>
