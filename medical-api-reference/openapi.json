@@ -61,6 +61,13 @@
                   "phone_number": {
                     "type": "string",
                     "description": "Phone number"
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "format": "date",
+                    "nullable": true,
+                    "description": "Optional. The day the company wants its cover to start, YYYY-MM-DD, today or later. Issue Policy starts the policy on this day, or on the day it is issued once this day has passed. Left out, the policy starts the day it is issued.",
+                    "example": "2026-12-01"
                   }
                 },
                 "required": [
@@ -168,6 +175,119 @@
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/companies/{companyId}": {
+      "put": {
+        "summary": "Update company",
+        "description": "Changes a company you registered. Send only the fields to change; each follows the same rule as on Create company, and the employees and declarations are not touched. A policy that is already paid keeps its dates. On production, a unified national number that belongs to another of your companies answers 400 with code 40025 and that company_id.",
+        "tags": [
+          "Company"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Name of the company"
+                  },
+                  "name_ar": {
+                    "type": "string",
+                    "description": "Arabic name of the company"
+                  },
+                  "sponsor_number": {
+                    "type": "string",
+                    "description": "Sponsor number (exactly 10 digits)",
+                    "pattern": "^[0-9]{10}$",
+                    "example": "1000000001"
+                  },
+                  "unified_national_number": {
+                    "type": "string",
+                    "description": "Unified national number of the company",
+                    "example": "7000000001"
+                  },
+                  "email_address": {
+                    "type": "string",
+                    "description": "Email address"
+                  },
+                  "phone_number": {
+                    "type": "string",
+                    "description": "Phone number"
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "format": "date",
+                    "nullable": true,
+                    "description": "The day the company wants its cover to start, YYYY-MM-DD, today or later. Send null to clear it, so the policy starts the day it is issued. An unpaid policy takes the new day when it is issued again.",
+                    "example": "2026-12-01"
+                  }
+                }
+              },
+              "example": {
+                "start_date": "2026-12-01"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The company as it is now",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Company"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Production only: that unified national number belongs to another of your companies",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "40025"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "That unified national number is already registered as company 123."
+                    },
+                    "company_id": {
+                      "type": "integer",
+                      "example": 123
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
           }
         }
       }
@@ -483,6 +603,120 @@
         }
       }
     },
+    "/quote-otp": {
+      "post": {
+        "summary": "Send a verification code",
+        "description": "Sends the company a 4-digit verification code by SMS, to send with Get prices from every provider as `otp`. The code is optional on pricing for now. Send the company's own `sponsor_number`: pricing checks the code against the latest one sent for that sponsor number. A code stays valid for the time in `X-OTP-Expires-In` (8 hours) and can price the company again within it; three wrong codes lock it until a new one is sent. One code per phone every three minutes.",
+        "tags": [
+          "Quotes"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "phone",
+                  "sponsor_number"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "hr@example.com"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "pattern": "^05[0-9]{8}$",
+                    "description": "Saudi mobile number in the form 05XXXXXXXX",
+                    "example": "0512345678"
+                  },
+                  "sponsor_number": {
+                    "type": "string",
+                    "pattern": "^[0-9]{10}$",
+                    "description": "The company's sponsor number, as on Create company",
+                    "example": "1000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "The code was sent",
+            "headers": {
+              "X-OTP-Expires-In": {
+                "description": "Seconds until the code expires",
+                "schema": {
+                  "type": "integer",
+                  "example": 28800
+                }
+              },
+              "X-OTP-Expires-At": {
+                "description": "When the code expires, ISO 8601",
+                "schema": {
+                  "type": "string",
+                  "example": "2026-11-25T21:39:47+00:00"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          },
+          "429": {
+            "description": "A code was sent to this phone less than three minutes ago",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "42902"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Verification code was requested recently, try again in 2:41."
+                    },
+                    "retry_after_seconds": {
+                      "type": "integer",
+                      "example": 161
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The SMS could not be sent. Try again; the three-minute limit does not apply to a code that was not sent.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "50302"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The verification code could not be sent. Please try again in a moment."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/quote-requests": {
       "post": {
         "summary": "Get prices from every provider",
@@ -502,6 +736,11 @@
                 "properties": {
                   "company_id": {
                     "type": "integer"
+                  },
+                  "otp": {
+                    "type": "string",
+                    "description": "Optional for now. The code sent by Send a verification code to this company's sponsor number. When sent, it is checked.",
+                    "example": "1234"
                   }
                 }
               }
@@ -520,7 +759,7 @@
             }
           },
           "400": {
-            "description": "The company cannot be priced yet: `40020` when it has no employees, `40023` while anyone still has to declare (employee_ids lists them), `40024` when it has more than 250 employees.",
+            "description": "The company cannot be priced yet: `40020` when it has no employees, `40023` while anyone still has to declare (employee_ids lists them), `40024` when it has more than 250 employees. With `otp`: `40001` when no code was sent for the company's sponsor number, `40012` when the code is wrong, expired, or locked after three wrong tries.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2033,6 +2272,11 @@
           },
           "id": {
             "type": "integer"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
           }
         },
         "example": {
@@ -2042,6 +2286,7 @@
           "unified_national_number": "7000000001",
           "email_address": "example@example.com",
           "phone_number": "+966512345678",
+          "start_date": "2026-12-01",
           "client_id": "a1b2c3d4-5678-90ab-cdef-1234567890ab",
           "updated_at": "2025-08-01T14:22:30.000000Z",
           "created_at": "2025-08-01T14:22:30.000000Z",
