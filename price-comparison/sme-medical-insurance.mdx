@@ -429,10 +429,6 @@ New employees, and new dependents of employees already covered, join the company
 
 Calling the API again before paying replaces the unpaid addition. If nobody on the list is new it answers `40028`; if someone joining has not declared it answers `40023` with their national ids or iqamas in `employee_ids`; on a policy that is unpaid, cancelled or expired it answers `40027`.
 
-<Info>
-Removing employees from a policy is not supported yet: someone left off the list stays on the policy. On sandbox, addition prices come from the same placeholder figures as quotes.
-</Info>
-
 ### Redirect URL
 
 You can supply the payload a `redirect_url`. This is used to redirect the customer to any page or deep link you need. You can also include a query string with policyID and it will automatically replace it with the actual `id` of the policy object.
