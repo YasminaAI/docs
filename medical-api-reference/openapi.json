@@ -182,7 +182,7 @@
     "/companies/{companyId}": {
       "put": {
         "summary": "Update company",
-        "description": "Changes a company you registered. Send only the fields to change; each follows the same rule as on Create company, and the employees and declarations are not touched. A policy that is already paid keeps its dates. On production, a unified national number that belongs to another of your companies answers 400 with code 40025 and that company_id.",
+        "description": "Changes a company you registered. Send only the fields to change; each follows the same rule as on Create company, and the employees and declarations are not touched. Once the company's policy is paid, the company can no longer be changed: the call answers 400 with code 40026 and that policy_id until the policy ends or is cancelled. A policy that is waiting for payment does not stop a change. On production, a unified national number that belongs to another of your companies answers 400 with code 40025 and that company_id.",
         "tags": [
           "Company"
         ],
@@ -234,7 +234,7 @@
                     "type": "string",
                     "format": "date",
                     "nullable": true,
-                    "description": "The day the company wants its cover to start, YYYY-MM-DD, today or later. Send null to clear it, so the policy starts the day it is issued. An unpaid policy takes the new day when it is issued again.",
+                    "description": "The day the company wants its cover to start, YYYY-MM-DD, today or later. Send null to clear it, so the policy starts the day it is issued. A policy waiting for payment takes the new day when it is issued again.",
                     "example": "2026-12-01"
                   }
                 }
@@ -257,7 +257,7 @@
             }
           },
           "400": {
-            "description": "Production only: that unified national number belongs to another of your companies",
+            "description": "`40026` when the company has a paid policy that is still in force; `policy_id` is that policy. `40025`, on production only, when that unified national number belongs to another of your companies; `company_id` is that company.",
             "content": {
               "application/json": {
                 "schema": {
@@ -265,15 +265,39 @@
                   "properties": {
                     "code": {
                       "type": "string",
-                      "example": "40025"
+                      "example": "40026"
                     },
                     "message": {
                       "type": "string",
-                      "example": "That unified national number is already registered as company 123."
+                      "example": "This company has an active policy (123), so its details cannot be changed."
+                    },
+                    "policy_id": {
+                      "type": "integer",
+                      "description": "On `40026`, the company's active policy.",
+                      "example": 123
                     },
                     "company_id": {
                       "type": "integer",
+                      "description": "On `40025`, the company that already holds the unified national number.",
                       "example": 123
+                    }
+                  }
+                },
+                "examples": {
+                  "40026": {
+                    "summary": "The company has an active policy",
+                    "value": {
+                      "code": "40026",
+                      "message": "This company has an active policy (123), so its details cannot be changed.",
+                      "policy_id": 123
+                    }
+                  },
+                  "40025": {
+                    "summary": "Production only: the unified national number is taken",
+                    "value": {
+                      "code": "40025",
+                      "message": "That unified national number is already registered as company 123.",
+                      "company_id": 123
                     }
                   }
                 }

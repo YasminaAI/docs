@@ -91,7 +91,9 @@ Send `start_date` (`YYYY-MM-DD`, today or later) on Create Company to say when t
 
 ### Update a company
 
-The [Update company API](/medical-api-reference/company/update-company) (`PUT /medical/companies/{id}`) changes a company you registered. Send only the fields to change, for example `{"start_date": "2026-12-01"}`; each follows the same rule as on Create Company, and `"start_date": null` clears the start date. The employees and declarations are not touched. A policy that is waiting for payment takes the new start date when you issue it again; a paid policy keeps its dates.
+The [Update company API](/medical-api-reference/company/update-company) (`PUT /medical/companies/{id}`) changes a company you registered. Send only the fields to change, for example `{"start_date": "2026-12-01"}`; each follows the same rule as on Create Company, and `"start_date": null` clears the start date. The employees and declarations are not touched. A policy that is waiting for payment takes the new start date when you issue it again.
+
+Once the company's policy is paid, the company can no longer be changed. The call answers `40026` with the `policy_id` of that policy, for every field, until the policy ends or is [cancelled](/medical-api-reference/policies/cancel-a-policy). Make sure the company's details are right before the policy is paid for.
 
 ## Packages
 
