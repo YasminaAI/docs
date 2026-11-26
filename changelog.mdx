@@ -4,6 +4,10 @@ icon: 'clock-rotate-left'
 ---
 
 <Update label="26th November 2026" tags={["SME Medical", "APIs", "Docs"]}>
+	**A company cannot be changed once its policy is paid.** [Update company](/medical-api-reference/company/update-company) (`PUT /api/v1/medical/companies/{id}`) now answers `400` / `40026` with the `policy_id` of the company's policy when that policy is paid and in force, whichever field you send. Until now the call succeeded and left the policy as it was issued. The company can be changed again once the policy ends or is cancelled, and a policy waiting for payment does not stop a change. The [Errors](/api-resources/errors) page and the [guide](/price-comparison/sme-medical-insurance#update-a-company) describe it.
+</Update>
+
+<Update label="26th November 2026" tags={["SME Medical", "APIs", "Docs"]}>
 	**A policy in force can grow past 250 employees.** The 250-employee limit (`40024`) now applies only when a company buys a policy. Once its policy is paid and in force, [Save the employees](/medical-api-reference/employees/save-the-employees) accepts a longer list and [Add employees to a policy](/medical-api-reference/policies/add-employees) no longer answers `40024`. [Get prices from every provider](/medical-api-reference/quotes/get-prices-from-every-provider) still refuses a company with more than 250 employees.
 </Update>
 
