@@ -3,6 +3,10 @@ title: 'Changelog'
 icon: 'clock-rotate-left'
 ---
 
+<Update label="26th November 2026" tags={["SME Medical", "APIs", "Docs"]}>
+	**A policy in force can grow past 250 employees.** The 250-employee limit (`40024`) now applies only when a company buys a policy. Once its policy is paid and in force, [Save the employees](/medical-api-reference/employees/save-the-employees) accepts a longer list and [Add employees to a policy](/medical-api-reference/policies/add-employees) no longer answers `40024`. [Get prices from every provider](/medical-api-reference/quotes/get-prices-from-every-provider) still refuses a company with more than 250 employees.
+</Update>
+
 <Update label="25th November 2026" tags={["SME Medical", "APIs", "Docs"]}>
 	**A company can say when its cover starts, and can be updated.** [Create company](/medical-api-reference/company/create-company) takes an optional `start_date` (`YYYY-MM-DD`, today or later), and the company carries it. Issuing the policy starts it on that day, or on the day it is issued once that day has passed; without a `start_date` the policy starts the day it is issued, as before. The new [Update company](/medical-api-reference/company/update-company) (`PUT /api/v1/medical/companies/{id}`) changes only the fields you send, under the same rules; `"start_date": null` clears it. A policy waiting for payment takes a changed start date when you issue it again. The [SME Medical Insurance guide](/price-comparison/sme-medical-insurance#when-cover-starts) has the details.
 </Update>

@@ -146,7 +146,7 @@ Coverage values can either be a number (the amount), or a boolean (whether it's 
 The [Fetch employees API](/medical-api-reference/employees/fetch-the-employees) fills the company's employee list with the employees registered under the company, each on class `C`. It replaces the list, so fetch first and edit afterwards.
 
 ### Edit the employees
-The [Employees API](/medical-api-reference/employees/save-the-employees) holds the company's employee list: who is covered, their dependents, and the tier each has picked. It prices nothing. Send the whole list; each call replaces the one before, and you can read it back at any time. A company can have up to 250 employees; their dependents do not count. A longer list is refused with `40024`.
+The [Employees API](/medical-api-reference/employees/save-the-employees) holds the company's employee list: who is covered, their dependents, and the tier each has picked. It prices nothing. Send the whole list; each call replaces the one before, and you can read it back at any time. A company can buy a policy for up to 250 employees; their dependents do not count. A longer list is refused with `40024`. Once the company's policy is paid and in force the limit no longer applies: the list can grow past 250, and the new people join through an [addition](#add-employees-after-purchase).
 
 ```
 {
